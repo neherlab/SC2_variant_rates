@@ -51,9 +51,10 @@ if __name__=="__main__":
     for i, (mut_type, rate) in enumerate(inter_clade_rates.items()):
         axs[-1,-1].plot([i-0.4, i+0.4], [rate, rate], lw=3, c='k', alpha=0.5)
         clade_rates = rates[f"{mut_type}_rate"]
-        axs[-1,-1].scatter(i - 0.35 + np.random.random(size=len(clade_rates))*0.7, clade_rates)
+        axs[-1,-1].scatter(i - 0.35 + np.random.random(size=len(clade_rates))*0.7, clade_rates, c=rates[f"{mut_type}_origin"])
     axs[-1,-1].set_ylabel("substitutions per year")
     axs[-1,-1].set_xticks([0,1,2], ['nuc', 'aa', 'syn'])
+    axs[-1,-1].set_ylim(0)
 
 
     if args.output_plot:

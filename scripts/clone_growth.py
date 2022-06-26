@@ -40,7 +40,7 @@ if __name__=="__main__":
     ls_counter = defaultdict(int)
     for x,i in intra_geno.items():
         nmuts = len(x.split(',')) if x else 0
-        if (nmuts==0 or i>len(filtered_data)/100) and ls_counter[nmuts]<5:
+        if (nmuts==0 or i>len(filtered_data)/1000) and ls_counter[nmuts]<5:
             ind = filtered_data["intra_substitutions_str"]==x
             if nmuts>5:
                 continue
