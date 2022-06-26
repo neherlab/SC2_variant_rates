@@ -1,6 +1,8 @@
 import argparse
+from turtle import fillcolor
 import numpy as np
 import pandas as pd
+from scipy.stats import linregress
 import matplotlib as mpl
 mpl.rcParams['axes.formatter.useoffset'] = False
 
@@ -19,18 +21,39 @@ if __name__=="__main__":
     args = parser.parse_args()
 
     rates = pd.read_csv(args.rate_table, sep='\t', index_col='clade')
-
-    fig, axs = plt.subplots(1,3, figsize=(15,6))
-    for ax, mut_type, ax_label in zip(axs,['nuc', 'aa', 'syn'],['total divergence', 'aa divergence', 'syn divergence']):
+    inter_clade_rates = {}
+    fig, axs = plt.subplots(2,2, figsize=(12,12))
+    for ax, mut_type, ax_label in zip(axs.flatten(),['nuc', 'aa', 'syn'],['total divergence', 'aa divergence', 'syn divergence']):
         ax.set_ylabel(ax_label)
+        inter_clade = []
+        ci=0
         for clade, row in rates.iterrows():
             dt = np.linspace(0, 0.75,2)
             t = dt + row[f'{mut_type}_origin']
             slope = row[f'{mut_type}_rate']
-            ax.plot(t, dt*slope + row[f'{mut_type}_div'], label=clade)
-        ax.set_xlim([2019.8, 2022.5])
+            ax.plot(t, dt*slope + row[f'{mut_type}_div'], label=clade, c=f"C{ci%10}")
+            ax.scatter([[row[f'{mut_type}_origin']]], [[row[f'{mut_type}_div']]], c=f"C{ci%10}")
+            if row[f'{mut_type}_origin']>2019.7 and row[f'{mut_type}_origin']<2022.7:
+                inter_clade.append([row[f'{mut_type}_origin'], row[f'{mut_type}_div']])
+            ci += 1
+        inter_clade = np.array(inter_clade)
+        reg = linregress(inter_clade[:,0], inter_clade[:,1])
+        inter_clade_rates[mut_type] = reg.slope
+
+        x = np.linspace(2019.8, 2022.5, 21)
+        y = reg.slope*x + reg.intercept
+        std_dev = np.sqrt(np.maximum(0,reg.slope*x + reg.intercept))
+        ax.plot(x, y, c='k', lw=3, alpha=0.5)
+        ax.fill_between(x, y+std_dev, np.maximum(0, y-std_dev), fc='k', lw=3, alpha=0.1, ec=None)
+        ax.set_xlim(x.min(), x.max())
         ax.set_ylim(0)
         if mut_type == 'syn': ax.legend(ncol=2)
+    for i, (mut_type, rate) in enumerate(inter_clade_rates.items()):
+        axs[-1,-1].plot([i-0.4, i+0.4], [rate, rate], lw=3, c='k', alpha=0.5)
+        clade_rates = rates[f"{mut_type}_rate"]
+        axs[-1,-1].scatter(i - 0.35 + np.random.random(size=len(clade_rates))*0.7, clade_rates)
+    axs[-1,-1].set_ylabel("substitutions per year")
+    axs[-1,-1].set_xticks([0,1,2], ['nuc', 'aa', 'syn'])
 
 
     if args.output_plot:
