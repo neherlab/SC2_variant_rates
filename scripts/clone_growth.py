@@ -51,4 +51,7 @@ if __name__=="__main__":
     plt.yscale('log')
     plt.legend()
 
-    plt.savefig(args.output_plot)
+    if args.output_plot:
+        plt.savefig(args.output_plot)
+    else:
+        plt.show()

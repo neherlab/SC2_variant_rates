@@ -132,3 +132,15 @@ rule rate_table:
 
         df = pd.DataFrame(data)
         df.to_csv(output.rate_table, sep='\t')
+
+
+rule rate_summary:
+    input:
+        rate_table = "rates.tsv"
+    output:
+        figure = "figures/rate_summary.png"
+    shell:
+        """
+        python3 scripts/combine_fits.py --rate-table {input.rate_table}\
+                                       --output-plot {output.figure}
+        """
