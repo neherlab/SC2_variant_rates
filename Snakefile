@@ -80,9 +80,31 @@ rule root_to_tip:
                                        --output-json {output.json}
         """
 
+rule clone_growth:
+    input:
+        gt = "data/clade_gts.json",
+        metadata = "subsets/{v}.tsv"
+    output:
+        figure = "figures/{v}_clones.png"
+    params:
+        clade = lambda w: w.v,
+        mindate = lambda w: date_ranges[w.v][0]
+    shell:
+        """
+        python3 scripts/clone_growth.py --metadata {input.metadata} --clade {params.clade} \
+                                       --clade-gts data/clade_gts.json \
+                                       --min-date {params.mindate} \
+                                       --output-plot {output.figure}
+        """
+
+
 rule all_rtt:
     input:
         expand("figures/{v}_rtt.png", v=variants)
+
+rule all_clones:
+    input:
+        expand("figures/{v}_clones.png", v=variants)
 
 rule rate_table:
     input:
@@ -104,7 +126,8 @@ rule rate_table:
             aa_div = len([x for x in clade_gts[d['clade']]['aa'] if 'ORF9' not in x])
             nuc_div = len(clade_gts[d['clade']]['nuc'])
             data.append({'clade':d['clade'], 'nuc_rate': d['nuc']['slope'], 'nuc_origin':d['nuc']['origin'],
-                         'aa_rate': d['aa']['slope'], 'aa_origin':d['aa']['origin'], 'syn_rate': d['nuc']['slope']-d['aa']['slope'],
+                         'aa_rate': d['aa']['slope'], 'aa_origin':d['aa']['origin'],
+                         'syn_rate': d['syn']['slope'], 'syn_origin':d['syn']['origin'],
                          'nuc_div': nuc_div, 'aa_div':aa_div, 'syn_div':nuc_div-aa_div})
 
         df = pd.DataFrame(data)
