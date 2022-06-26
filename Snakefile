@@ -1,7 +1,7 @@
 variants = ['19A', '19B', '20A', '20B', '20C', '20E', '20H', '20I', '20J', '21I', '21J', '21K', '21L']
 date_ranges = {
-'19A': (2019.8, 2020.5),
-'19B': (2019.8, 2020.5),
+'19A': (2019.9, 2020.3),
+'19B': (2019.9, 2020.3),
 '20A': (2020.1, 2020.7),
 '20B': (2020.1, 2020.7),
 '20C': (2020.1, 2020.7),
@@ -64,7 +64,8 @@ rule root_to_tip:
         gt = "data/clade_gts.json",
         metadata = "subsets/{v}.tsv"
     output:
-        figure = "figures/{v}_rtt.png"
+        figure = "figures/{v}_rtt.png",
+        json = "rates/{v}_rate.json"
     params:
         clade = lambda w: w.v,
         mindate = lambda w: date_ranges[w.v][0],
@@ -75,9 +76,36 @@ rule root_to_tip:
                                        --clade-gts data/clade_gts.json \
                                        --min-date {params.mindate} \
                                        --max-date {params.maxdate} \
-                                       --output-plot {output.figure}
+                                       --output-plot {output.figure} \
+                                       --output-json {output.json}
         """
 
 rule all_rtt:
     input:
         expand("figures/{v}_rtt.png", v=variants)
+
+rule rate_table:
+    input:
+        rate_files = expand("rates/{v}_rate.json", v=variants),
+        gt = "data/clade_gts.json"
+    output:
+        rate_table = "rates.tsv"
+    run:
+        import json
+        import pandas as pd
+
+        with open(input.gt) as fin:
+            clade_gts = json.load(fin)
+
+        data = []
+        for fname in input.rate_files:
+            with open(fname) as fin:
+                d = json.load(fin)
+            aa_div = len([x for x in clade_gts[d['clade']]['aa'] if 'ORF9' not in x])
+            nuc_div = len(clade_gts[d['clade']]['nuc'])
+            data.append({'clade':d['clade'], 'nuc_rate': d['nuc']['slope'], 'nuc_origin':d['nuc']['origin'],
+                         'aa_rate': d['aa']['slope'], 'aa_origin':d['aa']['origin'], 'syn_rate': d['nuc']['slope']-d['aa']['slope'],
+                         'nuc_div': nuc_div, 'aa_div':aa_div, 'syn_div':nuc_div-aa_div})
+
+        df = pd.DataFrame(data)
+        df.to_csv(output.rate_table, sep='\t')
