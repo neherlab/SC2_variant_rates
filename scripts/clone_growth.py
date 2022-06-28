@@ -16,7 +16,7 @@ if __name__=="__main__":
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
-    parser.add_argument('--metadata', type=str, required=True, help="input data")
+    parser.add_argument('--metadata', type=str, nargs='+', required=True, help="input data")
     parser.add_argument('--clade-gts', type=str, required=True, help="input data")
     parser.add_argument('--clade', type=str, required=True, help="input data")
     parser.add_argument('--min-date', type=float, help="input data")
@@ -27,8 +27,9 @@ if __name__=="__main__":
     with open(args.clade_gts) as fh:
         clade_gt = json.load(fh)[args.clade]
 
-    d = pd.read_csv(args.metadata, sep='\t').fillna('')
+    d = pd.concat([pd.read_csv(x, sep='\t').fillna('') for x in args.metadata])
     filtered_data = filter_and_transform(d, clade_gt, min_date=args.min_date, max_date=args.min_date + 0.3, completeness=0)
+    #filtered_data=filtered_data.loc[filtered_data.country!='China']
 
     intra_subs_dis = filtered_data["divergence"].value_counts().sort_index()
     intra_aaSubs_dis = filtered_data["aaDivergence"].value_counts().sort_index()
@@ -37,17 +38,24 @@ if __name__=="__main__":
 
     ls = ['-', '--', '-.', ':']
     plt.figure()
+    dates = sorted(filtered_data.loc[:,"numdate"])
+    plt.plot(dates, (np.arange(len(dates))+1), c='k', lw=3, alpha=0.3, label="all")
     ls_counter = defaultdict(int)
     for x,i in intra_geno.items():
         nmuts = len(x.split(',')) if x else 0
-        if (nmuts==0 or i>len(filtered_data)/1000) and ls_counter[nmuts]<5:
-            ind = filtered_data["intra_substitutions_str"]==x
+        ind = filtered_data["intra_substitutions_str"]==x
+        dates = sorted(filtered_data.loc[ind,"numdate"])
+        factor = 3 if 'C8782T' in x else 1
+        if dates[0]<args.min_date+0.2:
+        #if (nmuts<2 or i>len(filtered_data)/100) and ls_counter[nmuts]<10:
             if nmuts>5:
                 continue
-            plt.plot(sorted(filtered_data.loc[ind,"numdate"]), np.arange(i)+1, c=f'C{nmuts}', lw=2 if nmuts else 3,
-                            ls=ls[ls_counter[nmuts]%len(ls)], label=f"gt={x if x else 'founder'}"[:30])
+            plt.plot(dates, factor*(np.arange(i)+1), c=f'C{nmuts}', lw=2 if nmuts else 3,
+                            ls=ls[ls_counter[nmuts]%len(ls)], marker='o' if len(dates)<3 else '',
+                            label=f"gt={x if x else 'founder'}"[:30])
             ls_counter[nmuts]+=1
     plt.ylim(0.5,1000)
+    plt.xlim(args.min_date,args.min_date+0.3)
     plt.yscale('log')
     plt.legend()
 

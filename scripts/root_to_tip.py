@@ -37,7 +37,7 @@ def filter_and_transform(d, clade_gt, min_date=None, max_date=None, completeness
     d["missing_subs"] = d.clade_substitutions.apply(lambda x: len(clade_gt['nuc'])-len(x))
 
     # define "with-in clade substitutions"
-    d["intra_substitutions"] = d.substitutions.apply(lambda x:     [y for y in x.split(',') if y not in clade_gt['nuc']] if x else [])
+    d["intra_substitutions"] = d.substitutions.apply(lambda x:     [y for y in x.split(',') if all([y not in clade_gt['nuc'], int(y[1:-1])>150,  int(y[1:-1])<29753])] if x else [])
     # make a hashable string representation
     d["intra_substitutions_str"] = d.intra_substitutions.apply(lambda x: ','.join(x))
     # define "with-in clade substitutions"
