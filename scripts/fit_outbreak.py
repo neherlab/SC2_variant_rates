@@ -137,9 +137,11 @@ if __name__=="__main__":
 
     logR_daughter = back_trace(data_daughter)
     logR = back_trace(data)
+    logQ = fwd_trace(data)
 
     daughter_seeding = {t:lR[lR[:,0]==1,1][0] for t,lR in logR_daughter.items() if lR[0,0]<=1}
     logR_wdaughter = {}
+    logQ_wdaughter = {}
     for seeding_time, lR_daughter in daughter_seeding.items():
         lR_wd = {}
         for t,lR in logR.items():
@@ -151,6 +153,20 @@ if __name__=="__main__":
                                           nmin=row.cases, nmax=3*(row.cases+3)/eps,
                                           daughters=(t+1==seeding_time), daughter_rate=0.02)
         logR_wdaughter[seeding_time] = lR_wd
+
+        lQ_wd = {}
+        for t,lQ in logQ.items():
+            if t<seeding_time:
+                lQ_wd[t] = lQ
+            else:
+                cases = row.cases if t else 0
+                next_row = data.loc[t]
+                row = data.loc[t-1] if t else next_row
+                prev = lQ_wd.get(t-1, None)
+                lQ_wd[t] = fwd_propagate(cases, prev, row.rho, row.k, row.eps, row.mu,
+                                          nmin=next_row.cases, nmax=3*(next_row.cases+3)/eps,
+                                          daughters=(t==seeding_time), daughter_rate=0.02)
+        logQ_wdaughter[seeding_time] = lQ_wd
 
     print(logR[0][0,1])
     for t in logR_wdaughter:
@@ -165,7 +181,6 @@ if __name__=="__main__":
     plt.xscale('log')
     plt.legend()
 
-    logQ = fwd_trace(data)
     plt.figure()
     for t in logQ:
         plt.plot(logQ[t][:,0]+0.5, logQ[t][:,1] - logQ[t][:,1].max(), label=f'cases={data.at[t,"cases"]}')
@@ -189,10 +204,9 @@ if __name__=="__main__":
     peak_val = -np.inf
     for i in time_points:
         tmp = {}
-        tm1 = data.iloc[i-1].name
         t = data.iloc[i].name
         for seeding_time, lR_daughter in daughter_seeding.items():
-            tmp[seeding_time] = marginal_distribution(logQ[tm1], logR_wdaughter[seeding_time][t], data.loc[t])
+            tmp[seeding_time] = marginal_distribution(logQ[t], logR_wdaughter[seeding_time][t])
             tmp[seeding_time][:,1] += lR_daughter
             peak_val = max(peak_val, tmp[seeding_time][:,1].max())
             # P = np.exp(tmp[seeding_time][:,1] - tmp[seeding_time][:,1].max())
