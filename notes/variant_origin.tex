@@ -1,0 +1,100 @@
+\documentclass[aps,rmp, onecolumn]{revtex4}
+%\documentclass[a4paper,10pt]{scrartcl}
+%\documentclass[aps,rmp,twocolumn]{revtex4}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,graphicx}
+\usepackage{color}
+%\usepackage{cite}
+
+\newcommand{\bq}{\begin{equation}}
+\newcommand{\eq}{\end{equation}}
+\newcommand{\bn}{\begin{eqnarray}}
+\newcommand{\en}{\end{eqnarray}}
+\newcommand{\Richard}[1]{{\color{red}Richard: #1}}
+\newcommand{\gene}[1]{{\it #1}}
+\newcommand{\mat}[1]{{\bf #1}}
+\newcommand{\vecb}[1]{{\bf #1}}
+\newcommand{\abet}{\mathcal{A}}
+\newcommand{\eqp}{p}
+\newcommand{\LH}{\mathcal{L}}
+
+\begin{document}
+\title{When did a variant start spreading?}
+\author{Richard Neher}
+\date{\today}
+\maketitle
+
+Once a variant is at high frequency, it spreads mostly deterministically, but its early, often unobserved, spread is very stochastic.
+Lets consider a discrete generation model and a certain observation probability $\epsilon$.
+If we observed $m_1, m_2, \ldots, m_T$ sequences of a variant in successive generations, we'd like to infer the true prevalence $n_t$.
+If the outbreak started with $n_\tau=1$ cases at seeding time $t=\tau$, we can write the likelihood of observing the case series as
+\begin{equation}
+    \begin{split}
+        P(\{m_t\} | \tau) & = \prod_{t=\tau+1}^T\sum_{n_t=1}^\infty p(m_t|n_t,\epsilon) g_{n_t,n_{t-1}} \\
+    & =  \sum_{n_T} p(m_{k}|n_{T},\epsilon) \sum_{n_{T-1}} g_{n_{T},n_{T-1}}p(m_{T-1}|n_{T-1},\epsilon)\cdots p(m_{t}|n_{t},\epsilon)\sum_{n_{t-1}}  g_{n_{t},n_{t-1}}\cdots\sum_{n_{\tau + 1}=1}^\infty g_{n_{\tau+2},n_{\tau+1}} p(m_{\tau+1}|n_{\tau+1},\epsilon) g_{n_{\tau+1},1}
+\end{split}
+\end{equation}
+In addition, we can sum over possible seeding times $\tau$ where evidently $\tau$ can not be later than the first sampled case $t_0$.
+\begin{equation}
+    P(\{m_t\}) =\sum_{\tau}^{t_0} p(\tau)P(\{m_t\} | \tau)
+\end{equation}
+
+For any given $t$, we can write $P(\{m_t\} | \tau)$ as
+\begin{equation}
+    P(\{m_t\} | \tau) = \sum_{n=1}^\infty R(t)_{n} Q(t,\tau)_n  = \sum_{\tau}^{t_0} p(\tau) R(\tau)_1
+\end{equation}
+where $R(t)_n$ is given by
+\begin{equation}
+    R(t)_n = \sum_{n_T} p(m_{T}|n_{T},\epsilon) \sum_{n_{T-1}} g_{n_{T},n_{T-1}}p(m_{T-1}|n_{T-1},\epsilon)\cdots p(m_{t}|n,\epsilon)
+\end{equation}
+and
+\begin{equation}
+    Q(t, \tau)_n = \sum_{n_{t-1}}  g_{n,n_{t-1}}\cdots\sum_{n_{\tau + 1}=1}^\infty g_{n_{\tau+2},n_{\tau+1}} p(m_{\tau+1}|n_{\tau+1},\epsilon) g_{n_{\tau+1},1}
+\end{equation}
+
+These quantities can be calculated recursively:
+\begin{equation}
+    R(t-1)_n = \sum_m R(t)_m g_{m,n} \quad \mathrm{with} \quad R(T)_n = p(m_{T}|n,\epsilon)
+\end{equation}
+\begin{equation}
+    Q(t+1,\tau)_n = \sum_m g_{n,m}Q(t,\tau)_m  \quad \mathrm{with} \quad Q(\tau,\tau)_n = \delta_{n,1}
+\end{equation}
+
+
+We can also calculate the distribution of $n$ at a specific time $t^*$
+\begin{equation}
+    P(n_{t^*}) = \frac{1}{P(\{m_t\})}\sum_{\tau}^{t_0} R(t^*)_n p(\tau) Q(t^*,\tau)_n
+\end{equation}
+
+
+The transmission matrix $g_{nm}$ needs to account for spread with rate $\rho$ and transmission noise.
+It is common to parameterize the transmission by a Beta-binomial distribution with mean $m\rho$ and dispersion parameter $k$.
+\begin{equation}
+    g_{nm} = {n + mr - 1 \choose n} (1-p)^{m k} p^n
+\end{equation}
+where $p=k/(k+m\rho)$ to match the mean $\rho m$.
+
+
+\subsection*{Multiple clones}
+If an additional daughter variant emerged from the founder variant, that puts additional constraints on the trajectory of the founder.
+The trajectory of the daughter is fed by mutations from the founder clone.
+A slightly tricky part is what the mutation rate should be.
+For any particular mutation, it is small (somewhere at 0.0005/year), while genome wide it is more like 15/year or 1-2 per month.
+When selecting variants for further inclusion in the multi-genotype model, we are effectively picking those that are at the highest frequency and thus pick one or several arbitrary sites.
+The relevant mutation rate is thus $\mu L/k$ where $k$ is the number of genotypes considered.
+
+The likelihood of the sampling a given trajectory of daughter cases is $R(t)_1$ as calculated above.
+The probability of seeding at least one variant in generation $t$ is $1-e^{-n_t\mu L}$ where $n_t$ is the number of parent genotypes at time $t$.
+We again need to sum over different seeding times
+
+\begin{equation}
+    P(\{m_t\}, \{c_t\}) = \sum_{\tau_0}^{t_0}\sum_{\tau_d=\tau_0+1}^{t_d} R(\tau_d)_n (1-e^{-n\mu L}) Q(\tau_d,\tau)_n R_d(\tau_d)
+\end{equation}
+where $\tau_d$ is the seeding time of the daughter clone, $\tau_0$ is the seeding of the parent clone, and $\{m_t\}, \{c_t\}$ are the parent and daughter cases count trajectories.
+The probability of being seeded in generation $\tau_0$ is then
+\begin{equation}
+    P(\tau_0) \sim \sum_{\tau_d=\tau_0+1}^{t_d} R(\tau_d)_n (1-e^{-n\mu L}) Q(\tau_d,\tau)_n R_d(\tau_d)
+\end{equation}
+
+\end{document}
