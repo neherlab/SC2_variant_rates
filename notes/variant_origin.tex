@@ -55,10 +55,10 @@ and
 
 These quantities can be calculated recursively:
 \begin{equation}
-    R(t-1)_n = \sum_m R(t)_m g_{m,n} \quad \mathrm{with} \quad R(T)_n = p(m_{T}|n,\epsilon)
+    R(t-1)_n = \sum_k R(t)_k g_{k,n} p(m_{t-1}|n,\epsilon) \quad \mathrm{with} \quad R(T)_n = p(m_{T}|n,\epsilon)
 \end{equation}
 \begin{equation}
-    Q(t+1,\tau)_n = \sum_m g_{n,m}Q(t,\tau)_m  \quad \mathrm{with} \quad Q(\tau,\tau)_n = \delta_{n,1}
+    Q(t+1,\tau)_n = \sum_k g_{n,k} p(m_t|k,\epsilon) Q(t,\tau)_k  \quad \mathrm{with} \quad Q(\tau,\tau)_n = \delta_{n,1}
 \end{equation}
 
 
@@ -94,7 +94,33 @@ We again need to sum over different seeding times
 where $\tau_d$ is the seeding time of the daughter clone, $\tau_0$ is the seeding of the parent clone, and $\{m_t\}, \{c_t\}$ are the parent and daughter cases count trajectories.
 The probability of being seeded in generation $\tau_0$ is then
 \begin{equation}
-    P(\tau_0) \sim \sum_{\tau_d=\tau_0+1}^{t_d} R(\tau_d)_n (1-e^{-n\mu L}) Q(\tau_d,\tau)_n R_d(\tau_d)
+    P(\tau_0) \sim \sum_{\tau_d=\tau_0+1}^{t_d} \sum_n R(\tau_d)_n (1-e^{-n\mu L}) Q(\tau_d,\tau)_n R_d(\tau_d)
 \end{equation}
+
+
+\subsection*{Mutation categories}
+Instead of tracking clones, we might want to track genotypes with 0,1,2,... mutations.
+In this case, mutation happen independently and there is a constant flux of cases from lower to higher mutation classes.
+The last "catch-all" class grows with a rate that is $\mu L$ higher than the rest.
+
+In this case, we'd start with the most mutated class and would need to extend the propagator to include the mutational influx.
+The trajectory of mutant class $k$ is conditional on the mutant class $k-1$.
+\begin{equation}
+    \begin{split}
+        P(\{m^0_t\}, \{m^1_t\}, \{m^2_t\} \ldots | \tau) & = \prod_{t=\tau+1}^T\sum_{n^0_t=1}\sum_{n^1_t=0}^\infty\sum_{n^2_t=0}^\infty p(m^0_t|n^0_t,\epsilon)g_{n^0_t,n^0_{t-1}} p(m^1_t|n^1_t,\epsilon) g_{n^1_t,n^1_{t-1}, n^0_{t-1}}p(m^2_t|n^2_t,\epsilon)g_{n^2_t,n^2_{t-1}, n^1_{t-1}} \\
+         & = \sum_{n^0_\tau=1}\sum_{n^1_t=0}^\infty\sum_{n^2_t=0}^\infty p(m^0_\tau|n^0_\tau,\epsilon) p(m^1_\tau|n^1_\tau,\epsilon) p(m^2_\tau|n^2_\tau,\epsilon) \\
+          &   \ldots \\
+          & \sum_{n^0_{T-1}=1}  p(m^0_{T-1}|n^0_{T-1},\epsilon) g_{n^0_{T-1},n^0_{T-2}} \sum_{n^1_{T-1}=0}^\infty p(m^1_{T-1}|n^1_{T-1},\epsilon) g_{n^1_{T-1},n^1_{T-2}, n^0_{T-2}}  \sum_{n^2_{T-1}=0}^\infty p(m^2_{T-1}|n^2_{T-1},\epsilon) g_{n^2_{T-1},n^2_{T-2}, n^1_{T-2}} \\
+          &   \sum_{n^0_T=1}p(m^0_T|n^0_T,\epsilon)  g_{n^0_T,n^0_{T-1}} \sum_{n^1_T=0}^\infty p(m^1_T|n^1_T,\epsilon)g_{n^1_T,n^1_{T-1}, n^0_{T-1}}\sum_{n^2_T=0}^\infty p(m^2_T|n^2_T,\epsilon)  g_{n^2_T,n^2_{T-1}, n^1_{T-1}}
+    \end{split}
+\end{equation}
+The quantity $g_{n^2_t,n^2_{t-1}, n^1_{t-1}}$ describes how many double mutated cases are present in generation $t$ if there where $n^2_{t-1}$ double mutated and $n^1_{t-1}$ single mutated individuals previously.
+The mean number of progeny is then $\rho e^{-\mu L} (n^2_{t-1} + \mu L n^1_{t-1})$.
+This problem can again be solved recursively by defining $R^k(t)_{n^k,n^{k-1}}$ of mutant category $k$ to be
+\begin{equation}
+    R(t-1)_{n^k,n^{k-1}} = \sum_{l^k} R(t)_{l^k,l^{k-1}} g_{k,n} p(m_{t-1}|n,\epsilon) \quad \mathrm{with} \quad R(T)_n = p(m_{T}|n,\epsilon)
+\end{equation}
+
+
 
 \end{document}
