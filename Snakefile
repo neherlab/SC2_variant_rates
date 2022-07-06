@@ -1,4 +1,4 @@
-variants = ['19A', '19B', '20A', '20B', '20C', '20E', '20H', '20I', '20J', '21I', '21J', '21K', '21L']
+variants = ['19A', '19B', '20A', '20B', '20C', '20E', '20H', '20I', '20J', '21I', '21J', '21K', '21L', '22A', '22B']
 date_ranges = {
 '19A': (2019.9, 2020.3),
 '19B': (2019.9, 2020.3),
@@ -13,6 +13,8 @@ date_ranges = {
 '21J': (2021.2, 2021.8),
 '21K': (2021.8, 2022.2),
 '21L': (2021.8, 2022.2),
+'22A': (2022.0, 2022.4),
+'22B': (2022.0, 2022.4),
 }
 
 rule get_data:
@@ -80,6 +82,38 @@ rule root_to_tip:
                                        --output-json {output.json}
         """
 
+rule genotype_counts:
+    input:
+        gt = "data/clade_gts.json",
+        metadata = "subsets/{v}.tsv"
+    output:
+        json = "genotypes/{v}_counts.json"
+    params:
+        clade = lambda w: w.v,
+        mindate = lambda w: date_ranges[w.v][0],
+        maxdate = lambda w: date_ranges[w.v][1],
+        bin_size = 5
+    shell:
+        """
+        python3 scripts/get_genotype_counts.py --metadata {input.metadata} --clade {params.clade} \
+                                       --clade-gts data/clade_gts.json \
+                                       --min-date {params.mindate} \
+                                       --max-date {params.maxdate} \
+                                       --bin-size {params.bin_size} \
+                                       --output-json {output.json}
+        """
+
+rule genotype_count_figures:
+    input:
+        json = "genotypes/{v}_counts.json"
+    output:
+        fig = "figures/{v}_counts.png"
+    shell:
+        """
+        python3 scripts/plot_genotype_counts.py --counts {input.json} --output-plot {output.fig}
+        """
+
+
 rule clone_growth:
     input:
         gt = "data/clade_gts.json",
@@ -105,6 +139,10 @@ rule all_rtt:
 rule all_clones:
     input:
         expand("figures/{v}_clones.png", v=variants)
+
+rule genotypes:
+    input:
+        expand("figures/{v}_counts.png", v=variants)
 
 rule rate_table:
     input:

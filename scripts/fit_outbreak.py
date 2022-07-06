@@ -9,7 +9,7 @@ LogTINY = np.log(TINY)
 birth_rate = 1e-6
 logCutoff = 50
 
-def log_propagator(n, m, rho, k, mu):
+def log_propagator(n, m, rho, k):
     '''
     nvec = np.arange(100)
     k,rho = 0.1, 1.1
@@ -17,107 +17,107 @@ def log_propagator(n, m, rho, k, mu):
     avg = np.sum(pn*nvec) # should be rho*5
     '''
     p = k/(k+rho)
-    if m:
-        return nbinom.logpmf(n,m*k,p)
-    else:
-        tmp = LogTINY*np.ones_like(n)
-        tmp[n==0] = -mu
-        tmp[n==1] = np.log(mu)
-        return tmp
-
-def log_propagator_mvec(n, m, rho, k, mu):
-    p = k/(k+rho)
-    res = LogTINY*np.ones_like(m)
-    res[m>0] = nbinom.logpmf(n,m[m>0]*k,p)
-    if n==0:
-        res[m==0] = -mu
-    elif n==1:
-        res[m==0] = np.log(mu)
-
-    return res
+    return nbinom.logpmf(n,m*k,p)
 
 def propagator(n, m, rho, k):
     return np.exp(log_propagator(n,m,rho,k))
 
 
-def log_sampling_prob(n_samples, n_cases, eps):
+def log_sampling_prob(n_samples, eps, n_cases):
     mean_density = eps*n_cases
     return poisson.logpmf(n_samples, mean_density)
 
 
-def back_propagate(samples_t, logR_tp1, rho, k, eps, mu, nmin=0, nmax=1000, daughters=False, daughter_rate=0):
-    nvals = np.arange(nmin, nmax)
+def back_propagate_R(sampling_t, logR_tp1, rho, k, nmin=1, nmax=1000):
+    nvals = np.arange(max(1,int(nmin)), int(nmax))
     if logR_tp1 is None:
-        logR_t = np.array([nvals, log_sampling_prob(samples_t, nvals, eps)]).T
+        logR_t = np.array([nvals, np.sum([log_sampling_prob(s_t[0], s_t[1], nvals) for s_t in sampling_t], axis=0)])
     else:
-        peak = logR_tp1[:,1].max()
-        logR_t = np.array([(n_t, log_sampling_prob(samples_t,n_t, eps)
-                       + peak + np.log(np.sum(np.exp(logR_tp1[:,1] - peak + log_propagator(logR_tp1[:,0], n_t, rho, k, mu)))))
+        peak = logR_tp1[1].max()
+        sampling =  np.sum([log_sampling_prob(s_t[0], s_t[1], nvals) for s_t in sampling_t], axis=0)
+        tmp_R = np.array([np.log(np.sum(np.exp(logR_tp1[1] - peak + log_propagator(logR_tp1[0], n_t, rho, k))))
                        for n_t in nvals])
-    if daughters:
-        logR_t[:,1] += np.log(1-np.exp(-daughter_rate*logR_t[:,0]))
+        logR_t = np.array([nvals, tmp_R + sampling + peak])
 
-    peak = logR_t[:,1].max()
+    peak = logR_t[1].max()
 
-    return logR_t[logR_t[:,1]>peak - logCutoff]
+    return logR_t[:, logR_t[1]>peak - logCutoff]
 
-def fwd_propagate(samples_tm1, logQ_tm1, rho, k, eps, mu, nmin=0, nmax=1000, daughters=False, daughter_rate=0):
-    nvals = np.arange(nmin, nmax)
+def fwd_propagate_Q(sampling_tm1, logQ_tm1, rho, k, nmin=1, nmax=1000):
     if logQ_tm1 is None:
-        logQ_t = np.array([nvals, LogTINY*np.ones_like(nvals)]).T
-        logQ_t[nvals==0,1] = 0
+        logQ_t = np.array([[1], [0]])
     else:
-        peak = logQ_tm1[:,1].max()
-        logQ_t = np.array([(n_t, log_sampling_prob(samples_tm1,n_t, eps)
-                       + peak + np.log(np.sum(np.exp(logQ_tm1[:,1] - peak + log_propagator_mvec(n_t, logQ_tm1[:,0], rho, k, mu)))))
-                       for n_t in nvals])
-    if daughters:
-        logQ_t[:,1] += np.log(1-np.exp(-daughter_rate*logQ_t[:,0]))
+        nvals = np.arange(max(1,int(nmin)), int(nmax))
+        peak = logQ_tm1[1].max()
+        sampling =  np.sum([log_sampling_prob(s_t[0], s_t[1], nvals) for s_t in sampling_tm1], axis=0)
+        tmpQ = np.array([np.log(np.sum(np.exp(sampling_n \
+                                       + logQ_tm1[1] - peak + log_propagator(n_tm1, logQ_tm1[0], rho, k))))
+                           for sampling_n, n_tm1 in zip(sampling, nvals)])
+        logQ_t = np.array([nvals, tmpQ + peak])
 
-    peak = logQ_t[:,1].max()
-    return logQ_t[logQ_t[:,1]>peak - logCutoff]
+    peak = logQ_t[1].max()
+    return logQ_t[:, logQ_t[1]>peak - logCutoff]
 
 
 def back_trace(data):
     sorted_data = data.sort_index(ascending=False)
     logR = {}
     for i, (t, row) in enumerate(sorted_data.iterrows()):
-
         prev = logR[sorted_data.iloc[i-1].name] if i else None
-        logR[t] = back_propagate(row.cases, prev, row.rho, row.k, row.eps, row.mu, nmin=row.cases, nmax=3*(row.cases+3)/eps)
+        logR[t] = back_propagate_R([(row.cases, row.eps)], prev, row.rho, row.k, nmin=row.cases, nmax=3*(row.cases+3)/eps)
 
     return logR
 
 
-def fwd_trace(data):
+def fwd_trace(data, tau):
     sorted_data = data.sort_index(ascending=True)
+    sorted_data = sorted_data.loc[sorted_data.index>=tau]
     logQ = {}
     for i, (t, row) in enumerate(sorted_data.iterrows()):
         prev = logQ[sorted_data.iloc[i-1].name] if i else None
         prev_cases = sorted_data.iloc[i-1].cases if i else None
-        logQ[t] = fwd_propagate(prev_cases, prev, row.rho, row.k, row.eps, row.mu, nmin=row.cases, nmax=3*(row.cases+3)/eps)
+        logQ[t] = fwd_propagate_Q([(prev_cases, row.eps)], prev, row.rho, row.k, nmin=row.cases, nmax=3*(row.cases+3)/eps)
 
     return logQ
 
-def negLogLH(data, t0):
+def negLogLH(data):
     logR = back_trace(data)
-    return -logR[t0][0,1]
+    peak = np.max([x[1,0] for x in logR.values() if x[0,0]==1])
+    res = peak + np.log(np.sum([np.exp(x[1,0] - peak) for x in logR.values() if x[0,0]==1]))
+    return -res
 
-def cost(x, data, t0, fields):
+def cost(x, data, fields):
     print(x)
     for y, n in zip(x,fields):
         data[n] = y**2
     #data['eps'] = x[0]
-    return negLogLH(data, t0)
+    return negLogLH(data)
 
 
 def marginal_distribution(logQ, logR):
-    nval_range = int(max(logQ[0,0],logR[0,0])), int(min(logQ[-1,0], logR[-1,0])+1)
-    offset = int(min(logQ[0,0],logR[0,0]))
-    indR = (logR[:,0]>=nval_range[0]) & (logR[:,0]<nval_range[1])
-    indQ = (logQ[:,0]>=nval_range[0]) & (logQ[:,0]<nval_range[1])
-    tmplogP = logR[indR,1] + logQ[indQ,1]
-    return np.array([logR[indR,0], tmplogP]).T
+    nmin, nmax = int(max(logQ[0,0],logR[0,0])), int(min(logQ[-1,0], logR[-1,0]))
+    indR = (logR[:,0]>=nmin) & (logR[:,0]<nmax)
+    indQ = (logQ[:,0]>=nmin) & (logQ[:,0]<nmax)
+    tmplogP = logR[1,indR] + logQ[1, indQ]
+    return np.array([logR[0,indR], tmplogP])
+
+
+def optimize_single_trajectory(bins, cases, sampling):
+    bin_width = bins[1]-bins[0]
+    max_seeding = np.min([ti for ti, x in enumerate(cases) if x>0])
+    if max_seeding<10:
+        cases = [0]*(10-max_seeding) + list(cases)
+        min_bin = bins[0]
+        bins = [min_bin - bin_width*i for i in range(10-max_seeding, 0,-1)] + list(bins)
+
+    rho = 1.3
+    k=.2
+    data = pd.DataFrame({i:{'cases':parent_cases[i], 'rho':rho, 'eps':sampling,
+                         'k':k, 'mu':birth_rate} for i in range(len(cases))}).T
+    sol = minimize(cost, [rho], (data, ['rho']))
+    logR = back_trace(data)
+    return bins, [np.exp(logR[t][1,0]) if logR[t][0,0]==1 else -np.inf for t in bins]
+
 
 
 if __name__=="__main__":
@@ -125,116 +125,52 @@ if __name__=="__main__":
     from scipy.optimize import minimize
 
     parent_cases =   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 5, 10, 40, 70, 100]
-    daughter_cases = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 8, 3, 6, 20, 30, 50]
     rho = 1.3
     k=.2
-    eps=0.05
+    eps=0.02
     data = pd.DataFrame({i:{'cases':parent_cases[i], 'rho':rho, 'eps':eps, 'k':k, 'mu':birth_rate} for i in range(len(parent_cases))}).T
-    sol = minimize(cost, [rho], (data, 0, ['rho']))
+    sol = minimize(cost, [rho], (data, ['rho']))
     rho = sol['x'][0]
 
+    logR = back_trace(data)
+
+    daughter_cases = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 6, 20, 30, 50]
     data_daughter = pd.DataFrame({i:{'cases':daughter_cases[i], 'rho':rho, 'eps':eps, 'k':k, 'mu':TINY} for i in range(len(parent_cases))}).T
 
+    max_seeding_daughter = np.min([ti for ti, x in enumerate(daughter_cases) if x>0])
+    if daughter_cases[max_seeding_daughter]>1:
+        max_seeding_daughter-=1
+    max_seeding_parent = min(max_seeding_daughter, np.min([ti for ti, x in enumerate(parent_cases) if x>0]))
+    if parent_cases[max_seeding_parent]>1:
+        max_seeding_parent-=1
+    logQ = {}
+    for tau in range(0,max_seeding_parent+1):
+        logQ[tau] = fwd_trace(data, tau)
+
     logR_daughter = back_trace(data_daughter)
-    logR = back_trace(data)
-    logQ = fwd_trace(data)
 
-    daughter_seeding = {t:lR[lR[:,0]==1,1][0] for t,lR in logR_daughter.items() if lR[0,0]<=1}
-    logR_wdaughter = {}
-    logQ_wdaughter = {}
-    for seeding_time, lR_daughter in daughter_seeding.items():
-        lR_wd = {}
-        for t,lR in logR.items():
-            if t>=seeding_time:
-                lR_wd[t] = lR
-            else:
-                row = data.loc[t]
-                lR_wd[t] = back_propagate(row.cases, lR_wd[t+1], row.rho, row.k, row.eps, row.mu,
-                                          nmin=row.cases, nmax=3*(row.cases+3)/eps,
-                                          daughters=(t+1==seeding_time), daughter_rate=0.02)
-        logR_wdaughter[seeding_time] = lR_wd
+    logP = np.ones((max_seeding_parent+1, max_seeding_daughter+1))*np.nan
+    mutation_rate = 0.1
+    for tau_parent in logQ:
+        for tau_daughter in range(tau_parent,max_seeding_daughter+1):
+            nmin = max(logR[tau_daughter][0,0], logQ[tau_parent][tau_daughter][0,0])
+            nmax = min(logR[tau_daughter][0,-1], logQ[tau_parent][tau_daughter][0,-1])
+            nvals = np.arange(nmin, nmax+1, dtype=int)
+            Qind = (logQ[tau_parent][tau_daughter][0]>=nmin)&(logQ[tau_parent][tau_daughter][0]<=nmax)
+            Rind = (logR[tau_daughter][0]>=nmin)&(logR[tau_daughter][0]<=nmax)
+            res = logR_daughter[tau_daughter][1,0] if logR_daughter[tau_daughter][0,0]==1 else np.nan
+            peak = (logQ[tau_parent][tau_daughter][1,Qind] + logR[tau_daughter][1,Rind]).max()
+            res += peak + np.log(np.sum([np.exp(r + q - peak)*(1-np.exp(-n*mutation_rate))
+                          for n,r,q in zip(logR[tau_daughter][0,Rind], logR[tau_daughter][1,Rind], logQ[tau_parent][tau_daughter][1,Qind])]))
 
-        lQ_wd = {}
-        for t,lQ in logQ.items():
-            if t<seeding_time:
-                lQ_wd[t] = lQ
-            else:
-                cases = row.cases if t else 0
-                next_row = data.loc[t]
-                row = data.loc[t-1] if t else next_row
-                prev = lQ_wd.get(t-1, None)
-                lQ_wd[t] = fwd_propagate(cases, prev, row.rho, row.k, row.eps, row.mu,
-                                          nmin=next_row.cases, nmax=3*(next_row.cases+3)/eps,
-                                          daughters=(t==seeding_time), daughter_rate=0.02)
-        logQ_wdaughter[seeding_time] = lQ_wd
+            logP[tau_parent,tau_daughter] = res
 
-    print(logR[0][0,1])
-    for t in logR_wdaughter:
-        print(t,logR_wdaughter[t][0][0,1]+daughter_seeding[t], daughter_seeding[t])
-
-
+    ML = logP[~np.isnan(logP)].max()
+    P = np.exp(logP-ML)
+    P[np.isnan(P)] = 0
 
     plt.figure()
-    for t in logR:
-        plt.plot(logR[t][:,0]+0.5, logR[t][:,1] - logR[t][:,1].max(), label=f'cases={data.at[t,"cases"]}')
-
-    plt.xscale('log')
+    plt.plot(P.sum(axis=1), label='parent')
+    plt.plot(P.sum(axis=0), label='daugher')
+    plt.xlabel('time')
     plt.legend()
-
-    plt.figure()
-    for t in logQ:
-        plt.plot(logQ[t][:,0]+0.5, logQ[t][:,1] - logQ[t][:,1].max(), label=f'cases={data.at[t,"cases"]}')
-
-    plt.xscale('log')
-    plt.legend()
-
-
-
-    time_points = range(1,len(data))
-    logP = {}
-    for i in time_points:
-        t = data.iloc[i].name
-        logP[t] = marginal_distribution(logQ[t], logR[t])
-    plt.xscale('log')
-    plt.legend()
-
-
-    daughter_seeding = {t:lR[lR[:,0]==1,1][0] for t,lR in logR_daughter.items() if lR[0,0]<=1}
-    logP_wdaughter = {}
-    peak_val = -np.inf
-    for i in time_points:
-        tmp = {}
-        t = data.iloc[i].name
-        for seeding_time, lR_daughter in daughter_seeding.items():
-            tmp[seeding_time] = marginal_distribution(logQ[t], logR_wdaughter[seeding_time][t])
-            tmp[seeding_time][:,1] += lR_daughter
-            peak_val = max(peak_val, tmp[seeding_time][:,1].max())
-            # P = np.exp(tmp[seeding_time][:,1] - tmp[seeding_time][:,1].max())
-            # P/=P.sum()
-            # plt.plot(tmp[seeding_time][:,0]+0.5, P, c=f"C{i%10}", lw=1)
-
-        logP_wdaughter[t] = tmp
-
-    marginal_dis = {}
-    for t, logPseeding in logP_wdaughter.items():
-        tmpP = defaultdict(float)
-        for seeding_time in logPseeding:
-            for n,v in zip(logPseeding[seeding_time][:,0], np.exp(logPseeding[seeding_time][:,1] - peak_val)):
-                tmpP[n] += v
-        marginal_dis[t] = np.array([(n,np.log(tmpP[n])+peak_val) for n in sorted(tmpP.keys())])
-
-    plt.figure()
-    for t in time_points:
-        P = np.exp(marginal_dis[t][:,1] - marginal_dis[t][:,1].max())
-        P/=P.sum()
-        plt.plot(marginal_dis[t][:,0]+0.5, P, c=f"C{t%10}", lw=2, label=f'with c={parent_cases[t]}', ls='--')
-        P = np.exp(logP[t][:,1])
-        P/=P.sum()
-        plt.plot(logP[t][:,0]+0.5, P, c=f"C{t%10}", lw=2, label=f'with c={daughter_cases[t]}')
-    plt.xscale('log')
-    plt.yscale('log')
-    plt.legend()
-
-
-
-
