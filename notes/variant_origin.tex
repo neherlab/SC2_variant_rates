@@ -148,4 +148,36 @@ However, this also means that the probability is not comprised of linearly indep
     Q(t+1,\tau)_{\textbf{n}} = \sum_{\textbf{n}'} g_{n,\textbf{n}'} p(\textbf{m}_t|\textbf{n}',\epsilon) Q(t,\tau)_{\textbf{n}}'  \quad \mathrm{with} \quad Q(\tau,\tau)_{\textbf{n}} = \delta_{{\textbf{n}},(1,0,... 0)}
 \end{equation}
 
+For many dimensions this becomes too complex to easily compute, therefore we utilize the fact that the transition matrix g is only maximally dependent on 2 sub-spaces. Note that $Q$ is equivalent to 
+\begin{equation}
+\begin{split}
+    Q(t,\tau)_{\textbf{n}} &= P(\{m_i\}_{1 \leq i<t} | \textbf{n}_t = \textbf{n}, \tau) \\
+    & = P(\{m_{0,i}\}_{1 \leq i<t} | n_{0,t} = n^0) P(\{m_{1,i}\}_{1 \leq i<t} | \{m_{0,i}\}_{1 \leq i<t}, n_{0,t} = n^0, n_{1,t} = n^1) \cdot ...\\ \cdot & P(\{m_{k,i}\}_{1 \leq i<t} | \{m_{k-1,i}\}_{1 \leq i<t}, n_{k-1, t} = n^{k-1}, n_{k,t} = n^k)
+    \end{split}
+\end{equation}
+
+Now each of these terms can be calculated in $\mathcal{O}(N^3)$, starting with genotype 0 and moving up to genotype $k$.
+\begin{equation}
+\begin{split}
+    P(\{m_{0,i}\}_{1 \leq i<t} | n_{0,t} = n^0) 
+    & = \sum_{n'} g_{n^0, n'} P(m_{0, t-1} | n_{0, t-1} = n', \epsilon) P(\{m_{0,i}\}_{1 \leq i<(t-1)} | n_{0,t-1} = n') \\
+    &= \sum_{n'} x_{0, t-1, n^0}(n') \\
+    \\
+    P(\{m_{1,i}\}_{1 \leq i<t} | \{m_{0,i}\}_{1 \leq i<t}, n_{1,t} = n^1, n_{0,t} = n^0) 
+    & = \sum_{n_1'} P(m_{1, t-1} | n_{1, t-1} = n_1', \epsilon) \cdot \\
+        & \sum_{n_0'}  g_{n^0, n_0'} P(m_{0, t-1} | n_{0, t-1} = n_0', \epsilon) P(\{m_{0,i}\}_{1 \leq i<(t-1)} | n_{0,t-1} = n_0') \cdot \\
+        & g_{n^1, n_0', n_1'} P(\{m_{1,i}\}_{1 \leq i<(t-1)} | \{m_{0,i}\}_{1 \leq i<(t-1)}, n_{1,t-1} = n_1', n_{0,t-1} = n_0')  \\
+    &= \sum_{n_1'} P(m_{1, t-1} | n_{1, t-1} = n_1', \epsilon) \sum_{n_0'} x_{0, t-1, n^0}(n_0') y_{0, 1, t-1, n^1}(n_0', n_1') \\
+    &= \sum_{n_1'} P(m_{1, t-1} | n_{1, t-1} = n_1', \epsilon) x_{0, 1, t-1, n^0, n^1}(n_1') \\
+    \\
+    &... \\
+    \\
+    P(\{m_{k,i}\}_{1 \leq i<t} | \{m_{k-1,i}\}_{1 \leq i<t} n_{k,t} = n^k, n_{k-1,t} = n^{k-1}) 
+    &= \sum_{n_k'} P(m_{k, t-1} | n_{k, t-1} = n_k', \epsilon) \cdot \\
+    & \sum_{n_{k-1}'} y_{k-1, k, t-1, n^k}(n_{k-1}', n_k') \sum_{n^{k-2}} x_{k-2, k-1, t-1, n^{k-2}, n^{k-1}}(n_{k-1}') \\
+    &= \sum_{n_k'} P(m_{k, t-1} | n_{k, t-1} = n_k', \epsilon)   x_{k-1, k, t-1, n^{k-1}, n^k}(n_k') \\
+    \\
+\end{split}
+\end{equation}
+
 \end{document}
