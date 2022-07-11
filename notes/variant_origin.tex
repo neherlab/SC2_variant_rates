@@ -114,7 +114,7 @@ The last "catch-all" class grows with a rate that is $\mu L$ higher than the res
 In this case, we'd start with the most mutated class and would need to extend the propagator to include the mutational influx.
 The trajectory of mutant class $k$ is conditional on the mutant class $k-1$.
 
-Define the $\textbf{m}_t = (m_0, ..., m_k)_t$ vector as the sampled number of genotypes with 0,1,..., k mutations at time $t$, then  $\textbf{n}_t = (n_0, ..., n_k)_t$ is the hidden true population size at each of these time points. Now the probability of the ${\textbf{m}_t}_t$ vector with seeding time of the first genotype at time $\tau$ (here the hidden vector is $\textbf{n}_\tau = (1, 0, ..., 0)$) can be expressed as
+Define the $\textbf{m}_t = (m_0, ..., m_k)_t$ vector as the sampled number of genotypes with 0,1,..., k mutations at time $t$, then  $\textbf{n}_t = (n_0, ..., n_k)_t$ is the hidden true population size at each of these time points. Now the probability of the ${\textbf{m}}_t$ vector with seeding time of the first genotype at time $\tau$ (here the hidden vector is $\textbf{n}_\tau = (1, 0, ..., 0)$) can be expressed as
 
 \begin{equation}
         P(\{\textbf{m}_t\}_t| \tau) & = \prod_{t=\tau+1}^T\sum_{\textbf{n}_t=(1,0,... ,0)}^\infty p(\textbf{m}_t|\textbf{n}_t,\epsilon) g_{\textbf{n}_t,\textbf{n}_{t-1}} \\
@@ -130,15 +130,15 @@ The transition matrix is slightly more complex:
 g_{\textbf{n}_t,\textbf{n}_{t-1}} = g_{n_{0,t},n_{0,t-1}} \prod_1^k g'_{n_{i,t},n_{i,t-1}, n_{i-1,t-1}}
 \end{equation}
 
-This is due to the fact that populations of genotypes with 1 or more mutations are not only dependent on the size of that population in the previous time step but also on the size of the population with 1 less mutation (we assume that the likelihood of more than one mutation in a generation step is negligibly small). 
+This is due to the fact that population sizes of genotypes with 1 or more mutations are not only dependent on the size of that population in the previous time step but also on the size of the population with 1 less mutation, i.e the likelihood a mutation happened in the last time step (we assume that the likelihood of more than one mutation in a generation step is negligibly small). Thus, we can describe each transition probability by the previously defined transition matrix and the mutation probability. 
 
 \begin{equation}
-g'_{n_{i,t},n_{i,t-1}, n_{i-1,t-1}} = g_{n_{i,t},n_{i,t-1}} + \mu L n_{i-1, t-1}
+g'_{n_{i,t},n_{i,t-1}, n_{i-1,t-1}} = \sum_{\epsilon=0}^{n_{i,t}} g_{n_{i,t} - \epsilon,n_{i,t-1}} \cdot  \chi_{\epsilon, n_{i-1, t-1}}
 \end{equation}
 
 The mean number of progeny with two mutations  at time $t$ is then $n_{2,t} = \rho e^{-\mu L} (n_{2,t-1} + \mu L n_{1, t-1})$.
 
-However, this also means that the probability is not comprised of linearly independent sub-probabilities for each genotype's observed samples. Thus, in order to calculate the maximum likelihood seeding time $R$ and $Q$ must be calculated by iterating over a k dimensional subspace. 
+However, this also means that the probability is not comprised of linearly independent sub-probabilities for each genotype's observed samples and the maximum likelihood seeding time $R$ and $Q$ are expressed by iterating over a k dimensional subspace. 
 
 \begin{equation}
     R(t-1)_{\textbf{n}} = \sum_{\textbf{n}'} R(t)_{\textbf{n}'} g_{\textbf{n}',\textbf{n}} p(\textbf{m}_{t-1}|\textbf{n},\epsilon) \quad \mathrm{with} \quad R(T)_\textbf{n} = p(\textbf{m}_{T}|\textbf{n},\epsilon)
@@ -152,7 +152,7 @@ For many dimensions this becomes too complex to easily compute, therefore we uti
 \begin{equation}
 \begin{split}
     Q(t,\tau)_{\textbf{n}} &= P(\{m_i\}_{1 \leq i<t} | \textbf{n}_t = \textbf{n}, \tau) \\
-    & = P(\{m_{0,i}\}_{1 \leq i<t} | n_{0,t} = n^0) P(\{m_{1,i}\}_{1 \leq i<t} | \{m_{0,i}\}_{1 \leq i<t}, n_{0,t} = n^0, n_{1,t} = n^1) \cdot ...\\ \cdot & P(\{m_{k,i}\}_{1 \leq i<t} | \{m_{k-1,i}\}_{1 \leq i<t}, n_{k-1, t} = n^{k-1}, n_{k,t} = n^k)
+    & = P(\{m_{0,i}\}_{1 \leq i<t} | n_{0,t} = n^0, \tau) P(\{m_{1,i}\}_{1 \leq i<t} | \{m_{0,i}\}_{1 \leq i<t}, n_{0,t} = n^0, n_{1,t} = n^1, \tau) \cdot ...\\ \cdot & P(\{m_{k,i}\}_{1 \leq i<t} | \{m_{k-1,i}\}_{1 \leq i<t}, n_{k-1, t} = n^{k-1}, n_{k,t} = n^k, \tau)
     \end{split}
 \end{equation}
 
@@ -180,4 +180,34 @@ Now each of these terms can be calculated in $\mathcal{O}(N^3)$, starting with g
 \end{split}
 \end{equation}
 
+We can perform the same operations to obtain $R$.
+\begin{equation}
+\begin{split}
+    R(t)_{\textbf{n}} &= P(\{m_i\}_{t \leq i \leq T} | \textbf{n}_t = \textbf{n}) \\
+    & = P(\{m_{0,i}\}_{t \leq i \leq T} | n_{0,t} = n^0) P(\{m_{1,i}\}_{t \leq i \leq T} | \{m_{0,i}\}_{t \leq i \leq T}, n_{0,t} = n^0, n_{1,t} = n^1) \cdot ...\\ \cdot & P(\{m_{k,i}\}_{t \leq i \leq T} | \{m_{k-1,i}\}_{t \leq i \leq T}, n_{k-1, t} = n^{k-1}, n_{k,t} = n^k)
+    \end{split}
+\end{equation}
+\begin{equation}
+    \begin{split}
+P(\{m_{0,i}\}_{t \leq i \leq T} &| n_{0,t} = n^0) = P(m_{0,t} | n_{0,t} = n^0, \epsilon) \sum_{n'} g_{n', n^0}  P(\{m_{0,i}\}_{t+1 \leq i \leq T} | n_{0,t+1} = n')\\
+&= P(m_{0,t} | n_{0,t} = n^0, \epsilon) \sum_{n'} x_{0, n^0}(n')
+\\
+P(\{m_{1,i}\}_{t \leq i \leq T} &| \{m_{0,i}\}_{t \leq i \leq T}, n_{0:1,t} = (n^0, n^1)) = P(m_{1,t} | n_{1,t} = n^1, \epsilon) P(\{m_{1,i}\}_{t+1 \leq i \leq T} | \{m_{0,i}\}_{t \leq i \leq T}, n_{0,t} = n^0, n_{1,t} = n^1) \\
+&= P(m_{1,t} | n_{1,t} = n^1, \epsilon) \cdot\\
+& \sum_{n_1'} \sum_{n_0'} P(\{m_{1,i}\}_{t+1 \leq i \leq T} | \{m_{0,i}\}_{t \leq i \leq T}, n_{0,t} = n^0, n_{1,t} = n^1, n_{1, t+1} = n_1', n_{0, t+1} = n_0')\\
+&= P(m_{1,t} | n_{1,t} = n^1, \epsilon) \sum_{n_1'} \sum_{n_0'} g_{n_1', n^0, n^1} x_{0, n^0}(n_0') \cdot \\
+&P(\{m_{1,i}\}_{t+1 \leq i \leq T} | \{m_{0,i}\}_{t+1 \leq i \leq T}, n_{1, t+1} = n_1', n_{0, t+1} = n_0')
+\\
+&= P(m_{1,t} | n_{1,t} = n^1, \epsilon) \sum_{n_1'} x_{0, 1, n^0, n^1}(n_1')
+    \\
+    &... \\
+    \\
+P(\{m_{k,i}\}_{t \leq i \leq T} &| \{m_{k-1,i}\}_{t \leq i \leq T}, n_{k-1:k,t}= (n^{k-1}, n^k)) 
+= P(m_{k,t} | n_{k,t} = n^k, \epsilon) \sum_{n_k'} \sum_{n_{k-1}'} g_{n_{k-1}', n^{k-1}, n^k} \cdot \\
+& \sum_{n_{k-2}'} x_{k-2, k-1, n_{k-2}', n^{k-1}}(n_{k-1}')
+P(\{m_{k,i}\}_{t+1 \leq i \leq T} | \{m_{k-1,i}\}_{t+1 \leq i \leq T}, n_{k, t+1} = n_k', n_{k-1, t+1} = n_{k-1}')
+\\
+&= P(m_{k,t} | n_{k,t} = n^k, \epsilon) \sum_{n_k'} x_{k-1, k, n^{k-1}, n^k}(n_k')
+    \end{split}
+\end{equation}
 \end{document}
