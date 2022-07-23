@@ -1,6 +1,6 @@
 import pandas as pd
 import argparse,json
-from treetime.utils import numeric_date
+from treetime.utils import numeric_date, datestring_from_numeric
 from datetime import datetime
 import numpy as np
 from scipy.stats import linregress, scoreatpercentile
@@ -54,6 +54,34 @@ def filter_and_transform(d, clade_gt, min_date=None, max_date=None, completeness
 
     return d
 
+def weighted_regression(x,y,w):
+    '''
+    This function determine slope and intercept by minimizing
+    sum_i w_i*(y_i - f(x_i))^2 with f(x) = slope*x + intercept
+
+    sum_i w_i*(y_i - f(x_i)) = 0 => sum_i w_i y_i = intercept * sum_i w_i + slope sum_i w_i x_i
+    sum_i w_i*(y_i - f(x_i)) x_i = 0 => sum_i w_i y_i x_i = intercept * sum_i w_i x_i + slope sum_i w_i x_i^2
+    '''
+    wa=np.array(w)
+    xa=np.array(x)
+    ya=np.array(y)
+    wx = np.sum(xa*wa)
+    wy = np.sum(ya*wa)
+    wxy = np.sum(xa*ya*wa)
+    wxx = np.sum(xa**2*wa)
+    wsum = np.sum(wa)
+    wmean = np.mean(wa)
+
+    slope = (wy*wx - wxy*wsum)/(wx**2 - wxx*wsum)
+    intercept = (wy - slope*wx)/wsum
+
+    # not correct
+    # hessianinv = np.linalg.inv(np.array([[wxx, wx], [wx, wsum]])/wsum)
+    # stderrs = wmean*np.sqrt(hessianinv.diagonal())
+
+    return {"slope": slope, "intercept":intercept} #, 'slope_err':stderrs[0], 'intercept_err':stderrs[1]}
+
+
 def regression_by_week(d, field, min_count=5):
     val = d.loc[:,[field,'CW']].groupby('CW').mean()
     std = d.loc[:,[field,'CW']].groupby('CW').std()
@@ -68,6 +96,11 @@ def regression_by_week(d, field, min_count=5):
             "mean":[x for x in val.loc[ind, field]],
             "stderr":[x for x in std.loc[ind, field]],
             "count":[x for x in count.loc[ind, field]]}
+
+def make_date_ticks(ax):
+    ax.set_xlabel('')
+    ax.set_xticklabels([datestring_from_numeric(x) for x in ax.get_xticks()], rotation=30, horizontalalignment='right')
+
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser(
@@ -85,7 +118,7 @@ if __name__=="__main__":
     args = parser.parse_args()
 
     with open(args.clade_gts) as fh:
-        clade_gt = json.load(fh)[args.clade]
+        clade_gt = json.load(fh)[args.clade[:3]]
 
     d = pd.read_csv(args.metadata, sep='\t').fillna('')
     filtered_data = filter_and_transform(d, clade_gt, min_date=args.min_date, max_date=args.max_date, completeness=0)
@@ -106,28 +139,25 @@ if __name__=="__main__":
 
     fig, axs = plt.subplots(1,3, figsize=(15,6), sharex=True, sharey=True)
     ymax = 20
-    sns.histplot(x=filtered_data.numdate, y=np.minimum(ymax*1.5, filtered_data.divergence), bins=(20,ymax+1), ax=axs[0])
+    bins = bins=(20,np.arange(0,ymax+1))
+    sns.histplot(x=filtered_data.numdate, y=np.minimum(ymax*1.5, filtered_data.divergence), bins=bins, ax=axs[0])
     x = np.linspace(*axs[0].get_xlim(),101)
     axs[0].plot(x, regression.intercept + regression.slope*x + tolerance(x), lw=4)
     axs[0].plot(x, regression_clean["intercept"] + regression_clean["slope"]*x, lw=4, label=f"slope = {regression_clean['slope']:1.1f} subs/year")
     axs[0].errorbar(regression_clean["date"], regression_clean["mean"], regression_clean["stderr"])
-    axs[0].legend(loc=2)
-    axs[0].set_ylim(0,ymax)
 
-
-    ymax = 20
-    sns.histplot(x=filtered_data.numdate[ind], y=np.minimum(ymax*1.5, filtered_data.aaDivergence[ind]), bins=(20,ymax+1), ax=axs[1])
+    sns.histplot(x=filtered_data.numdate[ind], y=np.minimum(ymax*1.5, filtered_data.aaDivergence[ind]), bins=bins, ax=axs[1])
     axs[1].plot(x, regression_clean_aa["intercept"] + regression_clean_aa["slope"]*x, lw=4, label=f"slope = {regression_clean_aa['slope']:1.1f} subs/year")
     axs[1].errorbar(regression_clean_aa["date"], regression_clean_aa["mean"], regression_clean_aa["stderr"])
-    axs[1].legend(loc=2)
-    axs[1].set_ylim(0,ymax)
 
-    ymax = 20
-    sns.histplot(x=filtered_data.numdate[ind], y=np.minimum(ymax*1.5, filtered_data.synDivergence[ind]), bins=(20,ymax+1), ax=axs[2])
+    sns.histplot(x=filtered_data.numdate[ind], y=np.minimum(ymax*1.5, filtered_data.synDivergence[ind]), bins=bins, ax=axs[2])
     axs[2].plot(x, regression_clean_syn["intercept"] + regression_clean_syn["slope"]*x, lw=4, label=f"slope = {regression_clean_syn['slope']:1.1f} subs/year")
     axs[2].errorbar(regression_clean_syn["date"], regression_clean_syn["mean"], regression_clean_syn["stderr"])
-    axs[2].legend(loc=2)
-    axs[2].set_ylim(0,ymax)
+
+    for ax in axs:
+        make_date_ticks(ax)
+        ax.legend(loc=2)
+        ax.set_ylim(0,ymax)
 
     if args.output_plot:
         plt.savefig(args.output_plot)

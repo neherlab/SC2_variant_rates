@@ -1,10 +1,12 @@
-variants = ['19A', '19B', '20A', '20B', '20C', '20E', '20H', '20I', '20J', '21I', '21J', '21K', '21L', '22A', '22B']
+variant_labels =        ['19A', '19B', '20A', '20B', '20C', '20A+', '20E', '20H', '20I', '20J', '21I', '21J', '21K', '21L', '22A', '22B', '21L+']
+variants =              ['19A', '19B', '20A', '20B', '20C', '"20A,20B,20C"', '20E', '20H', '20I', '20J', '21I', '21J', '21K', '21L', '22A', '22B', '"21L,22A,22B"']
 date_ranges = {
 '19A': (2019.9, 2020.3),
 '19B': (2019.9, 2020.3),
 '20A': (2020.1, 2020.7),
 '20B': (2020.1, 2020.7),
 '20C': (2020.1, 2020.7),
+'20A+': (2020.1, 2020.7),
 '20E': (2020.5, 2020.9),
 '20H': (2020.7, 2021.2),
 '20I': (2020.7, 2021.2),
@@ -15,6 +17,7 @@ date_ranges = {
 '21L': (2021.8, 2022.2),
 '22A': (2022.0, 2022.4),
 '22B': (2022.0, 2022.4),
+'21L+': (2021.8, 2022.2),
 }
 
 rule get_data:
@@ -41,12 +44,13 @@ rule split_by_variant:
     input:
         metadata = "data/metadata.tsv.gz"
     output:
-        files = [f"subsets/{v}.tsv" for v in variants]
+        files = [f"subsets/{v}.tsv" for v in variant_labels]
     params:
-        variants = variants
+        variants = variants,
+        variant_labels = variant_labels
     shell:
         """
-        python3 scripts/split_by_variant.py {input.metadata} {params.variants}
+        python3 scripts/split_by_variant.py --metadata {input.metadata} --variants {params.variants} --variant-labels {params.variant_labels}
         """
 
 
@@ -134,19 +138,19 @@ rule clone_growth:
 
 rule all_rtt:
     input:
-        expand("figures/{v}_rtt.png", v=variants)
+        expand("figures/{v}_rtt.png", v=variant_labels)
 
 rule all_clones:
     input:
-        expand("figures/{v}_clones.png", v=variants)
+        expand("figures/{v}_clones.png", v=variant_labels)
 
 rule genotypes:
     input:
-        expand("figures/{v}_counts.png", v=variants)
+        expand("figures/{v}_counts.png", v=variant_labels)
 
 rule rate_table:
     input:
-        rate_files = expand("rates/{v}_rate.json", v=variants),
+        rate_files = expand("rates/{v}_rate.json", v=variant_labels),
         gt = "data/clade_gts.json"
     output:
         rate_table = "rates.tsv"
@@ -161,8 +165,9 @@ rule rate_table:
         for fname in input.rate_files:
             with open(fname) as fin:
                 d = json.load(fin)
-            aa_div = len([x for x in clade_gts[d['clade']]['aa'] if 'ORF9' not in x])
-            nuc_div = len(clade_gts[d['clade']]['nuc'])
+            base_clade = d['clade'][:3]
+            aa_div = len([x for x in clade_gts[base_clade]['aa'] if 'ORF9' not in x])
+            nuc_div = len(clade_gts[base_clade[:3]]['nuc'])
             data.append({'clade':d['clade'], 'nuc_rate': d['nuc']['slope'], 'nuc_origin':d['nuc']['origin'],
                          'aa_rate': d['aa']['slope'], 'aa_origin':d['aa']['origin'],
                          'syn_rate': d['syn']['slope'], 'syn_origin':d['syn']['origin'],

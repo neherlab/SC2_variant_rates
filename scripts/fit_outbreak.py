@@ -1,8 +1,10 @@
 import numpy as np
+import pandas as pd
 from scipy.stats import nbinom, poisson
 from scipy.optimize import minimize
 import matplotlib.pyplot as plt
 from collections import defaultdict
+from scipy.optimize import minimize
 
 TINY = 1e-100
 LogTINY = np.log(TINY)
@@ -64,7 +66,7 @@ def back_trace(data):
     logR = {}
     for i, (t, row) in enumerate(sorted_data.iterrows()):
         prev = logR[sorted_data.iloc[i-1].name] if i else None
-        logR[t] = back_propagate_R([(row.cases, row.eps)], prev, row.rho, row.k, nmin=row.cases, nmax=3*(row.cases+3)/eps)
+        logR[t] = back_propagate_R([(row.cases, row.eps)], prev, row.rho, row.k, nmin=row.cases, nmax=3*(row.cases+3)/row.eps)
 
     return logR
 
@@ -76,18 +78,23 @@ def fwd_trace(data, tau):
     for i, (t, row) in enumerate(sorted_data.iterrows()):
         prev = logQ[sorted_data.iloc[i-1].name] if i else None
         prev_cases = sorted_data.iloc[i-1].cases if i else None
-        logQ[t] = fwd_propagate_Q([(prev_cases, row.eps)], prev, row.rho, row.k, nmin=row.cases, nmax=3*(row.cases+3)/eps)
+        logQ[t] = fwd_propagate_Q([(prev_cases, row.eps)], prev, row.rho, row.k, nmin=row.cases, nmax=3*(row.cases+3)/row.eps)
 
     return logQ
 
 def negLogLH(data):
     logR = back_trace(data)
-    peak = np.max([x[1,0] for x in logR.values() if x[0,0]==1])
-    res = peak + np.log(np.sum([np.exp(x[1,0] - peak) for x in logR.values() if x[0,0]==1]))
+    pre_cases = []
+    for t in data.index:
+        if data.loc[t,"cases"]>0:
+            break
+        else:
+            pre_cases.append(t)
+    peak = np.max([logR[t][1,0] for t in pre_cases])
+    res = peak + np.log(np.sum([np.exp(logR[t][1,0] - peak) for t in pre_cases]))
     return -res
 
 def cost(x, data, fields):
-    print(x)
     for y, n in zip(x,fields):
         data[n] = y**2
     #data['eps'] = x[0]
@@ -110,19 +117,22 @@ def optimize_single_trajectory(bins, cases, sampling):
         min_bin = bins[0]
         bins = [min_bin - bin_width*i for i in range(10-max_seeding, 0,-1)] + list(bins)
 
+    first_non_zero = max(max_seeding,10)
     rho = 1.3
     k=.2
-    data = pd.DataFrame({i:{'cases':parent_cases[i], 'rho':rho, 'eps':sampling,
+
+    data = pd.DataFrame({i:{'cases':cases[i], 'time_bin':bins[i], 'rho':rho**2, 'eps':sampling,
                          'k':k, 'mu':birth_rate} for i in range(len(cases))}).T
     sol = minimize(cost, [rho], (data, ['rho']))
+
     logR = back_trace(data)
-    return bins, [np.exp(logR[t][1,0]) if logR[t][0,0]==1 else -np.inf for t in bins]
+    return {"optimization":sol,
+            "timepoints": bins,
+            "logLH": [logR[t][1,0] if t<first_non_zero else -np.inf for t in data.index]}
 
 
 
 if __name__=="__main__":
-    import pandas as pd
-    from scipy.optimize import minimize
 
     parent_cases =   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 5, 10, 40, 70, 100]
     rho = 1.3
