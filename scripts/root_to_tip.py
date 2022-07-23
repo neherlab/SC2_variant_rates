@@ -87,9 +87,13 @@ def regression_by_week(d, field, min_count=5):
     std = d.loc[:,[field,'CW']].groupby('CW').std()
     count = d.loc[:,[field,'CW']].groupby('CW').count()
     ind = count[field]>min_count
-    reg = linregress(val.index[ind], val.loc[ind, field])
-    slope = reg.slope * 365 / 7
-    intercept = reg.intercept - 2020*slope
+    #reg = linregress(val.index[ind], val.loc[ind, field])
+    # slope = reg.slope * 365 / 7
+    # intercept = reg.intercept - 2020*slope
+    reg = weighted_regression(val.index[ind], val.loc[ind, field], np.array((count[ind]-min_count)**0.25).squeeze())
+    slope = reg["slope"] * 365 / 7
+    intercept = reg["intercept"] - 2020*slope
+
     return {"slope":slope, "intercept":intercept,
             "origin": -intercept/slope,
             "date":[week_since2020_to_numdate(x) for x in val.index[ind]],
