@@ -35,8 +35,7 @@ rule get_clade_data:
     shell:
         """
         curl https://data.nextstrain.org/nextclade_sars-cov-2.json | gunzip > {output.tree}
-        #curl https://data.nextstrain.org/nextclade_sars-cov-2_root-sequence.json -o {output.root}
-        curl "https://nextstrain.org/charon/getDataset?prefix=ncov/open/global/all-time&type=root-sequence" -o {output.root}
+        curl https://data.nextstrain.org/nextclade_sars-cov-2_root-sequence.json -o {output.root}
         """
 
 
