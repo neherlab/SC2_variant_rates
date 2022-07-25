@@ -22,20 +22,28 @@ if __name__=="__main__":
 
 
     dates = [datetime.fromordinal(x) for x in counts['bins'][:-1]]
-    fig, axs = plt.subplots(2,1, figsize = (8,15), sharex=True)
+    fig, axs = plt.subplots(3,1, figsize = (8,20), sharex=True)
 
     axs[0].plot(dates, counts['all_samples'], lw=3, c='k', alpha=0.3)
-    for m in counts['mutations']:
-        axs[0].plot(dates, counts['mutations'][m], '-o', label=f'{m} mutations')
+    for m in counts['mutation_number']:
+        axs[0].plot(dates, counts['mutation_number'][m], '-o', label=f'{m} mutations')
 
     axs[0].set_yscale('log')
     axs[0].legend()
 
     axs[1].plot(dates, counts['all_samples'], lw=3, c='k', alpha=0.3)
-    for m in counts['genotypes']:
-        axs[1].plot(dates, counts['genotypes'][m], '-o', label=f'{m}' if m else "founder")
+    for m in counts['mutations']:
+        axs[1].plot(dates, counts['mutations'][m], '-o', label=f'{m}')
 
     axs[1].set_yscale('log')
     axs[1].legend()
+
+    axs[2].plot(dates, counts['all_samples'], lw=3, c='k', alpha=0.3)
+    for m in counts['genotypes']:
+        axs[2].plot(dates, counts['genotypes'][m], '-o', label=f'{m}' if m else "founder")
+
+    axs[2].set_yscale('log')
+    axs[2].legend()
+    fig.autofmt_xdate()
 
     plt.savefig(args.output_plot)

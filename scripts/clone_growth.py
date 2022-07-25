@@ -19,13 +19,13 @@ if __name__=="__main__":
     parser.add_argument('--metadata', type=str, nargs='+', required=True, help="input data")
     parser.add_argument('--clade-gts', type=str, required=True, help="input data")
     parser.add_argument('--clade', type=str, required=True, help="input data")
+    parser.add_argument('--sub-clades', type=str, required=True, help="input data")
     parser.add_argument('--min-date', type=float, help="input data")
     parser.add_argument('--output-plot', type=str, help="plot file")
     #parser.add_argument('--output-json', type=str, help="rate file")
     args = parser.parse_args()
 
-    with open(args.clade_gts) as fh:
-        clade_gt = json.load(fh)[args.clade[:3]]
+    clade_gt = get_clade_gts(args.clade_gts, args.sub_clades)
 
     d = pd.concat([pd.read_csv(x, sep='\t').fillna('') for x in args.metadata])
     filtered_data = filter_and_transform(d, clade_gt, min_date=args.min_date, max_date=args.min_date + 0.3, completeness=0)

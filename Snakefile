@@ -1,5 +1,22 @@
-variant_labels =        ['19A', '19B', '20A', '20B', '20C', '20A+',          '20E', '20H', '20I', '20J', '21I', '21J', '21K', '21L', '22A', '22B', '22D', '21L+']
-variants =              ['19A', '19B', '20A', '20B', '20C', '"20A,20B,20C"', '20E', '20H', '20I', '20J', '21I', '21J', '21K', '21L', '22A', '22B', '22D', '"21L,22A,22B,22C,22D"']
+variants = {'19A':'19A',
+            '19B':'19B',
+            '20A':'20A',
+            '20B':'20B',
+            '20C':'20C',
+            '20A+':'"20A,20B,20C"',
+            '20E':'20E',
+            '20H':'20H',
+            '20I':'20I',
+            '20J':'20J',
+            '21I':'21I',
+            '21J':'21J',
+            '21K':'21K',
+            '21L':'21L',
+            '22A':'22A',
+            '22B':'22B',
+            '22D':'22D',
+            '21L+':'"21L,22A,22B,22C,22D"'}
+
 date_ranges = {
 '19A': (2019.9, 2020.3),
 '19B': (2019.9, 2020.3),
@@ -44,10 +61,10 @@ rule split_by_variant:
     input:
         metadata = "data/metadata.tsv.gz"
     output:
-        files = [f"subsets/{v}.tsv" for v in variant_labels]
+        files = [f"subsets/{v}.tsv" for v in variants]
     params:
-        variants = variants,
-        variant_labels = variant_labels
+        variants = [x for x in variants],
+        variant_labels = [variants[x] for x in variants]
     shell:
         """
         python3 scripts/split_by_variant.py --metadata {input.metadata} --variants {params.variants} --variant-labels {params.variant_labels}
@@ -76,9 +93,10 @@ rule root_to_tip:
         clade = lambda w: w.v,
         mindate = lambda w: date_ranges[w.v][0],
         maxdate = lambda w: date_ranges[w.v][1],
+        clades = lambda w: variants[w.v]
     shell:
         """
-        python3 scripts/root_to_tip.py --metadata {input.metadata} --clade {params.clade} \
+        python3 scripts/root_to_tip.py --metadata {input.metadata} --clade {params.clade} --sub-clades {params.clades} \
                                        --clade-gts data/clade_gts.json \
                                        --min-date {params.mindate} \
                                        --max-date {params.maxdate} \
@@ -94,12 +112,13 @@ rule genotype_counts:
         json = "genotypes/{v}_counts.json"
     params:
         clade = lambda w: w.v,
+        clades = lambda w: variants[w.v],
         mindate = lambda w: date_ranges[w.v][0],
         maxdate = lambda w: date_ranges[w.v][1],
         bin_size = 5
     shell:
         """
-        python3 scripts/get_genotype_counts.py --metadata {input.metadata} --clade {params.clade} \
+        python3 scripts/get_genotype_counts.py --metadata {input.metadata} --clade {params.clade} --sub-clades {params.clades} \
                                        --clade-gts data/clade_gts.json \
                                        --min-date {params.mindate} \
                                        --max-date {params.maxdate} \
@@ -126,10 +145,11 @@ rule clone_growth:
         figure = "figures/{v}_clones.png"
     params:
         clade = lambda w: w.v,
+        clades = lambda w: variants[w.v],
         mindate = lambda w: date_ranges[w.v][0]
     shell:
         """
-        python3 scripts/clone_growth.py --metadata {input.metadata} --clade {params.clade} \
+        python3 scripts/clone_growth.py --metadata {input.metadata} --clade {params.clade} --sub-clades {params.clades} \
                                        --clade-gts data/clade_gts.json \
                                        --min-date {params.mindate} \
                                        --output-plot {output.figure}
@@ -138,19 +158,19 @@ rule clone_growth:
 
 rule all_rtt:
     input:
-        expand("figures/{v}_rtt.png", v=variant_labels)
+        expand("figures/{v}_rtt.png", v=variants.keys())
 
 rule all_clones:
     input:
-        expand("figures/{v}_clones.png", v=variant_labels)
+        expand("figures/{v}_clones.png", v=variants.keys())
 
 rule genotypes:
     input:
-        expand("figures/{v}_counts.png", v=variant_labels)
+        expand("figures/{v}_counts.png", v=variants.keys())
 
 rule rate_table:
     input:
-        rate_files = expand("rates/{v}_rate.json", v=variant_labels),
+        rate_files = expand("rates/{v}_rate.json", v=variants.keys()),
         gt = "data/clade_gts.json"
     output:
         rate_table = "rates.tsv"

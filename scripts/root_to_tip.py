@@ -7,6 +7,7 @@ from scipy.stats import linregress, scoreatpercentile
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import seaborn as sns
+from collections import defaultdict
 mpl.rcParams['axes.formatter.useoffset'] = False
 
 date_reference = datetime(2020,1,1).toordinal()
@@ -42,10 +43,12 @@ def filter_and_transform(d, clade_gt, min_date=None, max_date=None, completeness
     d["intra_substitutions_str"] = d.intra_substitutions.apply(lambda x: ','.join(x))
     # define "with-in clade substitutions"
     d["intra_aaSubstitutions"] = d.aaSubstitutions.apply(lambda x: [y for y in x.split(',') if y not in clade_gt['aa'] and 'ORF9' not in y] if x else [])
+    d["intra_SpikeSubstitutions"] = d.aaSubstitutions.apply(lambda x: [y for y in x.split(',') if y not in clade_gt['aa'] and 'ORF9' not in y and y[0]=='S'] if x else [])
 
     # within clade divergence
     d["divergence"] =   d.intra_substitutions.apply(lambda x:   len(x))
     d["aaDivergence"] = d.intra_aaSubstitutions.apply(lambda x: len(x))
+    d["spikeDivergence"] = d.intra_SpikeSubstitutions.apply(lambda x: len(x))
     d["synDivergence"] = d["divergence"] - d["aaDivergence"]
 
     # filter
@@ -105,6 +108,19 @@ def make_date_ticks(ax):
     ax.set_xlabel('')
     ax.set_xticklabels([datestring_from_numeric(x) for x in ax.get_xticks()], rotation=30, horizontalalignment='right')
 
+def get_clade_gts(all_gts, subclade_str):
+    with open(all_gts) as fh:
+        clade_gts = json.load(fh)
+
+    subclades = subclade_str.split(',')
+    if len(subclades)>1:
+        clade_gt = {'nuc':{}, 'aa':{}}
+        clade_gt['nuc'] = set.intersection(*[set(clade_gts[x]['nuc']) for x in subclades])
+        clade_gt['aa'] = set.intersection(*[set(clade_gts[x]['aa']) for x in subclades])
+    else:
+        clade_gt = clade_gts[subclade_str]
+
+    return clade_gt
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser(
@@ -115,14 +131,14 @@ if __name__=="__main__":
     parser.add_argument('--metadata', type=str, required=True, help="input data")
     parser.add_argument('--clade-gts', type=str, required=True, help="input data")
     parser.add_argument('--clade', type=str, required=True, help="input data")
+    parser.add_argument('--sub-clades', type=str, required=True, help="input data")
     parser.add_argument('--min-date', type=float, help="input data")
     parser.add_argument('--max-date', type=float, help="input data")
     parser.add_argument('--output-plot', type=str, help="plot file")
     parser.add_argument('--output-json', type=str, help="rate file")
     args = parser.parse_args()
 
-    with open(args.clade_gts) as fh:
-        clade_gt = json.load(fh)[args.clade[:3]]
+    clade_gt = get_clade_gts(args.clade_gts, args.sub_clades)
 
     d = pd.read_csv(args.metadata, sep='\t').fillna('')
     filtered_data = filter_and_transform(d, clade_gt, min_date=args.min_date, max_date=args.max_date, completeness=0)
@@ -140,35 +156,41 @@ if __name__=="__main__":
     regression_clean = regression_by_week(filtered_data.loc[ind], "divergence")
     regression_clean_aa = regression_by_week(filtered_data.loc[ind], "aaDivergence")
     regression_clean_syn = regression_by_week(filtered_data.loc[ind], "synDivergence")
+    regression_clean_spike = regression_by_week(filtered_data.loc[ind], "spikeDivergence")
 
     fig, axs = plt.subplots(1,3, figsize=(15,6), sharex=True, sharey=True)
     ymax = 20
-    bins = bins=(20,np.arange(0,ymax+1))
+    bins = bins=(20,np.arange(-0.5,ymax+0.5))
     sns.histplot(x=filtered_data.numdate, y=np.minimum(ymax*1.5, filtered_data.divergence), bins=bins, ax=axs[0])
     x = np.linspace(*axs[0].get_xlim(),101)
+    axs[0].set_title('all differences')
     axs[0].plot(x, regression.intercept + regression.slope*x + tolerance(x), lw=4)
     axs[0].plot(x, regression_clean["intercept"] + regression_clean["slope"]*x, lw=4, label=f"slope = {regression_clean['slope']:1.1f} subs/year")
     axs[0].errorbar(regression_clean["date"], regression_clean["mean"], regression_clean["stderr"])
 
+    axs[1].set_title('amino acid differences')
     sns.histplot(x=filtered_data.numdate[ind], y=np.minimum(ymax*1.5, filtered_data.aaDivergence[ind]), bins=bins, ax=axs[1])
     axs[1].plot(x, regression_clean_aa["intercept"] + regression_clean_aa["slope"]*x, lw=4, label=f"slope = {regression_clean_aa['slope']:1.1f} subs/year")
     axs[1].errorbar(regression_clean_aa["date"], regression_clean_aa["mean"], regression_clean_aa["stderr"])
 
+    axs[2].set_title('synonymous differences')
     sns.histplot(x=filtered_data.numdate[ind], y=np.minimum(ymax*1.5, filtered_data.synDivergence[ind]), bins=bins, ax=axs[2])
     axs[2].plot(x, regression_clean_syn["intercept"] + regression_clean_syn["slope"]*x, lw=4, label=f"slope = {regression_clean_syn['slope']:1.1f} subs/year")
     axs[2].errorbar(regression_clean_syn["date"], regression_clean_syn["mean"], regression_clean_syn["stderr"])
 
     for ax in axs:
         make_date_ticks(ax)
+        ax.set_yticks(np.arange(0,ymax,3))
         ax.legend(loc=2)
-        ax.set_ylim(0,ymax)
+        ax.set_ylim(-0.5,ymax-0.5)
 
     if args.output_plot:
         plt.savefig(args.output_plot)
     else:
         plt.show()
 
-    rate_data = {'clade':args.clade, 'nuc':regression_clean, 'aa':regression_clean_aa, 'syn':regression_clean_syn}
+    rate_data = {'clade':args.clade, 'nuc':regression_clean, 'aa':regression_clean_aa,
+                 'syn':regression_clean_syn, 'spike':regression_clean_spike}
     if args.output_json:
         with open(args.output_json, 'w') as fh:
             json.dump(rate_data, fh)
