@@ -25,7 +25,7 @@ if __name__=="__main__":
     args = parser.parse_args()
 
     with open(args.clade_gts) as fh:
-        clade_gt = json.load(fh)[args.clade]
+        clade_gt = json.load(fh)[args.clade[:3]]
 
     d = pd.concat([pd.read_csv(x, sep='\t').fillna('') for x in args.metadata])
     filtered_data = filter_and_transform(d, clade_gt, min_date=args.min_date, max_date=args.min_date + 0.3, completeness=0)
