@@ -1,5 +1,5 @@
-variant_labels =        ['19A', '19B', '20A', '20B', '20C', '20A+', '20E', '20H', '20I', '20J', '21I', '21J', '21K', '21L', '22A', '22B', '21L+']
-variants =              ['19A', '19B', '20A', '20B', '20C', '"20A,20B,20C"', '20E', '20H', '20I', '20J', '21I', '21J', '21K', '21L', '22A', '22B', '"21L,22A,22B"']
+variant_labels =        ['19A', '19B', '20A', '20B', '20C', '20A+', '20E', '20H', '20I', '20J', '21I', '21J', '21K', '21L', '22A', '22B', '22D', '21L+']
+variants =              ['19A', '19B', '20A', '20B', '20C', '"20A,20B,20C"', '20E', '20H', '20I', '20J', '21I', '21J', '21K', '21L', '22A', '22B', '"21L,22A,22B,22C,22D"']
 date_ranges = {
 '19A': (2019.9, 2020.3),
 '19B': (2019.9, 2020.3),
@@ -13,10 +13,11 @@ date_ranges = {
 '20J': (2020.7, 2021.2),
 '21I': (2021.2, 2021.8),
 '21J': (2021.2, 2021.8),
-'21K': (2021.8, 2022.2),
-'21L': (2021.8, 2022.2),
-'22A': (2022.0, 2022.4),
-'22B': (2022.0, 2022.4),
+'21K': (2021.8, 2022.4),
+'21L': (2021.8, 2022.4),
+'22A': (2022.0, 2022.5),
+'22B': (2022.0, 2022.5),
+'22D': (2022.2, 2022.5),
 '21L+': (2021.8, 2022.2),
 }
 
@@ -35,7 +36,7 @@ rule get_clade_data:
     shell:
         """
         curl https://data.nextstrain.org/nextclade_sars-cov-2.json | gunzip > {output.tree}
-        curl https://data.nextstrain.org/nextclade_sars-cov-2_root-sequence.json -o {output.root}
+        curl https://data.nextstrain.org/nextclade_sars-cov-2_root-sequence.json | gunzip > {output.root}
         """
 
 
