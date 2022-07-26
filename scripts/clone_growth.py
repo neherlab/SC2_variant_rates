@@ -8,7 +8,7 @@ mpl.rcParams['axes.formatter.useoffset'] = False
 
 import matplotlib.pyplot as plt
 import seaborn as sns
-from root_to_tip import filter_and_transform
+from root_to_tip import filter_and_transform, get_clade_gts
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser(
