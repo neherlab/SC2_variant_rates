@@ -18,6 +18,7 @@ if __name__=="__main__":
 
     parser.add_argument('--rate-table', type=str, required=True, help="input data")
     parser.add_argument('--output-plot', type=str, help="plot file")
+    parser.add_argument('--output-plot-rates', type=str, help="plot file")
     args = parser.parse_args()
 
     rates = pd.read_csv(args.rate_table, sep='\t', index_col='clade')
@@ -51,13 +52,25 @@ if __name__=="__main__":
     for i, (mut_type, rate) in enumerate(inter_clade_rates.items()):
         axs[-1,-1].plot([i-0.4, i+0.4], [rate, rate], lw=3, c='k', alpha=0.5)
         clade_rates = rates[f"{mut_type}_rate"]
-        axs[-1,-1].scatter(i - 0.35 + np.random.random(size=len(clade_rates))*0.7, clade_rates, c=rates[f"{mut_type}_origin"])
+        axs[-1,-1].scatter(i - 0.35 + np.random.random(size=len(clade_rates))*0.7, clade_rates, c=[f"C{ci%10}" for ci in range(len(clade_rates))])
     axs[-1,-1].set_ylabel("substitutions per year")
     axs[-1,-1].set_xticks([0,1,2], ['nuc', 'aa', 'syn'])
     axs[-1,-1].set_ylim(0)
 
-
     if args.output_plot:
         plt.savefig(args.output_plot)
+    else:
+        plt.show()
+
+    plt.figure()
+    plt.plot(rates["nuc_origin"], rates["aa_rate"], 'o', label='amino acid rate')
+    plt.plot(rates["nuc_origin"], rates["syn_rate"], 'o', label='synonymous rate')
+    plt.plot(rates["nuc_origin"], np.ones_like(rates['nuc_origin'])*inter_clade_rates["aa"], label='inter-clade amino acid rate', c=f"C{0}", lw=3)
+    plt.plot(rates["nuc_origin"], np.ones_like(rates['nuc_origin'])*inter_clade_rates["syn"], label='inter-clade synonymous rate', c=f"C{1}", lw=3)
+    plt.ylabel('rate estimate [1/y]')
+    plt.legend()
+
+    if args.output_plot_rates:
+        plt.savefig(args.output_plot_rates)
     else:
         plt.show()
