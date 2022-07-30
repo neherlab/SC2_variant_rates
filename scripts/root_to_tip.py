@@ -20,7 +20,7 @@ def week_since2020_to_date(d):
 def week_since2020_to_numdate(d):
     return numeric_date(week_since2020_to_date(d))
 
-def filter_and_transform(d, clade_gt, min_date=None, max_date=None, completeness=None):
+def filter_and_transform(d, clade_gt, min_date=None, max_date=None, completeness=None, swap_root=False):
     # filter for incomplete data
     d = d.loc[d.date.apply(lambda x:len(x)==10 and 'X' not in x)]
     d['datetime'] = d.date.apply(lambda x: datetime.strptime(x, '%Y-%m-%d'))
@@ -38,18 +38,30 @@ def filter_and_transform(d, clade_gt, min_date=None, max_date=None, completeness
     d["missing_subs"] = d.clade_substitutions.apply(lambda x: len(clade_gt['nuc'])-len(x))
 
     # define "with-in clade substitutions"
-    d["intra_substitutions"] = d.substitutions.apply(lambda x:     [y for y in x.split(',') if all([y not in clade_gt['nuc'], int(y[1:-1])>150,  int(y[1:-1])<29753])] if x else [])
-    # make a hashable string representation
-    d["intra_substitutions_str"] = d.intra_substitutions.apply(lambda x: ','.join(x))
+    d["intra_substitutions"] = d.substitutions.apply(lambda x:     [y for y in x.split(',')
+                                                     if all([y not in clade_gt['nuc'], int(y[1:-1])>150,  int(y[1:-1])<29753])] if x else [])
     # define "with-in clade substitutions"
     d["intra_aaSubstitutions"] = d.aaSubstitutions.apply(lambda x: [y for y in x.split(',') if y not in clade_gt['aa'] and 'ORF9' not in y] if x else [])
     d["intra_SpikeSubstitutions"] = d.aaSubstitutions.apply(lambda x: [y for y in x.split(',') if y not in clade_gt['aa'] and 'ORF9' not in y and y[0]=='S'] if x else [])
 
+    if swap_root:
+        muts = [("C8782T","T8782C"), ("T28144C","C28144T")]
+        def swap(mutations, pair):
+            return [y for y in mutations if y!=pair[0]] if pair[0] in mutations else mutations + [pair[1]]
+        for m in muts:
+            d["intra_substitutions"] = d.intra_substitutions.apply(lambda x: swap(x,m))
+        aa_mut = ("ORF8:L84S","ORF8:S84L")
+        d["intra_aaSubstitutions"] = d.intra_aaSubstitutions.apply(lambda x: swap(x,aa_mut))
+
+
+    # make a hashable string representation
+    d["intra_substitutions_str"] = d.intra_substitutions.apply(lambda x: ','.join(x))
     # within clade divergence
     d["divergence"] =   d.intra_substitutions.apply(lambda x:   len(x))
     d["aaDivergence"] = d.intra_aaSubstitutions.apply(lambda x: len(x))
     d["spikeDivergence"] = d.intra_SpikeSubstitutions.apply(lambda x: len(x))
     d["synDivergence"] = d["divergence"] - d["aaDivergence"]
+
 
     # filter
     if completeness is not None:
@@ -141,7 +153,7 @@ if __name__=="__main__":
     clade_gt = get_clade_gts(args.clade_gts, args.sub_clades)
 
     d = pd.read_csv(args.metadata, sep='\t').fillna('')
-    filtered_data = filter_and_transform(d, clade_gt, min_date=args.min_date, max_date=args.max_date, completeness=0)
+    filtered_data = filter_and_transform(d, clade_gt, min_date=args.min_date, max_date=args.max_date, completeness=0, swap_root=args.clade_gts=='19B+')
 
     regression = linregress(filtered_data.numdate, filtered_data.divergence)
     filtered_data["residuals"] = filtered_data.apply(lambda x: x.divergence - (regression.intercept + regression.slope*x.numdate), axis=1)

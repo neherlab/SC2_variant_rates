@@ -28,7 +28,7 @@ if __name__=="__main__":
     clade_gt = get_clade_gts(args.clade_gts, args.sub_clades)
 
     d = pd.concat([pd.read_csv(x, sep='\t').fillna('') for x in args.metadata])
-    filtered_data = filter_and_transform(d, clade_gt, min_date=args.min_date, max_date=args.min_date + 0.3, completeness=0)
+    filtered_data = filter_and_transform(d, clade_gt, min_date=args.min_date, max_date=args.min_date + 0.3, completeness=0, swap_root=args.clade_gts=='19B+')
     #filtered_data=filtered_data.loc[filtered_data.country!='China']
 
     intra_subs_dis = filtered_data["divergence"].value_counts().sort_index()
