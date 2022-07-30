@@ -49,10 +49,10 @@ date_ranges = {
 }
 
 filter_queries = {
-    '20A':  "region=='Europe'",
-    '20B':  "region=='Europe'",
-    '20C':  "region=='Europe'",
-    '20A+': "region=='Europe'",
+    '20A':  "region=='Europe' | region=='North America'",
+    '20B':  "region=='Europe' | region=='North America'",
+    '20C':  "region=='Europe' | region=='North America'",
+    '20A+': "region=='Europe' | region=='North America'",
     '20I': "country=='United Kingdom'"
 }
 
