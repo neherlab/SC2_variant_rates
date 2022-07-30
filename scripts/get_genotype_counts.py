@@ -45,8 +45,11 @@ if __name__=="__main__":
     print("clade", args.clade, "done mutation_number")
 
     mutation_counts = defaultdict(int)
-    date_cutoff = args.min_date + 0.5*(args.max_date-args.min_date)
-    for muts in filtered_data.loc[filtered_data.numdate<date_cutoff, "intra_substitutions"]:
+    cutoff = args.min_date + (args.min_date + args.max_date)/2
+    ind = filtered_data.numdate<cutoff
+    n_early = ind.sum()
+
+    for muts in filtered_data.loc[ind, "intra_substitutions"]:
         for m in muts:
             mutation_counts[m] +=1
 
@@ -59,9 +62,6 @@ if __name__=="__main__":
 
     print("clade", args.clade, "done mutations")
 
-    cutoff = args.min_date + (args.min_date + args.max_date)/2
-    ind = filtered_data.numdate<cutoff
-    n_early = ind.sum()
     intra_geno = filtered_data.loc[ind,"intra_substitutions_str"].value_counts()
     genotypes = {}
     for x,i in intra_geno.items():
