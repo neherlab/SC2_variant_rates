@@ -48,6 +48,14 @@ date_ranges = {
 '21L+': (2021.8, 2021.8 + offset),
 }
 
+filter_queries = {
+    '20A':  'region=="Europe"',
+    '20B':  'region=="Europe"',
+    '20C':  'region=="Europe"',
+    '20A+': 'region=="Europe"',
+    '20I': 'country=="United Kingdom"'
+}
+
 rule get_data:
     output:
         "data/metadata.tsv.gz"
@@ -103,13 +111,15 @@ rule root_to_tip:
         clade = lambda w: w.v,
         mindate = lambda w: date_ranges[w.v][0],
         maxdate = lambda w: date_ranges[w.v][1],
-        clades = lambda w: variants[w.v]
+        clades = lambda w: variants[w.v],
+        filter_query = lambda: ("--query" + filter_queries[w.v]) if w.v in filter_queries else ""
     shell:
         """
         python3 scripts/root_to_tip.py --metadata {input.metadata} --clade {params.clade} --sub-clades {params.clades} \
                                        --clade-gts data/clade_gts.json \
                                        --min-date {params.mindate} \
                                        --max-date {params.maxdate} \
+                                       --query {params.filter_query} \
                                        --output-plot {output.figure} \
                                        --output-json {output.json}
         """
@@ -168,7 +178,7 @@ rule clone_growth:
 
 rule all_rtt:
     input:
-        expand("figures/{v}_rtt.pdf", v=variants.keys())
+        expand("figures/{v}_rtt.png", v=variants.keys())
 
 rule all_clones:
     input:

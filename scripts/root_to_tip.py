@@ -20,9 +20,11 @@ def week_since2020_to_date(d):
 def week_since2020_to_numdate(d):
     return numeric_date(week_since2020_to_date(d))
 
-def filter_and_transform(d, clade_gt, min_date=None, max_date=None, completeness=None, swap_root=False):
+def filter_and_transform(d, clade_gt, min_date=None, max_date=None, query=None, completeness=None, swap_root=False):
     # filter for incomplete data
     d = d.loc[d.date.apply(lambda x:len(x)==10 and 'X' not in x)]
+    if query:
+        d = d.query(query)
     d['datetime'] = d.date.apply(lambda x: datetime.strptime(x, '%Y-%m-%d'))
     d['numdate'] = d.datetime.apply(lambda x: numeric_date(x))
     d['CW'] = d.datetime.apply(date_to_week_since2020)
@@ -146,6 +148,7 @@ if __name__=="__main__":
     parser.add_argument('--sub-clades', type=str, required=True, help="input data")
     parser.add_argument('--min-date', type=float, help="input data")
     parser.add_argument('--max-date', type=float, help="input data")
+    parser.add_argument('--query', type=str, help="filters")
     parser.add_argument('--output-plot', type=str, help="plot file")
     parser.add_argument('--output-json', type=str, help="rate file")
     args = parser.parse_args()
@@ -153,7 +156,9 @@ if __name__=="__main__":
     clade_gt = get_clade_gts(args.clade_gts, args.sub_clades)
 
     d = pd.read_csv(args.metadata, sep='\t').fillna('')
-    filtered_data = filter_and_transform(d, clade_gt, min_date=args.min_date, max_date=args.max_date, completeness=0, swap_root=args.clade_gts=='19B+')
+    filtered_data = filter_and_transform(d, clade_gt, min_date=args.min_date, max_date=args.max_date,
+                                         query = args.query,
+                                         completeness=0, swap_root=args.clade_gts=='19B+')
 
     regression = linregress(filtered_data.numdate, filtered_data.divergence)
     filtered_data["residuals"] = filtered_data.apply(lambda x: x.divergence - (regression.intercept + regression.slope*x.numdate), axis=1)
