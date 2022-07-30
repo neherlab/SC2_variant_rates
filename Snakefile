@@ -150,7 +150,7 @@ rule genotype_counts:
 
 rule genotype_count_figures:
     input:
-        json = "genotypes_gisaid/{v}_counts.json"
+        json = "genotypes/{v}_counts.json"
     output:
         fig = "figures/{v}_counts.pdf"
     shell:
@@ -179,7 +179,7 @@ rule clone_growth:
 
 rule af:
     input:
-        count_files = expand("genotypes_gisaid/{v}_counts.json", v=variants.keys()),
+        count_files = expand("genotypes/{v}_counts.json", v=variants.keys()),
     output:
         af_fig = "figures/mutation_frequencies.pdf",
     shell:
