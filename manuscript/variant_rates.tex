@@ -42,6 +42,9 @@ The case for chronic infection being an important contributor is strongest for t
 \citep{hill_origins_2022}.
 
 Here, we investigate the rate at which the SARS-CoV-2 genome changes within variants and compare this rate to the rate at which the variants themselves accumulate differences relative to reference sequence.
+This comparison reveals a clear dichotomy between slow within-variant evolution and rapid adaptive evolution giving rise to new variants.
+The rate of synonymous changes between and within variants agrees, while the non-synonymous rate within variants is far below the between variant rate.
+Early variants display more rapid non-synonymous evolution that later variants.
 
 \section*{Results}
 
@@ -90,7 +93,7 @@ Rates of synonymous change are very consistent across variants and also agree wi
 Rates of non-synonymous changes are much more variable.
 Within clades, the rate of non-synonymous changes varies between 5 and 16 changes per year.
 Earlier clades are estimated to have larger rates around 10-15 changes per year, while rate estimates for later clade fall  between 3 to 9 changes per year.
-In contrast, the int-clade non-synonymous rate exceeds 25 changes per year.
+In contrast, the inter-clade non-synonymous rate exceeds 25 changes per year.
 
 \begin{table*}
 \begin{tabular}{l|rrrrrr}
@@ -124,7 +127,26 @@ In contrast, the int-clade non-synonymous rate exceeds 25 changes per year.
     \label{fig:rate_progression} }
 \end{figure}
 
+The apparent time dependence of non-synonymous rate suggests that at the beginning a large fraction of amino acid changes were beneficial to viral replication, not just the D614G mutation in the spike protein \citep{korber_tracking_2020}.
+This applies both to the changes within clades that were ultimately displaced by more successful variants, and inter-variant changes where the fraction of adaptive changes is even higher.
+Adaptive evolution complicates phylodynamic analysis, which typically assumes that the mutation process is independent of the spread and epidemiology.
+This assumption is true for neutral mutations that occur along every lineage with the same rate.
+Adaptive and deleterious mutations, however, affect the ability of the virus to spread.
+Deleterious mutations are relatively straightforward to account for: Strongly deleterious mutations don't spread and lead to an evolutionary rate that is smaller than the mutation rates.
+Weakly deleterious mutations can spread, but lineages that carry them tend to be short-lived.
+A spectrum of mutations with different deleterious effects leads to time dependent effective evolutionary rates \citep{wertheim_purifying_2011}.
+The intra-clade rates in Fig.~\ref{fig:rate_progression} are all estimated over a similar time frame and the time dependent rate phenomenon should not apply.
+
+Adaptive evolution, however, is much harder to account for properly and can lead to more dramatic distortions.
+Since the number of sites that allow beneficial mutations is small, adaptive evolution tends to be very stochastic.
+Unlike neutral evolution, the rate of adaptive evolution depends on the population size and the transmission process.
+Epistatic interactions can further steepen the dependence on population size and stochasticity.
+
+
+
 \subsection*{Diversification within variants}
+The analysis of evolutionary rates above only considers the mean divergence within rates.
+
 
 \bibliography{bib}
 \end{document}
