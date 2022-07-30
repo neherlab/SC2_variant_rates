@@ -68,7 +68,7 @@ def filter_and_transform(d, clade_gt, min_date=None, max_date=None, query=None, 
 
     # filter
     if completeness is not None:
-        return d.loc[d.missing_subs<=completeness]
+        d = d.loc[d.missing_subs<=completeness]
 
     if max_group:
         return d.groupby(['CW', 'country']).sample(max_group, replace=True).drop_duplicates(subset='strain')
