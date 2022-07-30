@@ -137,7 +137,7 @@ rule genotype_count_figures:
     input:
         json = "genotypes/{v}_counts.json"
     output:
-        fig = "figures/{v}_counts.png"
+        fig = "figures/{v}_counts.pdf"
     shell:
         """
         python3 scripts/plot_genotype_counts.py --counts {input.json} --output-plot {output.fig}
@@ -149,7 +149,7 @@ rule clone_growth:
         gt = "data/clade_gts.json",
         metadata = "subsets/{v}.tsv"
     output:
-        figure = "figures/{v}_clones.png"
+        figure = "figures/{v}_clones.pdf"
     params:
         clade = lambda w: w.v,
         clades = lambda w: variants[w.v],
@@ -165,15 +165,15 @@ rule clone_growth:
 
 rule all_rtt:
     input:
-        expand("figures/{v}_rtt.png", v=variants.keys())
+        expand("figures/{v}_rtt.pdf", v=variants.keys())
 
 rule all_clones:
     input:
-        expand("figures/{v}_clones.png", v=variants.keys())
+        expand("figures/{v}_clones.pdf", v=variants.keys())
 
 rule genotypes:
     input:
-        expand("figures/{v}_counts.png", v=variants.keys())
+        expand("figures/{v}_counts.pdf", v=variants.keys())
 
 rule rate_table:
     input:
@@ -214,7 +214,7 @@ rule rate_summary:
         rate_table = "rates.tsv"
     output:
         figure = "figures/rate_summary.pdf",
-        figure_rates = "figures/rate_summary.pdf"
+        figure_rates = "figures/rate_progression.pdf"
     shell:
         """
         python3 scripts/combine_fits.py --rate-table {input.rate_table}\
