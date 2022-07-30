@@ -119,7 +119,7 @@ rule root_to_tip:
                                        --clade-gts data/clade_gts.json \
                                        --min-date {params.mindate} \
                                        --max-date {params.maxdate} \
-                                       --query {params.filter_query} \
+                                       {params.filter_query} \
                                        --output-plot {output.figure} \
                                        --output-json {output.json}
         """
@@ -135,13 +135,15 @@ rule genotype_counts:
         clades = lambda w: variants[w.v],
         mindate = lambda w: date_ranges[w.v][0],
         maxdate = lambda w: date_ranges[w.v][1],
-        bin_size = 5
+        bin_size = 5,
+        filter_query = lambda w: ("--query" + filter_queries[w.v]) if w.v in filter_queries else ""
     shell:
         """
         python3 scripts/get_genotype_counts.py --metadata {input.metadata} --clade {params.clade} --sub-clades {params.clades} \
                                        --clade-gts data/clade_gts.json \
                                        --min-date {params.mindate} \
                                        --max-date {params.maxdate} \
+                                       {params.filter_query} \
                                        --bin-size {params.bin_size} \
                                        --output-json {output.json}
         """
