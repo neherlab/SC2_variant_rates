@@ -1,5 +1,6 @@
 variants = {'19A':'19A',
             '19B':'19B',
+            '19A+':'19A,19B',
             '20A':'20A',
             '20B':'20B',
             '20C':'20C',
@@ -25,6 +26,7 @@ offset = 0.5
 date_ranges = {
 '19A':  (2019.9, 2019.9 + offset),
 '19B':  (2019.9, 2019.9 + offset),
+'19A+':  (2019.9, 2019.9 + offset),
 '20A':  (2020.1, 2020.1 + offset),
 '20B':  (2020.1, 2020.1 + offset),
 '20C':  (2020.1, 2020.1 + offset),
@@ -70,8 +72,8 @@ rule split_by_variant:
     output:
         files = [f"subsets/{v}.tsv" for v in variants]
     params:
-        variants = [x for x in variants],
-        variant_labels = [variants[x] for x in variants]
+        variant_labels = [x for x in variants],
+        variants = [variants[x] for x in variants]
     shell:
         """
         python3 scripts/split_by_variant.py --metadata {input.metadata} --variants {params.variants} --variant-labels {params.variant_labels}
