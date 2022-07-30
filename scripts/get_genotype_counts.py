@@ -27,7 +27,7 @@ if __name__=="__main__":
 
     d = pd.concat([pd.read_csv(x, sep='\t').fillna('') for x in args.metadata])
     filtered_data = filter_and_transform(d, clade_gt, min_date=args.min_date, max_date=args.max_date,
-                                         query = args.query, max_group=args.max_group,
+                                         query = args.query, max_group=args.max_group, QC_threshold=80 if args.clade=='21H' else 30,
                                          completeness=0, swap_root=args.clade=='19B+')
     filtered_data["day"] = filtered_data.datetime.apply(lambda x:x.toordinal())
 

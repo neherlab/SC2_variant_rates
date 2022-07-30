@@ -20,10 +20,10 @@ def week_since2020_to_date(d):
 def week_since2020_to_numdate(d):
     return numeric_date(week_since2020_to_date(d))
 
-def filter_and_transform(d, clade_gt, min_date=None, max_date=None, query=None, completeness=None, swap_root=False, max_group=None):
+def filter_and_transform(d, clade_gt, min_date=None, max_date=None, query=None, completeness=None, swap_root=False, max_group=None, QC_threshold=30):
     # filter for incomplete data
     d = d.loc[d.date.apply(lambda x:len(x)==10 and 'X' not in x)]
-    d = d.loc[d.QC_overall_status=='good']
+    d = d.loc[d.QC_overall_score<QC_threshold]
     if query:
         d = d.query(query)
     d['datetime'] = d.date.apply(lambda x: datetime.strptime(x, '%Y-%m-%d'))
@@ -162,7 +162,7 @@ if __name__=="__main__":
 
     d = pd.read_csv(args.metadata, sep='\t').fillna('')
     filtered_data = filter_and_transform(d, clade_gt, min_date=args.min_date, max_date=args.max_date,
-                                         query = args.query, max_group=args.max_group,
+                                         query = args.query, max_group=args.max_group, QC_threshold=80 if args.clade=='21H' else 30,
                                          completeness=0, swap_root=args.clade=='19B+')
 
     regression = linregress(filtered_data.numdate, filtered_data.divergence)
