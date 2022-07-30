@@ -142,7 +142,7 @@ if __name__=="__main__":
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
-    parser.add_argument('--metadata', type=str, required=True, help="input data")
+    parser.add_argument('--metadata',  type=str, required=True, help="input data")
     parser.add_argument('--clade-gts', type=str, required=True, help="input data")
     parser.add_argument('--clade', type=str, required=True, help="input data")
     parser.add_argument('--sub-clades', type=str, required=True, help="input data")
@@ -175,7 +175,7 @@ if __name__=="__main__":
     regression_clean_syn = regression_by_week(filtered_data.loc[ind], "synDivergence")
     regression_clean_spike = regression_by_week(filtered_data.loc[ind], "spikeDivergence")
 
-    fig, axs = plt.subplots(1,3, figsize=(15,6), sharex=True, sharey=True)
+    fig, axs = plt.subplots(1,3, figsize=(18,6), sharex=True, sharey=True)
     ymax = 20
     bins = bins=(20,np.arange(-0.5,ymax+0.5))
     sns.histplot(x=filtered_data.numdate, y=np.minimum(ymax*1.5, filtered_data.divergence), bins=bins, ax=axs[0])

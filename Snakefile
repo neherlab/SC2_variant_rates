@@ -24,28 +24,28 @@ variants = {'19A':'19A',
 
 offset = 0.5
 date_ranges = {
-'19A':  (2019.9, 2019.9 + offset),
-'19B':  (2019.9, 2019.9 + offset),
-'19B+':  (2019.9, 2019.9 + offset),
-'20A':  (2020.1, 2020.1 + offset),
-'20B':  (2020.1, 2020.1 + offset),
-'20C':  (2020.1, 2020.1 + offset),
-'20A+': (2020.1, 2020.1 + offset),
-'20E':  (2020.5, 2020.5 + offset),
-'20H':  (2020.7, 2020.7 + offset),
-'20I':  (2020.7, 2020.7 + offset),
-'20J':  (2020.7, 2020.7 + offset),
-'21D':  (2020.9, 2020.9 + offset),
-'21G':  (2021.0, 2021.0 + offset),
-'21H':  (2021.0, 2021.0 + offset),
-'21I':  (2021.2, 2021.2 + offset),
-'21J':  (2021.2, 2021.2 + offset),
-'21K':  (2021.8, 2021.8 + offset),
-'21L':  (2021.8, 2021.8 + offset),
-'22A':  (2022.0, 2022.0 + offset),
-'22B':  (2022.0, 2022.0 + offset),
-'22D':  (2022.2, 2022.2 + offset),
-'21L+': (2021.8, 2021.8 + offset),
+'19A':  2019.9,
+'19B':  2019.9,
+'19B+': 2019.9,
+'20A':  2020.1,
+'20B':  2020.1,
+'20C':  2020.1,
+'20A+': 2020.1,
+'20E':  2020.5,
+'20H':  2020.7,
+'20I':  2020.7,
+'20J':  2020.7,
+'21D':  2020.9,
+'21G':  2021.0,
+'21H':  2021.0,
+'21I':  2021.2,
+'21J':  2021.2,
+'21K':  2021.8,
+'21L':  2021.8,
+'22A':  2022.163,
+'22B':  2022.163,
+'22D':  2022.2,
+'21L+': 2021.8,
 }
 
 filter_queries = {
@@ -109,8 +109,8 @@ rule root_to_tip:
         json = "rates/{v}_rate.json"
     params:
         clade = lambda w: w.v,
-        mindate = lambda w: date_ranges[w.v][0],
-        maxdate = lambda w: date_ranges[w.v][1],
+        mindate = lambda w: date_ranges[w.v],
+        maxdate = lambda w: date_ranges[w.v] + offset,
         clades = lambda w: variants[w.v],
         filter_query = lambda w: ('--query ' + f'"{filter_queries[w.v]}"') if w.v in filter_queries else ''
     shell:
@@ -133,8 +133,8 @@ rule genotype_counts:
     params:
         clade = lambda w: w.v,
         clades = lambda w: variants[w.v],
-        mindate = lambda w: date_ranges[w.v][0],
-        maxdate = lambda w: date_ranges[w.v][1],
+        mindate = lambda w: date_ranges[w.v],
+        maxdate = lambda w: date_ranges[w.v] + offset,
         bin_size = 5,
         filter_query = lambda w: ('--query ' + f'"{filter_queries[w.v]}"') if w.v in filter_queries else ''
     shell:
@@ -150,7 +150,7 @@ rule genotype_counts:
 
 rule genotype_count_figures:
     input:
-        json = "genotypes/{v}_counts.json"
+        json = "genotypes_gisaid/{v}_counts.json"
     output:
         fig = "figures/{v}_counts.pdf"
     shell:
@@ -168,7 +168,7 @@ rule clone_growth:
     params:
         clade = lambda w: w.v,
         clades = lambda w: variants[w.v],
-        mindate = lambda w: date_ranges[w.v][0]
+        mindate = lambda w: date_ranges[w.v]
     shell:
         """
         python3 scripts/clone_growth.py --metadata {input.metadata} --clade {params.clade} --sub-clades {params.clades} \
@@ -177,6 +177,15 @@ rule clone_growth:
                                        --output-plot {output.figure}
         """
 
+rule af:
+    input:
+        count_files = expand("genotypes_gisaid/{v}_counts.json", v=variants.keys()),
+    output:
+        af_fig = "figures/mutation_frequencies.pdf",
+    shell:
+        """
+        python3 scripts/plot_af.py --counts {input.count_files} --output-plot {output.af_fig}
+        """
 
 rule all_rtt:
     input:

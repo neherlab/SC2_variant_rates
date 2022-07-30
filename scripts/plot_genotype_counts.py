@@ -1,5 +1,6 @@
 import argparse,json
 from datetime import datetime
+import numpy as np
 import matplotlib as mpl
 mpl.rcParams['axes.formatter.useoffset'] = False
 
@@ -22,28 +23,35 @@ if __name__=="__main__":
 
 
     dates = [datetime.fromordinal(x) for x in counts['bins'][:-1]]
-    fig, axs = plt.subplots(3,1, figsize = (8,20), sharex=True)
+    fig, axs = plt.subplots(1,3, figsize = (18,6), sharey=True)
 
-    axs[0].plot(dates, counts['all_samples'], lw=3, c='k', alpha=0.3)
+    ax = axs[0]
+    ax.plot(dates, counts['all_samples'], lw=3, c='k', alpha=0.3)
     for m in counts['mutation_number']:
-        axs[0].plot(dates, counts['mutation_number'][m], '-o', label=f'{m} mutations')
+        ax.plot(dates, counts['mutation_number'][m], '-o', label=f'{m} mutations')
 
-    axs[0].set_yscale('log')
-    axs[0].legend()
+    ax.set_yscale('log')
+    ax.legend()
 
-    axs[1].plot(dates, counts['all_samples'], lw=3, c='k', alpha=0.3)
+    ax = axs[1]
+    ax.plot(dates, counts['all_samples'], lw=3, c='k', alpha=0.3)
     for m in sorted(counts['mutations'].keys(), key=lambda x:int(x[1:-1])):
-        axs[1].plot(dates, counts['mutations'][m], '-o', label=f'{m}')
+        ax.plot(dates, counts['mutations'][m], '-o', label=f'{m}')
 
-    axs[1].set_yscale('log')
-    axs[1].legend()
+    ax.set_yscale('log')
+    ax.legend()
 
-    axs[2].plot(dates, counts['all_samples'], lw=3, c='k', alpha=0.3)
+    ax = axs[2]
+    ax.plot(dates, counts['all_samples'], lw=3, c='k', alpha=0.3)
     for m in sorted(counts['genotypes'].keys(), key=lambda x: len(x)):
-        axs[2].plot(dates, counts['genotypes'][m], '-o', label=f'{m}' if m else "founder")
+        ax.plot(dates, counts['genotypes'][m], '-o', label=f'{m}' if m else "founder")
 
-    axs[2].set_yscale('log')
-    axs[2].legend()
+    ax.set_yscale('log')
+    ax.legend()
     fig.autofmt_xdate()
 
+    # ax = axs[0,1]
+    # ax.plot(sorted(counts["mutation_spectrum"].values()), np.linspace(1,0,len(counts["mutation_spectrum"])))
+    # ax.set_yscale('log')
+    # ax.set_xscale('log')
     plt.savefig(args.output_plot)
