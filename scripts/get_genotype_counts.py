@@ -45,11 +45,11 @@ if __name__=="__main__":
     print("clade", args.clade, "done mutation_number")
 
     mutation_counts = defaultdict(int)
-    cutoff = args.min_date + (args.min_date + args.max_date)/2
-    ind = filtered_data.numdate<cutoff
-    n_early = ind.sum()
+    cutoff = args.min_date + (args.max_date - args.min_date)/2
+    ind_early = filtered_data.numdate<cutoff
+    n_early = ind_early.sum()
 
-    for muts in filtered_data.loc[ind, "intra_substitutions"]:
+    for muts in filtered_data.loc[ind_early, "intra_substitutions"]:
         for m in muts:
             mutation_counts[m] +=1
 
@@ -62,14 +62,14 @@ if __name__=="__main__":
 
     print("clade", args.clade, "done mutations")
 
-    intra_geno = filtered_data.loc[ind,"intra_substitutions_str"].value_counts()
+    intra_geno = filtered_data.loc[ind_early,"intra_substitutions_str"].value_counts()
     genotypes = {}
     for x,i in intra_geno.items():
         if i<10 or i<n_early/10000:
             break
         nmuts = len(x.split(',')) if x else 0
         ind = filtered_data["intra_substitutions_str"]==x
-        if nmuts==0 or (nmuts==1 and ind.sum()>0.03*n_early) or (nmuts<4 and ind.sum()>0.1*n_early):
+        if nmuts==0 or (nmuts==1 and ind.sum()>0.02*n_early) or (nmuts<4 and ind.sum()>0.05*n_early):
             genotypes[x] = np.histogram(filtered_data.loc[ind,"day"], bins=bins)[0]
 
     print("clade", args.clade, "done genotypes")
