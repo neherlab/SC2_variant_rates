@@ -158,7 +158,7 @@ if __name__=="__main__":
     d = pd.read_csv(args.metadata, sep='\t').fillna('')
     filtered_data = filter_and_transform(d, clade_gt, min_date=args.min_date, max_date=args.max_date,
                                          query = args.query,
-                                         completeness=0, swap_root=args.clade_gts=='19B+')
+                                         completeness=0, swap_root=args.clade=='19B+')
 
     regression = linregress(filtered_data.numdate, filtered_data.divergence)
     filtered_data["residuals"] = filtered_data.apply(lambda x: x.divergence - (regression.intercept + regression.slope*x.numdate), axis=1)

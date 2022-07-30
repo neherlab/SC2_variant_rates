@@ -32,14 +32,14 @@ if __name__=="__main__":
     axs[0].legend()
 
     axs[1].plot(dates, counts['all_samples'], lw=3, c='k', alpha=0.3)
-    for m in counts['mutations']:
+    for m in sorted(counts['mutations'].keys(), key=lambda w:int(m[1:-1])):
         axs[1].plot(dates, counts['mutations'][m], '-o', label=f'{m}')
 
     axs[1].set_yscale('log')
     axs[1].legend()
 
     axs[2].plot(dates, counts['all_samples'], lw=3, c='k', alpha=0.3)
-    for m in counts['genotypes']:
+    for m in sorted(counts['genotypes'].keys(), key=lambda x: len(x)):
         axs[2].plot(dates, counts['genotypes'][m], '-o', label=f'{m}' if m else "founder")
 
     axs[2].set_yscale('log')
