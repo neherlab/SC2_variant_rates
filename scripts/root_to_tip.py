@@ -20,7 +20,7 @@ def week_since2020_to_date(d):
 def week_since2020_to_numdate(d):
     return numeric_date(week_since2020_to_date(d))
 
-def filter_and_transform(d, clade_gt, min_date=None, max_date=None, query=None, completeness=None, swap_root=False):
+def filter_and_transform(d, clade_gt, min_date=None, max_date=None, query=None, completeness=None, swap_root=False, max_group=None):
     # filter for incomplete data
     d = d.loc[d.date.apply(lambda x:len(x)==10 and 'X' not in x)]
     d = d.loc[d.QC_overall_status=='good']
@@ -69,6 +69,9 @@ def filter_and_transform(d, clade_gt, min_date=None, max_date=None, query=None, 
     # filter
     if completeness is not None:
         return d.loc[d.missing_subs<=completeness]
+
+    if max_group:
+        return d.groupby(['CW', 'country']).sample(max_group, replace=True).drop_duplicates(subset='strain')
 
     return d
 
@@ -149,6 +152,7 @@ if __name__=="__main__":
     parser.add_argument('--sub-clades', type=str, required=True, help="input data")
     parser.add_argument('--min-date', type=float, help="input data")
     parser.add_argument('--max-date', type=float, help="input data")
+    parser.add_argument('--max-group', type=int, default=100, help="input data")
     parser.add_argument('--query', type=str, help="filters")
     parser.add_argument('--output-plot', type=str, help="plot file")
     parser.add_argument('--output-json', type=str, help="rate file")
@@ -158,7 +162,7 @@ if __name__=="__main__":
 
     d = pd.read_csv(args.metadata, sep='\t').fillna('')
     filtered_data = filter_and_transform(d, clade_gt, min_date=args.min_date, max_date=args.max_date,
-                                         query = args.query,
+                                         query = args.query, max_group=args.max_group,
                                          completeness=0, swap_root=args.clade=='19B+')
 
     regression = linregress(filtered_data.numdate, filtered_data.divergence)

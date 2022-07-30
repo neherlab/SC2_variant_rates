@@ -17,6 +17,7 @@ if __name__=="__main__":
     parser.add_argument('--sub-clades', type=str, required=True, help="input data")
     parser.add_argument('--min-date', type=float, help="input data")
     parser.add_argument('--max-date', type=float, help="input data")
+    parser.add_argument('--max-group', type=int, default=100, help="input data")
     parser.add_argument('--query', type=str, help="filters")
     parser.add_argument('--bin-size', type=float, help="input data")
     parser.add_argument('--output-json', type=str, help="rate file")
@@ -26,7 +27,7 @@ if __name__=="__main__":
 
     d = pd.concat([pd.read_csv(x, sep='\t').fillna('') for x in args.metadata])
     filtered_data = filter_and_transform(d, clade_gt, min_date=args.min_date, max_date=args.max_date,
-                                         query = args.query,
+                                         query = args.query, max_group=args.max_group,
                                          completeness=0, swap_root=args.clade=='19B+')
     filtered_data["day"] = filtered_data.datetime.apply(lambda x:x.toordinal())
 
