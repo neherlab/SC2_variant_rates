@@ -23,6 +23,7 @@ def week_since2020_to_numdate(d):
 def filter_and_transform(d, clade_gt, min_date=None, max_date=None, query=None, completeness=None, swap_root=False):
     # filter for incomplete data
     d = d.loc[d.date.apply(lambda x:len(x)==10 and 'X' not in x)]
+    d = d.loc[d.QC_overall_status=='good']
     if query:
         d = d.query(query)
     d['datetime'] = d.date.apply(lambda x: datetime.strptime(x, '%Y-%m-%d'))
