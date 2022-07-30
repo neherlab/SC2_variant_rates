@@ -49,11 +49,11 @@ date_ranges = {
 }
 
 filter_queries = {
-    '20A':  'region=="Europe"',
-    '20B':  'region=="Europe"',
-    '20C':  'region=="Europe"',
-    '20A+': 'region=="Europe"',
-    '20I': 'country=="United Kingdom"'
+    '20A':  "region=='Europe'",
+    '20B':  "region=='Europe'",
+    '20C':  "region=='Europe'",
+    '20A+': "region=='Europe'",
+    '20I': "country=='United Kingdom'"
 }
 
 rule get_data:
@@ -112,7 +112,7 @@ rule root_to_tip:
         mindate = lambda w: date_ranges[w.v][0],
         maxdate = lambda w: date_ranges[w.v][1],
         clades = lambda w: variants[w.v],
-        filter_query = lambda w: ("--query " + filter_queries[w.v]) if w.v in filter_queries else ""
+        filter_query = lambda w: ('--query ' + f'"{filter_queries[w.v]}"') if w.v in filter_queries else ''
     shell:
         """
         python3 scripts/root_to_tip.py --metadata {input.metadata} --clade {params.clade} --sub-clades {params.clades} \
@@ -136,7 +136,7 @@ rule genotype_counts:
         mindate = lambda w: date_ranges[w.v][0],
         maxdate = lambda w: date_ranges[w.v][1],
         bin_size = 5,
-        filter_query = lambda w: ("--query" + filter_queries[w.v]) if w.v in filter_queries else ""
+        filter_query = lambda w: ('--query ' + f'"{filter_queries[w.v]}"') if w.v in filter_queries else ''
     shell:
         """
         python3 scripts/get_genotype_counts.py --metadata {input.metadata} --clade {params.clade} --sub-clades {params.clades} \
