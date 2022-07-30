@@ -49,7 +49,7 @@ if __name__=="__main__":
     window = cutoff - 14/365, cutoff + 14/365
 
     ind_early = filtered_data.numdate<cutoff
-    ind_window = filtered_data.numdate>=window[0] & filtered_data.numdate<window[1]
+    ind_window = (filtered_data.numdate>=window[0]) & (filtered_data.numdate<window[1])
     n_early = ind_early.sum()
     n_window = ind_window.sum()
 
