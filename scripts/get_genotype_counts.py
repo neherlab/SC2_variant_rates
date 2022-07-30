@@ -46,12 +46,30 @@ if __name__=="__main__":
 
     mutation_counts = defaultdict(int)
     cutoff = args.min_date + (args.max_date - args.min_date)/2
-    ind_early = filtered_data.numdate<cutoff
-    n_early = ind_early.sum()
+    window = cutoff - 14/365, cutoff + 14/365
 
+    ind_early = filtered_data.numdate<cutoff
+    ind_window = filtered_data.numdate>=window[0] & filtered_data.numdate<window[1]
+    n_early = ind_early.sum()
+    n_window = ind_window.sum()
+
+    # Find common mutations
     for muts in filtered_data.loc[ind_early, "intra_substitutions"]:
         for m in muts:
             mutation_counts[m] +=1
+
+    relevant_muts = [x[0] for x in sorted(list(mutation_counts.items()), key=lambda k:k[1])[-10:]]
+    mutations = {}
+    nmax = 5
+    for mut in relevant_muts:
+        ind = filtered_data["intra_substitutions"].apply(lambda x: mut in x)
+        mutations[mut] = np.histogram(filtered_data.loc[ind,"day"], bins=bins)[0]
+
+    # Get mutation _spectrum
+    mutation_spectrum = defaultdict(float)
+    for muts in filtered_data.loc[ind_window, "intra_substitutions"]:
+        for m in muts:
+            mutation_spectrum[m] += 1.0/n_window
 
     relevant_muts = [x[0] for x in sorted(list(mutation_counts.items()), key=lambda k:k[1])[-10:]]
     mutations = {}
@@ -77,5 +95,6 @@ if __name__=="__main__":
         json.dump({'bins':[int(x) for x in bins],
                    'all_samples':[int(x) for x in all_sequences],
                    'mutation_number': {k:[int(x) for x in v] for k,v in mutation_number.items()},
+                   'mutation_spectrum': {k: float(v) for k,v in mutation_spectrum.items()},
                    'mutations': {k:[int(x) for x in v] for k,v in mutations.items()},
                    'genotypes': {k:[int(x) for x in v] for k,v in genotypes.items()}}, fh)
