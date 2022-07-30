@@ -53,7 +53,7 @@ filter_queries = {
     '20B':  "region=='Europe' | region=='North America'",
     '20C':  "region=='Europe' | region=='North America'",
     '20A+': "region=='Europe' | region=='North America'",
-    '20I': "country=='United Kingdom'"
+    '20I': "region=='Europe'"
 }
 
 rule get_data:
@@ -112,6 +112,7 @@ rule root_to_tip:
         mindate = lambda w: date_ranges[w.v],
         maxdate = lambda w: date_ranges[w.v] + offset,
         clades = lambda w: variants[w.v],
+        max_group = 500,
         filter_query = lambda w: ('--query ' + f'"{filter_queries[w.v]}"') if w.v in filter_queries else ''
     shell:
         """
@@ -120,6 +121,7 @@ rule root_to_tip:
                                        --min-date {params.mindate} \
                                        --max-date {params.maxdate} \
                                        {params.filter_query} \
+                                       --max-group {params.max_group} \
                                        --output-plot {output.figure} \
                                        --output-json {output.json}
         """
@@ -136,6 +138,7 @@ rule genotype_counts:
         mindate = lambda w: date_ranges[w.v],
         maxdate = lambda w: date_ranges[w.v] + offset,
         bin_size = 5,
+        max_group = 500,
         filter_query = lambda w: ('--query ' + f'"{filter_queries[w.v]}"') if w.v in filter_queries else ''
     shell:
         """
@@ -144,6 +147,7 @@ rule genotype_counts:
                                        --min-date {params.mindate} \
                                        --max-date {params.maxdate} \
                                        {params.filter_query} \
+                                       --max-group {params.max_group} \
                                        --bin-size {params.bin_size} \
                                        --output-json {output.json}
         """
@@ -221,7 +225,7 @@ rule rate_table:
             aa_div = len([x for x in clade_gts[base_clade]['aa'] if 'ORF9' not in x])
             nuc_div = len(clade_gts[base_clade[:3]]['nuc'])
             data.append({'clade':d['clade'], 'nuc_rate': d['nuc']['slope'],
-                         'nuc_origin': d['nuc']['origin'],'nuc_origin_date': datestring_from_numeric(d['nuc']['origin']),
+                         'nuc_origin': d['nuc']['origin'], 'nuc_origin_date': datestring_from_numeric(d['nuc']['origin']),
                          'aa_rate': d['aa']['slope'],
                          'aa_origin':d['aa']['origin'], 'aa_origin_date':datestring_from_numeric(d['aa']['origin']),
                          'syn_rate': d['syn']['slope'],
