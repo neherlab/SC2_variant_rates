@@ -112,7 +112,7 @@ rule root_to_tip:
         mindate = lambda w: date_ranges[w.v][0],
         maxdate = lambda w: date_ranges[w.v][1],
         clades = lambda w: variants[w.v],
-        filter_query = lambda: ("--query" + filter_queries[w.v]) if w.v in filter_queries else ""
+        filter_query = lambda w: ("--query" + filter_queries[w.v]) if w.v in filter_queries else ""
     shell:
         """
         python3 scripts/root_to_tip.py --metadata {input.metadata} --clade {params.clade} --sub-clades {params.clades} \
