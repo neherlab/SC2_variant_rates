@@ -32,7 +32,7 @@ if __name__=="__main__":
     axs[0].legend()
 
     axs[1].plot(dates, counts['all_samples'], lw=3, c='k', alpha=0.3)
-    for m in sorted(counts['mutations'].keys(), key=lambda w:int(m[1:-1])):
+    for m in sorted(counts['mutations'].keys(), key=lambda x:int(x[1:-1])):
         axs[1].plot(dates, counts['mutations'][m], '-o', label=f'{m}')
 
     axs[1].set_yscale('log')
