@@ -21,14 +21,24 @@ if __name__=="__main__":
     with open(args.counts) as fh:
         counts = json.load(fh)
 
+    plt.figure()
+    nmuts = [m for m in counts['mutation_number'] if m[-1]!='+']
+    for week in range(5,len(counts['mutation_number']['0'])):
+        c = np.array([counts['mutation_number'][str(n)][week] for n in nmuts])
+        if c.sum()>100:
+            plt.plot(range(len(nmuts)), c/c.sum(), '-')
 
-    dates = [datetime.fromordinal(x) for x in counts['bins'][:-1]]
-    fig, axs = plt.subplots(1,3, figsize = (18,6), sharey=True)
 
-    ax = axs[0]
-    ax.plot(dates, counts['all_samples'], lw=3, c='k', alpha=0.3)
-    for m in counts['mutation_number']:
-        ax.plot(dates, counts['mutation_number'][m], '-o', label=f'{m} mutations')
+    dates = np.array([datetime.fromordinal(x) for x in counts['bins'][:-1]])
+    fig, axs = plt.subplots(1,3, figsize = (18,6))
+
+    ax = axs[2]
+    # ax.plot(dates, counts['all_samples'], lw=3, c='k', alpha=0.3)
+    all_samples = np.array(counts['all_samples'])
+    for m in ['0', '1', '2', '3', '4', '5+']:
+        muts = np.array(counts['mutation_number'][m])
+        ind = muts>0
+        ax.plot(dates[ind], muts[ind]/all_samples[ind], '-o', label=f'{m} mutations')
 
     ax.set_yscale('log')
     ax.legend()
@@ -41,7 +51,7 @@ if __name__=="__main__":
     ax.set_yscale('log')
     ax.legend()
 
-    ax = axs[2]
+    ax = axs[0]
     ax.plot(dates, counts['all_samples'], lw=3, c='k', alpha=0.3)
     for m in sorted(counts['genotypes'].keys(), key=lambda x: len(x)):
         ax.plot(dates, counts['genotypes'][m], '-o', label=f'{m}' if m else "founder")

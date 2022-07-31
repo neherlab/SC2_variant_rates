@@ -152,7 +152,7 @@ if __name__=="__main__":
     parser.add_argument('--sub-clades', type=str, required=True, help="input data")
     parser.add_argument('--min-date', type=float, help="input data")
     parser.add_argument('--max-date', type=float, help="input data")
-    parser.add_argument('--max-group', type=int, default=100, help="input data")
+    parser.add_argument('--max-group', type=int, help="input data")
     parser.add_argument('--query', type=str, help="filters")
     parser.add_argument('--output-plot', type=str, help="plot file")
     parser.add_argument('--output-json', type=str, help="rate file")
@@ -163,7 +163,7 @@ if __name__=="__main__":
     d = pd.read_csv(args.metadata, sep='\t').fillna('')
     filtered_data = filter_and_transform(d, clade_gt, min_date=args.min_date, max_date=args.max_date,
                                          query = args.query, max_group=args.max_group, QC_threshold=80 if args.clade=='21H' else 30,
-                                         completeness=0, swap_root=args.clade=='19B+')
+                                         completeness=0, swap_root=args.clade.startswith('19B+'))
 
     regression = linregress(filtered_data.numdate, filtered_data.divergence)
     filtered_data["residuals"] = filtered_data.apply(lambda x: x.divergence - (regression.intercept + regression.slope*x.numdate), axis=1)

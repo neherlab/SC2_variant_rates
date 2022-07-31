@@ -1,6 +1,7 @@
 variants = {'19A':'19A',
             '19B':'19B',
             '19B+':'19A,19B',
+            '19B++':'19A,19B,20A,20B,20C,20D',
             '20A':'20A',
             '20B':'20B',
             '20C':'20C',
@@ -27,6 +28,7 @@ date_ranges = {
 '19A':  2019.9,
 '19B':  2019.9,
 '19B+': 2019.9,
+'19B++': 2019.9,
 '20A':  2020.1,
 '20B':  2020.1,
 '20C':  2020.1,
@@ -112,7 +114,7 @@ rule root_to_tip:
         mindate = lambda w: date_ranges[w.v],
         maxdate = lambda w: date_ranges[w.v] + offset,
         clades = lambda w: variants[w.v],
-        max_group = 500,
+        max_group = 1000,
         filter_query = lambda w: ('--query ' + f'"{filter_queries[w.v]}"') if w.v in filter_queries else ''
     shell:
         """
@@ -138,7 +140,7 @@ rule genotype_counts:
         mindate = lambda w: date_ranges[w.v],
         maxdate = lambda w: date_ranges[w.v] + offset,
         bin_size = 5,
-        max_group = 500,
+        max_group = 1000,
         filter_query = lambda w: ('--query ' + f'"{filter_queries[w.v]}"') if w.v in filter_queries else ''
     shell:
         """

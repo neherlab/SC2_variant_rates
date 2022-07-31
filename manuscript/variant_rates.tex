@@ -70,6 +70,7 @@ Due to shared ancestry, a divergence (or root-to-tip) regression against time is
 However, in the case of rapidly expanding variants we typically observe a large number of independent lineages emanating from a basal polytomy.
 Along each of these lineages, mutation accumulation is independent and divergence increase allows to estimate the rate.
 Fig.~\ref{fig:rate_alpha} shows the increasing intra-clade divergence for clade 20I corresponding to VoC Alpha.
+Both synonymous and non-synonymous within-clade average divergence increases linearly over time allowing for a robust estimate of the rate.
 
 \begin{figure*}[tb]
     \includegraphics[width=\textwidth]{figures/rtt/20I_rtt.png}
@@ -94,6 +95,12 @@ Rates of non-synonymous changes are much more variable.
 Within clades, the rate of non-synonymous changes varies between 5 and 16 changes per year.
 Earlier clades are estimated to have larger rates around 10-15 changes per year, while rate estimates for later clade fall  between 3 to 9 changes per year.
 In contrast, the inter-clade non-synonymous rate exceeds 25 changes per year.
+
+Nextstrain clades tend to be defined by long branches leading to a large polytomy.
+It is thus expected that the estimated inter-clade rate exceeds the intra-clade rate purely because of this conditioning.
+This effect might be particularly important early on in the pandemic where branches with as little two mutations were used to define new clades.
+We thus also included composite clades 19B+, 19B++ and 20A+ containing sequences from 19A and 19B (rooted on 19B), 19A, 19B, 20A, 20B, 20C, 20D (rooted on 19B), and 20A, 20B, 20C, 20D (rooted on 20A).
+While we estimate somewhat higher rates for these composite clades (in particular 19B++), the overall pattern remains consistent.
 
 \begin{table*}
 \begin{tabular}{l|rrrrrr}
@@ -129,19 +136,7 @@ In contrast, the inter-clade non-synonymous rate exceeds 25 changes per year.
 
 The apparent time dependence of non-synonymous rate suggests that at the beginning a large fraction of amino acid changes were beneficial to viral replication, not just the D614G mutation in the spike protein \citep{korber_tracking_2020}.
 This applies both to the changes within clades that were ultimately displaced by more successful variants, and inter-variant changes where the fraction of adaptive changes is even higher.
-Adaptive evolution complicates phylodynamic analysis, which typically assumes that the mutation process is independent of the spread and epidemiology.
-This assumption is true for neutral mutations that occur along every lineage with the same rate.
-Adaptive and deleterious mutations, however, affect the ability of the virus to spread.
-Deleterious mutations are relatively straightforward to account for: Strongly deleterious mutations don't spread and lead to an evolutionary rate that is smaller than the mutation rates.
-Weakly deleterious mutations can spread, but lineages that carry them tend to be short-lived.
-A spectrum of mutations with different deleterious effects leads to time dependent effective evolutionary rates \citep{wertheim_purifying_2011}.
-The intra-clade rates in Fig.~\ref{fig:rate_progression} are all estimated over a similar time frame and the time dependent rate phenomenon should not apply.
 
-Adaptive evolution, however, is much harder to account for properly and can lead to more dramatic distortions.
-Since the number of sites that allow beneficial mutations is small, adaptive evolution tends to be very stochastic.
-Unlike neutral evolution, the rate of adaptive evolution depends on the population size and the transmission process.
-Epistatic interactions can further steepen the dependence on population size and stochasticity.
-Methods to infer emergence dates and locations of the early variants might therefore be biased or over-confident.
 
 
 \subsection*{Diversification within variants}
@@ -163,6 +158,33 @@ Since these branching process models are linear, them mean number of cases $n$ w
 with solution $m_i = e^{(\alpha - u)t} \frac{(ut)^i}{i!}$.
 These Poisson weights of mutation numbers are again only valid if mutations accumulate along many independent lineages.
 In particular, this assumption is violated if some lineages spread systematically faster than others either because of epidemiological factors or the mutations they carry.
+
+
+\section*{Discussion}
+The inferred evolutionary rate of RNA viruses often decreases with the time scale across which is it estimated \citep{wertheim_purifying_2011,ghafari_prisoner_2021}.
+This effect is particularly pronounced at the beginning of an outbreak following a host switch and has been attributed to methodological issues and incomplete purifying selection leading to inflated measures of diversity \citep{meyer_time_2015,ghafari_purifying_2022}.
+In addition to segregating deleterious mutations, early viral evolution after a host switch will also be affect by anomalously fast adaptive evolution as a dramatic change in environment, i.e.~a host switch, likely results in many mutations that increase fitness, possibly only in epistatic combinations with others.
+Such transient increases in the rate of adaptation is common in experimental evolution \citep{elena_virus_2007}.
+
+The analysis presented here suggests that the early evolutionary rate of SARS-CoV-2 was inflated by adaptive evolution.
+Since we analyzed evolution within short lived clades of SARS-CoV-2 over a span of 6 month, purifying selection has comparable efficiency for all clades.
+Nevertheless, the non-synonymous evolutionary of clades circulating in late 2019 and early 2020 is about twice as high as that of clades in 2021 and 2020.
+
+Adaptive evolution complicates phylodynamic analysis, which typically assumes that the mutation process is independent of the spread and epidemiology.
+This assumption is true for neutral mutations that occur along every lineage with the same rate.
+Adaptive and deleterious mutations, however, affect the ability of the virus to spread.
+
+Deleterious mutations are relatively straightforward to account for: Strongly deleterious mutations don't spread and are only observed on terminal branches, similar to sequencing errors.
+Weakly deleterious mutations can spread, but lineages that carry them tend to be short-lived.
+A spectrum of mutations with different deleterious effects leads to time dependent effective evolutionary rates \citep{wertheim_purifying_2011}.
+The intra-clade rates in Fig.~\ref{fig:rate_progression} are all estimated over a similar time frame and the time dependent rate phenomenon should not apply.
+
+Adaptive evolution, however, is much harder to account for properly and can lead to more dramatic distortions.
+Since the number of sites that allow beneficial mutations is small, adaptive evolution tends to be very stochastic.
+Unlike neutral evolution, the rate of adaptive evolution depends on the population size and the transmission process.
+Epistatic interactions can further steepen the dependence on population size and increase stochasticity.
+Methods to infer emergence dates and locations of the early variants might therefore be biased or over-confident.
+
 
 
 

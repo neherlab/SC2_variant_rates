@@ -17,7 +17,7 @@ if __name__=="__main__":
     parser.add_argument('--sub-clades', type=str, required=True, help="input data")
     parser.add_argument('--min-date', type=float, help="input data")
     parser.add_argument('--max-date', type=float, help="input data")
-    parser.add_argument('--max-group', type=int, default=100, help="input data")
+    parser.add_argument('--max-group', type=int, help="input data")
     parser.add_argument('--query', type=str, help="filters")
     parser.add_argument('--bin-size', type=float, help="input data")
     parser.add_argument('--output-json', type=str, help="rate file")
@@ -28,7 +28,7 @@ if __name__=="__main__":
     d = pd.concat([pd.read_csv(x, sep='\t').fillna('') for x in args.metadata])
     filtered_data = filter_and_transform(d, clade_gt, min_date=args.min_date, max_date=args.max_date,
                                          query = args.query, max_group=args.max_group, QC_threshold=80 if args.clade=='21H' else 30,
-                                         completeness=0, swap_root=args.clade=='19B+')
+                                         completeness=0, swap_root=args.clade.startswith('19B+'))
     filtered_data["day"] = filtered_data.datetime.apply(lambda x:x.toordinal())
 
     print("clade", args.clade, "done filtering")
@@ -38,11 +38,17 @@ if __name__=="__main__":
 
     mutation_number = {}
     nmax = 5
+    nmax_extra = 15
     for n in range(nmax):
         ind = filtered_data["divergence"]==n
         mutation_number[n] = np.histogram(filtered_data.loc[ind,"day"], bins=bins)[0]
         cumulative_sum += mutation_number[n]
     mutation_number[f'{nmax}+'] = all_sequences - cumulative_sum
+    for n in range(nmax,nmax_extra):
+        ind = filtered_data["divergence"]==n
+        mutation_number[n] = np.histogram(filtered_data.loc[ind,"day"], bins=bins)[0]
+        cumulative_sum += mutation_number[n]
+
     print("clade", args.clade, "done mutation_number")
 
     mutation_counts = defaultdict(int)
@@ -89,7 +95,7 @@ if __name__=="__main__":
         ind = filtered_data["intra_substitutions_str"]==x
         if i<10 and nmuts:
             continue
-        if nmuts==0 or (nmuts==1 and ind.sum()>0.02*n_early) or (ind.sum()>0.05*n_early):
+        if nmuts==0 or (nmuts==1 and ind.sum()>0.005*n_early) or (ind.sum()>0.01*n_early):
             genotypes[x] = np.histogram(filtered_data.loc[ind,"day"], bins=bins)[0]
             gt_count +=1
             if gt_count>10:
