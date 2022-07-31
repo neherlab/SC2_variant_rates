@@ -72,9 +72,9 @@ Along each of these lineages, mutation accumulation is independent and divergenc
 Fig.~\ref{fig:rate_alpha} shows the increasing intra-clade divergence for clade 20I corresponding to VoC Alpha.
 
 \begin{figure*}[tb]
-    \includegraphics[width=\textwidth]{figures/20I_rtt.png}
+    \includegraphics[width=\textwidth]{figures/rtt/20I_rtt.png}
     \caption{{\bf Divergence increases linearly with time (20I (Alpha)).} Each panel shows the number of within-clade mutations (total (A), amino acid changing (B), synonymous (C)) as a function of time.
-    The blue line in panel A indicates the divergence cut-off, panels B\&C only show sequences that pass the divergence filter. Each panel also shows mean $\pm$ standard deviation and a weighted linear fit.
+    The blue line in panel A indicates the divergence cut-off, panels B\&C only show sequences that pass the divergence filter. Each panel also shows mean $\pm$ standard deviation and a weighted linear fit. Analogous figures for all variants are included in the appendix.
     \label{fig:rate_alpha}}
 \end{figure*}
 
@@ -123,7 +123,7 @@ In contrast, the inter-clade non-synonymous rate exceeds 25 changes per year.
 
 \begin{figure}
     \includegraphics[width=0.5\textwidth]{figures/rate_progression.pdf}
-    \caption[]{{\bf Divergence and evolutionary rates of different Nextstrain clades over time.} Synonymous rates estimates are stable in time and fluctuate around the rate estimates for between clades. Non-synonymous rate estimates are highest for clades 19A - 20C.
+    \caption{{\bf Divergence and evolutionary rates of different Nextstrain clades over time.} Synonymous rates estimates are stable in time and fluctuate around the rate estimates for between clades. Non-synonymous rate estimates are highest for clades 19A - 20C.
     \label{fig:rate_progression} }
 \end{figure}
 
@@ -145,8 +145,29 @@ Methods to infer emergence dates and locations of the early variants might there
 
 
 \subsection*{Diversification within variants}
-The analysis of evolutionary rates above only considers the mean divergence within rates.
+The analysis of evolutionary rates above only considers the mean divergence within clades which, at least when variation is neutral, is independent of epidemiological parameters.
+The structure of within clade diversity does contain information on the rate of spread.
+A simple model for a growing variant is a super-critical branching process with growth rate $\alpha$ and an embedded mutation process.
+Offspring of genomes with $i$ mutations contain $i+j$ mutations, where $j$ is a Poisson distributed number with mean $\mu t$ (mutation rate $\mu$ and generation time $t$).
+The probability that offspring genomes are identical to their parents is $u = 1-e^{-\mu t}$, which for a generation time of $t=5days$ and a rate of $\mu = 15/year$ evaluates to $u=0.2$.
+Since these branching process models are linear, them mean number of cases $n$ will increase exponentially with rate $\alpha$, while the number of genomes with $i$ mutations relative to the founder $m_i$ grows with rate $\alpha - u$ per generation.
+\begin{equation}
+    \begin{split}
+        \frac{dn}{dt} &= \alpha n \\
+        \frac{dm_0}{dt} &= (\alpha - u) m_0 \\
+        \frac{dm_1}{dt} &= u m_0 (\alpha - u) m_1 \\
+        \frac{dm_2}{dt} &= u m_1 (\alpha - u) m_2 \\
+        \cdots
+    \end{split}
+\end{equation}
+with solution $m_i = e^{(\alpha - u)t} \frac{(ut)^i}{i!}$.
+These Poisson weights of mutation numbers are again only valid if mutations accumulate along many independent lineages.
+In particular, this assumption is violated if some lineages spread systematically faster than others either because of epidemiological factors or the mutations they carry.
+
 
 
 \bibliography{bib}
+\appendix
+\include{appendix_rtt}
+\include{counts_appendix}
 \end{document}
