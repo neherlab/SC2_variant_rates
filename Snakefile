@@ -66,6 +66,14 @@ rule get_data:
         curl https://data.nextstrain.org/files/ncov/open/metadata.tsv.gz -o {output}
         """
 
+rule get_nextclade:
+    output:
+        "data/nextclade.tsv.gz"
+    shell:
+        """
+        curl https://data.nextstrain.org/files/ncov/open/nextclade.tsv.gz -o {output}
+        """
+
 rule get_clade_data:
     output:
         tree = "data/clade_tree.json",
@@ -250,4 +258,20 @@ rule rate_summary:
         python3 scripts/combine_fits.py --rate-table {input.rate_table}\
                                        --output-plot {output.figure} \
                                        --output-plot-rates {output.figure_rates}
+        """
+
+
+rule fitness_costs:
+    input:
+        ref = 'data/reference.gb',
+        nextclade = 'data/nextclade.tsv.gz'
+    output:
+        fitness_figure = "figures/fitness_cost.pdf",
+        mutation_figure = "figures/mutation_distribution.pdf"
+    shell:
+        """
+        python3 scripts/count_mutations.py --metadata {input.nextclade}\
+                 --reference {input.ref} \
+                 --output-fitness {output.fitness_figure} \
+                 --output-mutation {output.mutation_figure}
         """

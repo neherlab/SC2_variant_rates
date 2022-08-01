@@ -186,9 +186,9 @@ if __name__=="__main__":
     sns.histplot(x=filtered_data.numdate, y=np.minimum(ymax*1.5, filtered_data.divergence), bins=bins, ax=axs[0])
     x = np.linspace(*axs[0].get_xlim(),101)
     axs[0].set_title('all differences')
-    axs[0].plot(x, regression.intercept + regression.slope*x + tolerance(x), lw=4)
     axs[0].plot(x, regression_clean["intercept"] + regression_clean["slope"]*x, lw=4, label=f"slope = {regression_clean['slope']:1.1f} subs/year")
     axs[0].errorbar(regression_clean["date"], regression_clean["mean"], regression_clean["stderr"])
+    axs[0].plot(x, regression.intercept + regression.slope*x + tolerance(x), lw=4)
 
     axs[1].set_title('amino acid differences')
     sns.histplot(x=filtered_data.numdate[ind], y=np.minimum(ymax*1.5, filtered_data.aaDivergence[ind]), bins=bins, ax=axs[1])
