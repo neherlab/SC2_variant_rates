@@ -196,9 +196,10 @@ rule af:
         count_files = expand("genotypes/{v}_counts.json", v=variants.keys()),
     output:
         af_fig = "figures/mutation_frequencies.pdf",
+        rates = "rates_poisson.tsv",
     shell:
         """
-        python3 scripts/plot_af.py --counts {input.count_files} --output-plot {output.af_fig}
+        python3 scripts/plot_af.py --counts {input.count_files} --output-plot {output.af_fig} --output-rates {output.rates}
         """
 
 rule all_rtt:
@@ -273,5 +274,5 @@ rule fitness_costs:
         python3 scripts/count_mutations.py --metadata {input.nextclade}\
                  --reference {input.ref} \
                  --output-fitness {output.fitness_figure} \
-                 --output-mutation {output.mutation_figure}
+                 --output-mutations {output.mutation_figure}
         """

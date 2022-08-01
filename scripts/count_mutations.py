@@ -19,7 +19,7 @@ if __name__=="__main__":
     parser.add_argument('--metadata', type=str, required=True, help="input data")
     parser.add_argument('--reference', type=str, required=True, help="input data")
     parser.add_argument('--output-fitness', type=str, required=True, help="fitness figure")
-    parser.add_argument('--output-mutation', type=str, required=True, help="fitness figure")
+    parser.add_argument('--output-mutations', type=str, required=True, help="fitness figure")
     args = parser.parse_args()
 
     ref = SeqIO.read(args.reference, 'genbank')

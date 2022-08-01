@@ -5,7 +5,7 @@ import matplotlib as mpl
 mpl.rcParams['axes.formatter.useoffset'] = False
 
 import matplotlib.pyplot as plt
-import seaborn as sns
+import pandas as pd
 
 
 def fit_exp(n,k_list,t):
@@ -42,6 +42,7 @@ if __name__=="__main__":
 
     parser.add_argument('--counts', nargs='+', type=str, required=True, help="input data")
     parser.add_argument('--output-plot', type=str, help="figure file")
+    parser.add_argument('--output-rates', type=str, help="table")
     args = parser.parse_args()
     counts = {}
     for fi,fname in enumerate(args.counts):
@@ -67,9 +68,8 @@ if __name__=="__main__":
     plt.savefig(args.output_plot)
 
 
-    fig, axs = plt.subplots(1,1, figsize = (8,6))
-    ax = axs
     ls = ['-', '-.', '--']
+    data = []
     for fi,(clade,d) in enumerate(counts.items()):
         fig = plt.figure()
         dates =   np.array([x for x in d['bins'][:-1]])
@@ -92,14 +92,17 @@ if __name__=="__main__":
         plt.plot(datetimes[ind], klist[4][ind]/total[ind], 'o', c='C4')
 
         tu = (dates[ind]-res['offset'])*res['rate']
-        plt.plot(datetimes[ind], np.exp(-tu), label=clade, ls=ls[fi//10], c='C0')
-        plt.plot(datetimes[ind], np.exp(-tu)*tu ,label=clade, ls=ls[fi//10], c='C1')
-        plt.plot(datetimes[ind], np.exp(-tu)*tu**2/2, label=clade, ls=ls[fi//10], c='C2')
-        plt.plot(datetimes[ind], np.exp(-tu)*tu**3/6 ,label=clade, ls=ls[fi//10], c='C3')
-        plt.plot(datetimes[ind], np.exp(-tu)*tu**4/24, label=clade, ls=ls[fi//10], c='C4')
+        plt.plot(datetimes[ind], np.exp(-tu), label=clade,         ls='-', c='C0')
+        plt.plot(datetimes[ind], np.exp(-tu)*tu ,label=clade,      ls='-', c='C1')
+        plt.plot(datetimes[ind], np.exp(-tu)*tu**2/2, label=clade, ls='-', c='C2')
+        plt.plot(datetimes[ind], np.exp(-tu)*tu**3/6 ,label=clade, ls='-', c='C3')
+        plt.plot(datetimes[ind], np.exp(-tu)*tu**4/24, label=clade, ls='-', c='C4')
 
         plt.yscale('log')
         start_date = datetime.fromordinal(int(t0 + res['offset'])).strftime("%Y-%m-%d")
+        data.append({'clade':clade, 'rate':res['rate']*365, 'origin':start_date})
         plt.title(f"{clade}: {start_date}, {res['rate']*365:1.3}/year")
         fig.autofmt_xdate()
         plt.savefig(f'figures/{clade}_poisson.pdf')
+
+    pd.DataFrame(data).to_csv(args.output_rates, sep='\t')
