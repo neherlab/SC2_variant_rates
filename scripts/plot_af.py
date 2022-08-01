@@ -8,21 +8,29 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-def fit_exp(n,k,t, order=0):
+def fit_exp(n,k_list,t):
     from scipy.optimize import minimize
     eps = 1e-16
-    def binom(x,n,k,t, order=0):
-        p = x[0]**2*np.exp(-x[1]**2*t)
-        if order>0:
-            p *= x[1]**2*t
-        if order>1:
-            p *= x[1]**2*t/2
-        p = np.minimum(1.0,p)
-        return -np.sum((n-k)*np.log(1-p+eps) + k*np.log(p+eps))
+    def binom(x,n,k_list,t):
+        res = 0
+        tu = np.maximum(0,x[1]**2*(t-x[0]))
+        for order, k in enumerate(k_list):
+            p = np.exp(-tu)
+            if order>0:
+                p *= tu
+            if order>1:
+                p *= tu/2
+            if order>2:
+                p *= tu/3
+            if order>3:
+                p *= tu/4
+            p = np.minimum(1.0,p)
+            res -= np.sum((n-k)*np.log(1-p+eps) + k*np.log(p+eps))
+        return res
 
-    sol = minimize(binom, (1,0.05), args=(n,k,t, order), method="Powell")
+    sol = minimize(binom, (-10,0.25), args=(n,k_list,t), method="Powell")
 
-    return {'offset':sol['x'][0]**2, 'rate':sol['x'][1]**2}
+    return {'offset':sol['x'][0], 'rate':sol['x'][1]**2}
 
 
 
@@ -56,39 +64,42 @@ if __name__=="__main__":
     ax.plot([1e-5,1e-1], [1e-0,1e-4], c='k', lw=3, alpha=0.5, label='1/x')
     # ax.plot(x, np.log(x)/np.log(x[0]), c='k', lw=3, alpha=0.5, label='~log(x)')
     plt.legend(ncol=3)
-    # plt.savefig(args.output_plot)
+    plt.savefig(args.output_plot)
 
 
     fig, axs = plt.subplots(1,1, figsize = (8,6))
     ax = axs
     ls = ['-', '-.', '--']
     for fi,(clade,d) in enumerate(counts.items()):
+        fig = plt.figure()
         dates =   np.array([x for x in d['bins'][:-1]])
-        dates -= dates[0]
+        datetimes =   np.array([datetime.fromordinal(x) for x in d['bins'][:-1]])
+        t0 = dates[0]
+        dates -= t0
         total =   np.array(d["all_samples"])
-        founder = np.array(d["mutation_number"]['0'])
-        ind = founder>0
-        if ind.sum()>10:
-            print(clade, "founder", fit_exp(total[ind], founder[ind], dates[ind]))
-            ax.plot(dates[ind], founder[ind]/total[ind], label=clade, ls=ls[fi//10], c='C0')
+        klist = [ np.array(d["mutation_number"]['0']),
+                  np.array(d["mutation_number"]['1']),
+                  np.array(d["mutation_number"]['2']),
+                  np.array(d["mutation_number"]['3']),
+                  np.array(d["mutation_number"]['4'])]
+        ind = total>0
+        res = fit_exp(total[ind], [x[ind] for x in klist], dates[ind])
+        print(clade, res)
+        plt.plot(datetimes[ind], klist[0][ind]/total[ind], 'o',c='C0')
+        plt.plot(datetimes[ind], klist[1][ind]/total[ind], 'o', c='C1')
+        plt.plot(datetimes[ind], klist[2][ind]/total[ind], 'o', c='C2')
+        plt.plot(datetimes[ind], klist[3][ind]/total[ind], 'o', c='C3')
+        plt.plot(datetimes[ind], klist[4][ind]/total[ind], 'o', c='C4')
 
-        single = np.array(d["mutation_number"]['1'])
-        ind = single>0
-        if ind.sum()>10:
-            print(clade, "single", fit_exp(total[ind], single[ind], dates[ind], order=1))
-            ax.plot(dates[ind], single[ind]/total[ind], label=clade, ls=ls[fi//10], c='C1')
+        tu = (dates[ind]-res['offset'])*res['rate']
+        plt.plot(datetimes[ind], np.exp(-tu), label=clade, ls=ls[fi//10], c='C0')
+        plt.plot(datetimes[ind], np.exp(-tu)*tu ,label=clade, ls=ls[fi//10], c='C1')
+        plt.plot(datetimes[ind], np.exp(-tu)*tu**2/2, label=clade, ls=ls[fi//10], c='C2')
+        plt.plot(datetimes[ind], np.exp(-tu)*tu**3/6 ,label=clade, ls=ls[fi//10], c='C3')
+        plt.plot(datetimes[ind], np.exp(-tu)*tu**4/24, label=clade, ls=ls[fi//10], c='C4')
 
-        double = np.array(d["mutation_number"]['2'])
-        ind = double>0
-        if ind.sum()>10:
-            print(clade, "double", fit_exp(total[ind], double[ind], dates[ind], order=2))
-            ax.plot(dates[ind], double[ind]/total[ind], label=clade, ls=ls[fi//10], c='C2')
-
-    ax.set_yscale('log')
-    ax.set_xlabel('mutation frequency')
-    ax.set_ylabel('fraction above')
-    # x = np.logspace(-4,-0.3,21)
-    # ax.plot([1e-5,1e-1], [1e-0,1e-4], c='k', lw=3, alpha=0.5, label='1/x')
-    # ax.plot(x, np.log(x)/np.log(x[0]), c='k', lw=3, alpha=0.5, label='~log(x)')
-    plt.legend(ncol=3)
-
+        plt.yscale('log')
+        start_date = datetime.fromordinal(int(t0 + res['offset'])).strftime("%Y-%m-%d")
+        plt.title(f"{clade}: {start_date}, {res['rate']*365:1.3}/year")
+        fig.autofmt_xdate()
+        plt.savefig(f'figures/{clade}_poisson.pdf')
