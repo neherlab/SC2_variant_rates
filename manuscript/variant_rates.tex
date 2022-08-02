@@ -139,7 +139,7 @@ This applies both to the changes within clades that were ultimately displaced by
 
 
 
-\subsection*{Diversification within variants}
+\subsection*{Diversification within clades}
 The analysis of evolutionary rates above only considers the mean divergence within clades which, at least when variation is neutral, is independent of epidemiological parameters.
 The structure of within clade diversity does contain information on the rate of spread.
 A simple model for a growing variant is a super-critical branching process with growth rate $\alpha$ and an embedded mutation process.
@@ -156,8 +156,36 @@ Since these branching process models are linear, them mean number of cases $n$ w
     \end{split}
 \end{equation}
 with solution $m_i = e^{(\alpha - u)t} \frac{(ut)^i}{i!}$.
+
+For some clades, especially those that are well sampled soon after their emergence, this Poisson models is good fit to diversity accumulation and yields estimates of rates and time of origin that are compatible with the divergence regression, see Fig.~\ref{fig:within_clades}.
+For other clades, especially when the founder sequence is barely observed and dominant subclades developed, such fits are not robust.
+This is particularly true for the early clades 19A and 19B, as well as 21J (Delta), 21K (Omicron, BA.1), and 22B (Omicron, BA.5).
+
+\begin{figure*}
+    \includegraphics[width=\textwidth]{figures/counts/20C_counts.pdf}
+    \caption{{\bf Diversification within clades.} \label{fig:within_clades}}
+\end{figure*}
+
 These Poisson weights of mutation numbers are again only valid if mutations accumulate along many independent lineages.
 In particular, this assumption is violated if some lineages spread systematically faster than others either because of epidemiological factors or the mutations they carry.
+
+
+\section*{Mutation tolerance}
+
+Above, we found that the rate of synonymous mutations is comparable within and between clades without any striking signal of temporal variation.
+This is expected, as synonymous positions are rarely a locus of adaptation and tend to have a small effects on fitness in large parts of the genomes of RNA viruses \citep{zanini_vivo_2017} (outside of specific regions with important RNA elements).
+To assess the level of constraint on the SARS-CoV-2 genome, we made use of the ``rare mutations'' annotation by Nextclade.
+Nextclade attaches each sequence to a reference tree and determines by which mutations it differs from the attachment point.
+For each pango lineage (as determined by Nextclade), we could how often these ``rare mutations'' are observed, normalize this against the relative rate of mutation of the reference nucleotide (see Supp.~Fig.~?), and use this as a proxy for mutational tolerance.
+Simply splitting mutations into those that occur in 1st, 2nd, and 3rd positions of codons already reveals strong signatures of purifying selection.
+
+ \begin{figure}
+    \includegraphics[width=\textwidth]{figures/fitness_cost.pdf}
+    \caption{{\bf Constraints on SARS-CoV-2 mutations.}
+    Almost all 3rd codon positions tolerate mutations, while 1st and 2nd positions are strongly constrained.
+    About half of the 1st and 2nd codon positions are less variable than the most constrained 10\% of 3rd positions (gray line).
+    \label{fig:fitness_costs}}
+ \end{figure}
 
 
 \section*{Discussion}
@@ -190,6 +218,7 @@ Methods to infer emergence dates and locations of the early variants might there
 
 \bibliography{bib}
 \appendix
+\include{appendix}
 \include{appendix_rtt}
-\include{counts_appendix}
+\include{appendix_counts}
 \end{document}
