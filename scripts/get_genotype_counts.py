@@ -93,12 +93,12 @@ if __name__=="__main__":
     for x,i in intra_geno.items():
         nmuts = len(x.split(',')) if x else 0
         ind = filtered_data["intra_substitutions_str"]==x
-        if i<10 and nmuts:
+        if i<10 and nmuts or nmuts>4:
             continue
         if nmuts==0 or (nmuts==1 and ind.sum()>0.005*n_early) or (ind.sum()>0.01*n_early):
             genotypes[x] = np.histogram(filtered_data.loc[ind,"day"], bins=bins)[0]
             gt_count +=1
-            if gt_count>10:
+            if gt_count>8:
                 break
 
     print("clade", args.clade, "done genotypes")

@@ -99,15 +99,15 @@ rule split_by_variant:
         """
 
 
-rule clade_genotypes:
+rule pango_genotypes:
     input:
         tree = "data/clade_tree.json",
         root = "data/root-sequence.json"
     output:
-        gt = "data/clade_gts.json"
+        gt = "data/pango_gts.json"
     shell:
         """
-        python3 scripts/get_genotypes.py --tree {input.tree} --root {input.root} --output {output.gt}
+        python3 scripts/get_genotypes_pango.py --tree {input.tree} --root {input.root} --output {output.gt}
         """
 
 rule root_to_tip:
@@ -265,14 +265,18 @@ rule rate_summary:
 rule fitness_costs:
     input:
         ref = 'data/reference.gb',
-        nextclade = 'data/nextclade.tsv.gz'
+        nextclade = 'data/nextclade.tsv.gz',
+        pango_gts = 'data/pango_gts.json'
     output:
         fitness_figure = "figures/fitness_cost.pdf",
+        fitness_figure_by_gene = "figures/fitness_cost_by_gene.pdf",
         mutation_figure = "figures/mutation_distribution.pdf"
     shell:
         """
         python3 scripts/count_mutations.py --metadata {input.nextclade}\
                  --reference {input.ref} \
+                 --pango-gts {input.pango_gts} \
                  --output-fitness {output.fitness_figure} \
+                 --output-fitness-by-gene {output.fitness_figure_by_gene} \
                  --output-mutations {output.mutation_figure}
         """
