@@ -80,7 +80,7 @@ Fig.~\ref{fig:rate_alpha} shows the increasing intra-clade divergence for clade 
 Both synonymous and non-synonymous within-clade average divergence increases linearly over time allowing for a robust estimate of the rate.
 
 \begin{figure*}[tb]
-    \includegraphics[width=\textwidth]{figures/rtt/20I_rtt.png}
+    \includegraphics[width=\textwidth]{figures/rtt/20I_rtt.pdf}
     \caption{{\bf Divergence increases linearly with time (20I (Alpha)).} Each panel shows the number of within-clade mutations (total (A), amino acid changing (B), synonymous (C)) as a function of time.
     The blue line in panel A indicates the divergence cut-off, panels B\&C only show sequences that pass the divergence filter. Each panel also shows mean $\pm$ standard deviation and a weighted linear fit. Analogous figures for all clades considered are included in the appendix.
     \label{fig:rate_alpha}}
@@ -188,7 +188,7 @@ Above, we found that the rate of synonymous mutations is comparable within and b
 This is expected, as synonymous positions are rarely a locus of adaptation and tend to have a small effects on fitness in large parts of the genomes of RNA viruses \citep{zanini_vivo_2017} (outside of specific regions with important RNA elements).
 To assess the level of constraint on the SARS-CoV-2 genome, we made use of the ``rare mutations'' annotation by Nextclade.
 Nextclade attaches each sequence to a reference tree and determines by which mutations it differs from the attachment point.
-For each pango lineage (as determined by Nextclade), we could how often these ``rare mutations'' are observed, normalize this against the relative rate of mutation of the reference nucleotide (see Supp.~Fig.~\ref{fig:mutation_distribution}), and use this as a proxy for mutational tolerance.
+For each pango lineage (as determined by Nextclade), we count how often these ``rare mutations'' are observed, normalize this against the relative rate of mutation of the reference nucleotide (see Supp.~Fig.~\ref{fig:mutation_distribution}), and use this as a proxy for mutational tolerance.
 
 Simply splitting mutations into those that occur in 1st, 2nd, and 3rd positions of codons already reveals strong signatures of purifying selection, see Fig.~\ref{fig:fitness_costs}.
 Between 15-20\% of positions at first and second codons show almost no variation, while half of these sites are less variable then the most constrained 10\% of third positions.

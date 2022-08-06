@@ -196,7 +196,7 @@ rule af:
         count_files = expand("genotypes/{v}_counts.json", v=variants.keys()),
     output:
         af_fig = "figures/mutation_frequencies.pdf",
-        rates = "rates_poisson.tsv",
+        rates = "data/rates_poisson.tsv",
     shell:
         """
         python3 scripts/plot_af.py --counts {input.count_files} --output-plot {output.af_fig} --output-rates {output.rates}
@@ -219,8 +219,8 @@ rule rate_table:
         rate_files = expand("rates/{v}_rate.json", v=variants.keys()),
         gt = "data/clade_gts.json"
     output:
-        rate_table = "rates.tsv",
-        rate_table_tex = "rates.tex"
+        rate_table = "data/rates.tsv",
+        rate_table_tex = "manuscript/rates.tex"
     run:
         import json
         import pandas as pd
@@ -250,7 +250,7 @@ rule rate_table:
 
 rule rate_summary:
     input:
-        rate_table = "rates.tsv"
+        rate_table = "data/rates.tsv"
     output:
         figure = "figures/rate_summary.pdf",
         figure_rates = "figures/rate_progression.pdf"
@@ -268,14 +268,29 @@ rule fitness_costs:
         nextclade = 'data/nextclade.tsv.gz',
         pango_gts = 'data/pango_gts.json'
     output:
-        fitness_figure = "figures/fitness_cost.pdf",
-        fitness_figure_by_gene = "figures/fitness_cost_by_gene.pdf",
-        mutation_figure = "figures/mutation_distribution.pdf"
+        fitness_costs = "data/fitness.tsv",
+        mutation_rates = "data/mutation_rates.tsv"
     shell:
         """
         python3 scripts/count_mutations.py --metadata {input.nextclade}\
                  --reference {input.ref} \
                  --pango-gts {input.pango_gts} \
+                 --output-fitness {output.fitness_costs} \
+                 --output-mutations {output.mutation_rates}
+        """
+
+rule fitness_figures:
+    input:
+        fitness_costs = "data/fitness.tsv",
+        mutation_rates = "data/mutation_rates.tsv"
+    output:
+        fitness_figure = "figures/fitness_cost.pdf",
+        fitness_figure_by_gene = "figures/fitness_cost_by_gene.pdf",
+        mutation_figure = "figures/mutation_distribution.pdf"
+    shell:
+        """
+        python3 scripts/plot_fitness.py --fitness {input.fitness_costs}\
+                 --mutations {input.mutation_rates} \
                  --output-fitness {output.fitness_figure} \
                  --output-fitness-by-gene {output.fitness_figure_by_gene} \
                  --output-mutations {output.mutation_figure}

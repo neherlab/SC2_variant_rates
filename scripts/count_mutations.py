@@ -35,9 +35,9 @@ if __name__=="__main__":
     parser.add_argument('--metadata', type=str, required=True, help="input data")
     parser.add_argument('--reference', type=str, required=True, help="input data")
     parser.add_argument('--pango-gts', type=str, required=True, help="input data")
-    parser.add_argument('--output-fitness', type=str, required=True, help="fitness figure")
-    parser.add_argument('--output-fitness-by-gene', type=str, required=True, help="fitness figure")
-    parser.add_argument('--output-mutations', type=str, required=True, help="fitness figure")
+    parser.add_argument('--rare-cutoff', type=int, default=2, help="minimal number of occurrences to count mutations")
+    parser.add_argument('--output-fitness', type=str, required=True, help="fitness table")
+    parser.add_argument('--output-mutations', type=str, required=True, help="fitness table")
     args = parser.parse_args()
 
     ## load reference
@@ -71,24 +71,34 @@ if __name__=="__main__":
 
     # glob all rare mutations by pango lineage
     mutation_counter = defaultdict(lambda: defaultdict(int))
-    # pango_counter = defaultdict(int)
+    pango_counter = defaultdict(int)
     for r, row in d.iterrows():
         pango = row.Nextclade_pango
-        # pango_counter[pango] += 1
         if pango[0]=='X':
             continue
 
+        pango_counter[pango] += 1
         muts = row["privateNucMutations.unlabeledSubstitutions"]
         if muts:
             for m in muts.split(','):
                 mutation_counter[pango][m] += 1
 
+    lineage_size_cutoff = 100
+    big_lineages = [pango for pango in pango_counter if pango_counter[pango]>lineage_size_cutoff]
+    nlin = len(big_lineages)
+    tmp_number_of_pango_muts = defaultdict(int)
+    for pango, muts in pango_gts.items():
+        if pango_counter[pango]>lineage_size_cutoff:
+            for m in muts['nuc']:
+                tmp_number_of_pango_muts[int(m[1:-1])-1] += 1
+    number_of_pango_muts = np.array([tmp_number_of_pango_muts.get(pos,0)/nlin for pos in range(len(ref))])
+
 
     # for each pango lineage, count mutations by position, as well as synoymous and non-synonyomous by codon
     position_counter = defaultdict(lambda: defaultdict(list))
+    position_freq = defaultdict(lambda: defaultdict(list))
     syn =    defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
     nonsyn = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
-
     for pango, pmuts in mutation_counter.items():
         if pango not in pango_gts:
             print("missing pango", pango)
@@ -100,6 +110,9 @@ if __name__=="__main__":
             if a=='-':
                 continue
             position_counter[pos][(a,d)].append(c)
+            if pango_counter[pango]>lineage_size_cutoff and c>1:
+                position_freq[pos][(a,d)].append(c/pango_counter[pango])
+
             if pos in map_to_gene:
                 gene = map_to_gene[pos]
                 pos_in_gene = pos - gene_position[gene].start
@@ -117,10 +130,9 @@ if __name__=="__main__":
 
     # determine the total number of events and counts at each position
     def total_len_filtered_lists(l, cutoff):
-        return sum([len([y for y in x if y>cutoff]) for x in l])
+        return sum([len([y for y in x if y>=cutoff]) for x in l])
 
-    cutoff=1
-    total_events = np.array([total_len_filtered_lists(position_counter[pos].values(), cutoff)
+    total_events = np.array([total_len_filtered_lists(position_counter[pos].values(), args.rare_cutoff)
                             if pos in position_counter else 0
                             for pos in range(len(ref))])
 
@@ -136,113 +148,61 @@ if __name__=="__main__":
     # determine the mutations rate for each type, as well as the rate out of a nuc
     transition_rate = dict()
     away_rate = defaultdict(float)
+    total_rate = np.sum(list(events_by_transition.values()))
     for a,d in events_by_transition:
         if a in base_content:
-            transition_rate[(a,d)] = events_by_transition[(a,d)]/base_content[a]
+            transition_rate[(a,d)] = events_by_transition[(a,d)]/base_content[a]/total_rate*len(ref)
             away_rate[a] += transition_rate[(a,d)]
 
     # average mutation rate used to scale rates
-    avg_rate = np.sum([base_content[n]*away_rate[n]/len(ref) for n in 'ACGT'])
-    total_events_rescaled = np.array([c/away_rate[nuc]*avg_rate for c,nuc in zip(total_events, ref.seq)])
+    total_events_rescaled = np.array([c/away_rate[nuc] for c,nuc in zip(total_events, ref.seq)])
+    total_events_rescaled /= np.median(total_events_rescaled)
 
-    # calculate synonymous and non-synonymous distributions
-    total_events_by_type = {}
-    for mut_counts, label in [(syn, 'syn'), (nonsyn, 'nonsyn')]:
-        total_events_by_type[label] = {}
-        for gene in mut_counts:
-            total_events_by_type[label][gene] = [np.sum([len([x for x in mut_counts[gene][pos][a] if x>cutoff])/away_rate[a]*avg_rate
-                                                     for a in mut_counts[gene][pos]])
-                                                   for pos in range(gene_length[gene])]
+    with open(args.output_fitness, 'w') as fh:
+        fh.write('\t'.join(['position', 'ref_state', 'lineage_fraction_with_changes', 'gene', 'codon', 'pos_in_codon', 'total_count', 'total_events', 'tolerance']) + '\n')
+        for pos, nuc in enumerate(ref_array):
+            gene = map_to_gene.get(pos,"")
+            if gene:
+                gene_pos = pos - gene_position[gene].start
+                codon = gene_pos//3 + 1
+                cp = gene_pos%3 + 1
+                fh.write(f'{pos+1}\t{nuc}\t{number_of_pango_muts[pos]:1.3f}\t{gene}\t{codon}\t{cp}\t{total_counts[pos]}\t{total_events[pos]}\t{total_events_rescaled[pos]:1.3f}\n')
+            else:
+                fh.write(f'{pos+1}\t{nuc}\t{number_of_pango_muts[pos]:1.3f}\t\t\t\t{total_counts[pos]}\t{total_events[pos]}\t{total_events_rescaled[pos]:1.3f}\n')
 
-    ## Figure with 1st, 2nd, 3rd positions
-    measure = total_events_rescaled
-    plt.figure()
-    for p in range(4):
-        ind = codon_pos==p
-        plt.plot(sorted(measure[ind]), np.linspace(0,1,ind.sum()),
-                        label = 'non-coding' if p==0 else f"codon pos={p}")
+    with open(args.output_mutations, 'w') as fh:
+        fh.write('\t'.join(['mutation', 'raw_counts', 'origin_sites', 'scaled_rate']) + '\n')
+        for a in 'ACTG':
+            for d in 'ACGT':
+                if a==d: continue
+                key = (a,d)
+                fh.write(f"{a}->{d}\t{events_by_transition[key]}\t{base_content[a]}\t{transition_rate[key]:1.3f}\n")
 
-    ind = codon_pos==3
-    syn_cutoff = scoreatpercentile(measure[ind],10)
-    plt.plot([syn_cutoff, syn_cutoff], [0,1], c='k', alpha=0.3)
-    for i in range(3):
-        ind = codon_pos==i
-        print(np.mean(measure[ind]<syn_cutoff))
 
-    plt.xscale('log')
-    plt.ylabel("fraction less")
-    plt.xlabel("scaled number of lineages with mutations")
-    plt.legend()
-    plt.savefig(args.output_fitness)
+    # # calculate synonymous and non-synonymous distributions
+    # total_events_by_type = {}
+    # for mut_counts, label in [(syn, 'syn'), (nonsyn, 'nonsyn')]:
+    #     total_events_by_type[label] = {}
+    #     for gene in mut_counts:
+    #         total_events_by_type[label][gene] = [np.sum([len([x for x in mut_counts[gene][pos][a] if x>cutoff])/away_rate[a]
+    #                                                  for a in mut_counts[gene][pos]])
+    #                                                for pos in range(gene_length[gene])]
 
-    # figure with pdfs instead of cdfs
-    # plt.figure()
-    measure = total_events_rescaled
-    bins = np.logspace(0, np.ceil(np.log10(measure.max())), 101)
-    bc = np.sqrt(bins[:-1]*bins[1:])
-    bins[0] = 0
-    rate_estimate = {}
-    for p in range(4):
-        ind = codon_pos==p
-        y,x = np.histogram(measure[ind], bins=bins)
-        rate_estimate[p] = {"mean": np.sum(bc*y/y.sum()),
-                            "geo-mean": np.exp(np.sum(np.log(bc)*y/y.sum())),
-                            "median": np.median(measure[ind])}
-        # plt.plot(bc,y/y.sum(), label = 'non-coding' if p==0 else f"codon pos={p}")
 
-    # plt.xscale('log')
-    # plt.ylabel("distribution")
-    # plt.xlabel("scaled number of lineages with mutations")
-    # plt.legend()
+    # def calc_fitness_cost(freqs, transition):
+    #     mu = 0.0004/50
+    #     mut_rate = transition_rate[transition]*mu
+    #     avg_freq = np.sum(freqs)/nlin
+    #     return mut_rate/(avg_freq + 1e-3/nlin)
 
-    ## figure with mutation distributions
-    plt.figure()
-    muts = sorted(transition_rate.items(), key=lambda x:x[1], reverse=True)
-    mut_sum = np.sum([x[1] for x in muts])
-    muts = [(t,v/mut_sum) for t,v in muts]
-    plt.bar(np.arange(len(muts)), height=[m[1] for m in muts])
-    plt.xticks(np.arange(len(muts)), [f"{m[0][0]}->{m[0][1]}" for m in muts], rotation=30)
-    plt.ylabel('fraction')
-    plt.savefig(args.output_mutations)
+    # fitness_cost = []
+    # for pos,nuc in enumerate(ref_array):
+    #     total_muts = np.sum([len(v) for v in position_freq[pos].values()])
+    #     reference_muts = np.sum([len(v) for (a,d), v in position_freq[pos].items() if a==nuc])
+    #     if reference_muts>0.9*total_muts:
+    #         fitness_cost.append([np.inf if d==nuc
+    #                              else calc_fitness_cost(position_freq[pos][(nuc,d)],(nuc,d))
+    #                             for d in 'ACGT'])
+    #     else:
+    #         fitness_cost.append([np.nan, np.nan, np.nan, np.nan])
 
-    # two panel figure with 1/2nd and 3rd position mutations
-    measure = total_events_rescaled
-    fig, axs = plt.subplots(2,1, figsize = (6,10), sharex=True)
-    pos = np.arange(len(ref_array))
-    for i,gene in enumerate(gene_position):
-        if gene=='ORF9b': continue
-        c = f"C{i}"
-        ls = '--' if i>9 else '-'
-        gene_range = gene_position[gene]
-        ind = (codon_pos==3) & (pos>=gene_range.start) & (pos<gene_range.end)
-        axs[1].plot(sorted(measure[ind]), np.linspace(0,1,ind.sum()), ls=ls, c=c,label = f'{gene}')
-
-        ind =  (codon_pos<3) & (pos>=gene_range.start) & (pos<gene_range.end)
-        axs[0].plot(sorted(measure[ind]), np.linspace(0,1,ind.sum()),
-                        ls=ls, c=c)
-
-    ind = codon_pos==0
-    axs[1].plot(sorted(measure[ind]), np.linspace(0,1,ind.sum()),
-                    label = 'non-coding', c='k')
-
-    for ax in axs:
-        for x in ax.xticks:
-            ax.plot([x,x], [0,1], alpha=0.3, c='k', lw=1)
-
-    axs[1].legend(ncol=2)
-    axs[1].set_title("3rd codon positions or non-coding")
-    axs[0].set_title("1st and 2nd codon positions")
-    plt.xscale('log')
-    axs[0].set_ylabel("fraction below")
-    axs[1].set_ylabel("fraction below")
-    axs[1].set_xlabel("scaled number of lineages with mutations")
-    plt.savefig(args.output_fitness_by_gene)
-
-    # ## strange pattern in E.
-    # measure = total_events_rescaled
-    # plt.figure()
-    # gene='E'
-    # gene_range = gene_position[gene]
-    # for i in [1,2,3]:
-    #     ind =(codon_pos==i) & (pos>=gene_range.start) & (pos<gene_range.end)
-    #     plt.plot(pos[ind],measure[ind], 'o', c=f"C{i}")
