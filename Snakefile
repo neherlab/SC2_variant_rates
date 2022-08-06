@@ -228,13 +228,16 @@ rule rate_table:
         with open(input.gt) as fin:
             clade_gts = json.load(fin)
 
+        offset_nuc = lambda clade: -2 if clade=='19B' else 2
+        offset_nonsyn = lambda clade: -1 if clade=='19B' else 1
+
         data = []
         for fname in input.rate_files:
             with open(fname) as fin:
                 d = json.load(fin)
             base_clade = d['clade'][:3]
-            aa_div = len([x for x in clade_gts[base_clade]['aa'] if 'ORF9' not in x])
-            nuc_div = len(clade_gts[base_clade[:3]]['nuc'])
+            aa_div = len([x for x in clade_gts[base_clade]['aa'] if 'ORF9' not in x]) + offset_nonsyn(base_clade)
+            nuc_div = len(clade_gts[base_clade[:3]]['nuc']) + offset_nuc(base_clade)
             data.append({'clade':d['clade'], 'nuc_rate': d['nuc']['slope'],
                          'nuc_origin': d['nuc']['origin'], 'nuc_origin_date': datestring_from_numeric(d['nuc']['origin']),
                          'aa_rate': d['aa']['slope'],
@@ -269,13 +272,15 @@ rule fitness_costs:
         pango_gts = 'data/pango_gts.json'
     output:
         fitness_costs = "data/fitness.tsv",
-        mutation_rates = "data/mutation_rates.tsv"
+        mutation_rates = "data/mutation_rates.tsv",
+        all_events = "data/mutation_events.tsv"
     shell:
         """
         python3 scripts/count_mutations.py --metadata {input.nextclade}\
                  --reference {input.ref} \
                  --pango-gts {input.pango_gts} \
                  --output-fitness {output.fitness_costs} \
+                 --output-events {output.all_events} \
                  --output-mutations {output.mutation_rates}
         """
 

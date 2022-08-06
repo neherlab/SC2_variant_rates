@@ -10,7 +10,7 @@ from scipy.stats import scoreatpercentile
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-columns = ['seqName', 'Nextclade_pango', "privateNucMutations.unlabeledSubstitutions", 'qc.overallStatus']
+columns = ['seqName', 'Nextclade_pango', "privateNucMutations.unlabeledSubstitutions", 'qc.overallStatus', 'privateNucMutations.reversionSubstitutions']
 
 def get_sequence(mods, root_seq):
     seq = root_seq.copy()
@@ -37,6 +37,7 @@ if __name__=="__main__":
     parser.add_argument('--pango-gts', type=str, required=True, help="input data")
     parser.add_argument('--rare-cutoff', type=int, default=2, help="minimal number of occurrences to count mutations")
     parser.add_argument('--output-fitness', type=str, required=True, help="fitness table")
+    parser.add_argument('--output-events', type=str, required=True, help="events table")
     parser.add_argument('--output-mutations', type=str, required=True, help="fitness table")
     args = parser.parse_args()
 
@@ -78,10 +79,12 @@ if __name__=="__main__":
             continue
 
         pango_counter[pango] += 1
-        muts = row["privateNucMutations.unlabeledSubstitutions"]
-        if muts:
-            for m in muts.split(','):
-                mutation_counter[pango][m] += 1
+        muts = row["privateNucMutations.unlabeledSubstitutions"].split(',')
+        rev_muts = row["privateNucMutations.reversionSubstitutions"].split(',')
+        if len(muts) + len(rev_muts):
+            for m in muts + rev_muts:
+                if m:
+                    mutation_counter[pango][m] += 1
 
     lineage_size_cutoff = 100
     big_lineages = [pango for pango in pango_counter if pango_counter[pango]>lineage_size_cutoff]
@@ -132,6 +135,19 @@ if __name__=="__main__":
     def total_len_filtered_lists(l, cutoff):
         return sum([len([y for y in x if y>=cutoff]) for x in l])
 
+    sorted_transitions = []
+    for a in 'ACGT':
+        for d in 'ACGT':
+            if a!=d:
+                sorted_transitions.append((a,d))
+
+    all_events = []
+    for pos in range(len(ref)):
+        tmp = []
+        for a, d in sorted_transitions:
+            tmp.append(total_len_filtered_lists([position_counter[pos][(a,d)]], args.rare_cutoff))
+        all_events.append(tmp)
+
     total_events = np.array([total_len_filtered_lists(position_counter[pos].values(), args.rare_cutoff)
                             if pos in position_counter else 0
                             for pos in range(len(ref))])
@@ -157,6 +173,20 @@ if __name__=="__main__":
     # average mutation rate used to scale rates
     total_events_rescaled = np.array([c/away_rate[nuc] for c,nuc in zip(total_events, ref.seq)])
     total_events_rescaled /= np.median(total_events_rescaled)
+
+    with open(args.output_events, 'w') as fh:
+        fh.write('\t'.join(['position', 'ref_state', 'lineage_fraction_with_changes', 'gene', 'codon', 'pos_in_codon']
+                            + [f"{a}->{d}" for a,d in sorted_transitions]) + '\n')
+        for pos, nuc in enumerate(ref_array):
+            gene = map_to_gene.get(pos,"")
+            data = "\t".join([f"{all_events[pos][i]}" for i in range(len(sorted_transitions))])
+            if gene:
+                gene_pos = pos - gene_position[gene].start
+                codon = gene_pos//3 + 1
+                cp = gene_pos%3 + 1
+                fh.write(f'{pos+1}\t{nuc}\t{number_of_pango_muts[pos]:1.3f}\t{gene}\t{codon}\t{cp}\t' + data + "\n")
+            else:
+                fh.write(f'{pos+1}\t{nuc}\t{number_of_pango_muts[pos]:1.3f}\t\t\t\t' + data + "\n")
 
     with open(args.output_fitness, 'w') as fh:
         fh.write('\t'.join(['position', 'ref_state', 'lineage_fraction_with_changes', 'gene', 'codon', 'pos_in_codon', 'total_count', 'total_events', 'tolerance']) + '\n')

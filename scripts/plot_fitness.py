@@ -44,9 +44,11 @@ if __name__=="__main__":
     ind = fitness.pos_in_codon==3
     syn_cutoff = scoreatpercentile(fitness.tolerance[ind],10)
     plt.plot([syn_cutoff, syn_cutoff], [0,1], c='k', alpha=0.3)
-    for i in range(3):
+    for i in range(1,3):
         ind = fitness.pos_in_codon==i
-        print(np.mean(fitness.tolerance[ind]<syn_cutoff))
+        print("codon pos", i, np.mean(fitness.tolerance[ind]<syn_cutoff))
+    ind = fitness.pos_in_codon.isna()
+    print("non coding", np.mean(fitness.tolerance[ind]<syn_cutoff))
 
     plt.xscale('log')
     plt.ylabel("fraction less")
@@ -85,7 +87,7 @@ if __name__=="__main__":
 
     ind = fitness.pos_in_codon.isna()
     axs[1].plot(sorted(fitness.tolerance[ind]), np.linspace(0,1,ind.sum()),
-                    label = 'non-coding', c='k')
+                       label = 'non-coding', c='k')
 
     plt.xscale('log')
     plt.xlim(0.01, 10)
@@ -102,25 +104,25 @@ if __name__=="__main__":
 
     # fitness_cost = np.array(fitness_cost)
     # plt.figure()
-    # pos = np.arange(len(ref_array))
-    # ws = 10
-    # w = np.ones(ws)/ws
-    # for i,gene in enumerate(gene_position):
-    #     if gene=='ORF9b': continue
-
-    #     gene_range = gene_position[gene]
-    #     plt.figure()
-    #     for cp in range(3):
-    #         #ind = (codon_pos==(cp+1)) & (pos>=gene_range.start) & (pos<gene_range.end) & (~np.isnan(fitness_cost).all(axis=1))
-    #         #plt.hist(np.min(np.log(fitness_cost[ind]), axis=1))
-    #         ind = (codon_pos==(cp+1)) & (pos>=gene_range.start) & (pos<gene_range.end)
-    #         gene_pos = (np.convolve(pos[ind],w, mode='valid') - gene_range.start)/3
-    #         plt.plot(gene_pos,
-    #                  np.convolve(np.log10(measure[ind]+.03), w, mode='valid'),
-    #                             c=f'C{cp}', label=f'codon pos {cp+1}')
-    #         plt.plot(gene_pos, np.zeros_like(gene_pos), c='k', alpha=0.3, lw=2)
-    #         plt.plot((pos[ind]-gene_range.start)/3,
-    #                  np.log10((np.log(number_of_pango_muts[ind]+1)/100+0.01)), 'o', c=f'C{cp}')
-    #         plt.ylabel('log10 scaled mutations')
-    #     plt.ylim(-1.5, 1)
-    #     plt.title(gene)
+    pos = np.arange(len(fitness))
+    ws = 10
+    w = np.ones(ws)/ws
+    for i,gene in enumerate(genes):
+        c = f"C{i}"
+        ls = '--' if i>9 else '-'
+        plt.figure()
+        for cp in range(3):
+            ind = (fitness.pos_in_codon==(cp+1)) & (fitness.gene==gene)
+            #ind = (codon_pos==(cp+1)) & (pos>=gene_range.start) & (pos<gene_range.end) & (~np.isnan(fitness_cost).all(axis=1))
+            #plt.hist(np.min(np.log(fitness_cost[ind]), axis=1))
+            gene_pos = (fitness.codon[ind]*3 + cp - 1)/3
+            gene_pos_smooth = np.convolve(gene_pos, w, mode='valid')
+            plt.plot(gene_pos_smooth,
+                     np.convolve(np.log10(fitness.tolerance[ind]+.03), w, mode='valid'),
+                                c=f'C{cp}', label=f'codon pos {cp+1}')
+            plt.plot(gene_pos, np.zeros_like(gene_pos), c='k', alpha=0.3, lw=2)
+            plt.plot(gene_pos,
+                     np.log10((np.log(fitness.lineage_fraction_with_changes[ind]+.001)+3.01)), 'o', c=f'C{cp}')
+            plt.ylabel('log10 scaled mutations')
+        plt.ylim(-1.5, 1)
+        plt.title(gene)
