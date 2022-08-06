@@ -83,6 +83,7 @@ if __name__=="__main__":
         plt.plot(dates[ind], poisson(tu,m), ls='-', c=f'C{i}')
 
     ax.set_yscale('log')
+    ax.set_ylim(8e-5, 2)
     ax.legend()
 
     ax = axs[1]

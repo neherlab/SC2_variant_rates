@@ -34,53 +34,60 @@ The branches leading to these variants are characterized by many amino acid chan
 This pattern of rapid non-synonymous evolution in viral surface proteins that interact with the host cells in common among many RNA viruses and for example well studied in influenza virus A evolution \citep{bhatt_genomic_2011,strelkowa_clonal_2012}.
 
 In contrast to influenza virus evolution, the evolution of SARS-CoV-2 has been characterized by unusually large jumps in sequence space.
-New variants with 10s of previously unobserved mutations emerged suddenly without intermediate genomes being observed, most dramatically with the emergence of Omicron in later 2021 \citep{viana_rapid_2022}.
+New variants with 10s of previously unobserved mutations emerged suddenly without intermediate genomes being observed, the most dramatic being the emergence of Omicron in late 2021 \citep{viana_rapid_2022}.
 The pre-dominant hypothesis for this cryptic emergence of highly mutated, transmissible and immune evasive variants are chronic infections that are frequently observed in patients with impaired immune systems, either through HIV-1 infection \citep{cele_sars-cov-2_2022} or medical intervention \citep{choi_persistence_2020,kemp_sars-cov-2_2021}.
 Onward transmission from such chronic infections has also been documented \citep{gonzalez-reiche_intrahost_2022}.
-However, to date there is no direct evidence for the emergence of any variant and the degree to which chronic infections might have contributed is a matter of debate.
+However, to date there is no direct evidence for the mode of emergence of any variant.
 The case for chronic infection being an important contributor is strongest for the variants Alpha and Omicron
 \citep{hill_origins_2022}.
 
+The saltatory nature of SARS-CoV-2 evolution implies that evolution within individual variants, clades, or lineages might have different characteristics from its overall pattern, which is dominated by atypical bursts of evolution leading to new variants.
 Here, we investigate the rate at which the SARS-CoV-2 genome changes within variants and compare this rate to the rate at which the variants themselves accumulate differences relative to reference sequence.
 This comparison reveals a clear dichotomy between slow within-variant evolution and rapid adaptive evolution giving rise to new variants.
-The rate of synonymous changes between and within variants agrees, while the non-synonymous rate within variants is far below the between variant rate.
 Early variants display more rapid non-synonymous evolution that later variants.
+The rate of synonymous changes between and within variants agrees, while the non-synonymous rate within variants is far below the between variant rate.
+We further quantify the level of functional constraint of different open reading frames and infer a map of mutational tolerance across the genome.
 
 \section*{Results}
 
 Traditionally, evolutionary rates and divergence times are estimates using phylogenetic frameworks for heterochronously sampled sequences.
-The volume and heterogeneity of SARS-CoV-2 data, however, mean that one has to dramatically down-sample the data and remove many low quality sequences that would otherwise fatally distort the analysis.
+These methods, however, can not handle the volume of SARS-CoV-2 data available and data have to be dramatically down-sampled.
+Furthermore, phylogenetic methods impose an hierarchical structure on the data and are thus very sensitive to problematic sequences or metadata: Any problematic sequence can fatally distort the analysis, in particular if placed early in tree.
 
 To circumvent many of the above mentioned problems and still use the majority of the available data, we use a combination of automated filtering and robust procedures to analyze the evolutionary patterns.
-We first use Nextclade \citep{aksamentov_nextclade_2021} to assign all sequences to one of the Nextstrain \citep{hadfield_nextstrain_2018} clades and analyze each clade separately.
+We first use Nextclade \citep{aksamentov_nextclade_2021} to assign all sequences to one of the Nextstrain clades \citep{hadfield_nextstrain_2018} and analyze each clade separately.
+Sequences belonging to recombinant lineages are excluded.
 These clades represent well defined groups of sequences with little non-vertical evolution within them.
 Furthermore, we define a ``founder'' genotype for each clade and exclude any sequence that does not have the full set of mutations relative to the reference sequence Wuhan/Hu-1.
+This founder sequence is manually curated for each clade considered.
 This filtering removes most incomplete sequences as well as sequences where amplicon drop-out are back-filled with reference sequence.
-For this reduced set of sequences, we determine the mutations they carry on top of the founder genotype.
+For this reduced set of sequences, we determine the mutations they carry on top of the founder genotype to analyze diversification and divergence within the clade.
 The latter step is done for nucleotide changes as well as for amino acid changes.
 
 Within each clade, the number of mutations is expected to increase linearly in time and the variation around this mean would, in an ideal case, obey Poisson statistics.
-To further exclude outliers, we perform a simple linear regression of the number of ``intra-clade'' mutations against time and remove sequences whose deviation from the linear fit exceeds twice the variance by 3.
+For the majority of sequences, this is approximately true, but some problematic sequences are many more mutations than expected.
+To exclude these outliers, we perform a simple linear regression of the number of ``intra-clade'' mutations against time and remove sequences whose deviation from the linear fit exceeds twice the variance by 3.
 
 After removing these outliers, we now bin the data by calendar week and determine the mean and standard deviation in each bin.
 Evolutionary rate and putative emergence date of the variant are then estimated by weighted linear regression where each bin is weighted with the fourth root of the number of sequences in the bins.
-The exact functional form of this weighing does not have a big influence on the results, but a strongly sublinear weighing helps to counter the large variation in sequencing effort and the natural imbalance due to the fact that few sequences are available early.
+The exact functional form of this weighing does not have a big influence on the results, but a sublinear weighing helps to counter the large variation in sequencing effort across countries and the natural imbalance due to the fact that few sequences are available early.
 
-Due to shared ancestry, a divergence (or root-to-tip) regression against time is not a suitable method to determine the evolutionary rate.
-However, in the case of rapidly expanding variants we typically observe a large number of independent lineages emanating from a basal polytomy.
-Along each of these lineages, mutation accumulation is independent and divergence increase allows to estimate the rate.
+Due to shared ancestry, divergences of sequences are not independent data points and a regression against time is not suited to estimate evolutionary rates in general.
+In particular, confidence intervals are difficult to obtain.
+However, in the case of rapidly expanding variants we typically observe a large number of independent lineages emanating from one or several basal polytomies.
+Along each of these lineages, mutation accumulation is independent and divergence increase allows to estimate the rate robustly.
 Fig.~\ref{fig:rate_alpha} shows the increasing intra-clade divergence for clade 20I corresponding to VoC Alpha.
 Both synonymous and non-synonymous within-clade average divergence increases linearly over time allowing for a robust estimate of the rate.
 
 \begin{figure*}[tb]
     \includegraphics[width=\textwidth]{figures/rtt/20I_rtt.png}
     \caption{{\bf Divergence increases linearly with time (20I (Alpha)).} Each panel shows the number of within-clade mutations (total (A), amino acid changing (B), synonymous (C)) as a function of time.
-    The blue line in panel A indicates the divergence cut-off, panels B\&C only show sequences that pass the divergence filter. Each panel also shows mean $\pm$ standard deviation and a weighted linear fit. Analogous figures for all variants are included in the appendix.
+    The blue line in panel A indicates the divergence cut-off, panels B\&C only show sequences that pass the divergence filter. Each panel also shows mean $\pm$ standard deviation and a weighted linear fit. Analogous figures for all clades considered are included in the appendix.
     \label{fig:rate_alpha}}
 \end{figure*}
 
 For almost all major Nextstrain clades, the average divergence increases linearly in time (similar patterns as Fig.~\ref{fig:rate_alpha}) allowing us to estimate clade specific evolutionary rates for amino acid and silent changes.
-These rates are summarized in Fig.~\ref{fig:rate_summary}.
+These rates are summarized in Fig.~\ref{fig:rate_summary} and Tab.~\ref{tab:rates}.
 
 \begin{figure*}
     \includegraphics[width=\textwidth]{figures/rate_summary.pdf}
@@ -90,42 +97,49 @@ These rates are summarized in Fig.~\ref{fig:rate_summary}.
     \label{fig:rate_summary} }
 \end{figure*}
 
-Rates of synonymous change are very consistent across variants and also agree with the overall rate of synonymous changes of about 5-8 changes per genome per year.
-Rates of non-synonymous changes are much more variable.
+Rates of synonymous change are very consistent across variants and also agree with the overall rate of synonymous changes of about 5-8 changes per genome per year, while rates of non-synonymous changes are much more variable (Fig.~\ref{fig:rate_summary}D).
 Within clades, the rate of non-synonymous changes varies between 5 and 16 changes per year.
-Earlier clades are estimated to have larger rates around 10-15 changes per year, while rate estimates for later clade fall  between 3 to 9 changes per year.
+Earlier clades are estimated to have larger rates around 10-15 changes per year, while rate estimates for later clade fall  between 3 to 9 changes per year Fig.~\ref{fig:rate_progression}.
 In contrast, the inter-clade non-synonymous rate exceeds 25 changes per year.
 
 Nextstrain clades tend to be defined by long branches leading to a large polytomy.
 It is thus expected that the estimated inter-clade rate exceeds the intra-clade rate purely because of this conditioning.
 This effect might be particularly important early on in the pandemic where branches with as little two mutations were used to define new clades.
 We thus also included composite clades 19B+, 19B++ and 20A+ containing sequences from 19A and 19B (rooted on 19B), 19A, 19B, 20A, 20B, 20C, 20D (rooted on 19B), and 20A, 20B, 20C, 20D (rooted on 20A).
-While we estimate somewhat higher rates for these composite clades (in particular 19B++), the overall pattern remains consistent.
+The estimates for composite clades 19B+ and 20A+ are consistent with the estimates of the individual clades, while apparent rates of 19B++ are considerably higher.
+The latter is due to the rapid expansion and subsequent dominance of clade 20A and its descendants \citep{korber_tracking_2020}.
 
 \begin{table*}
 \begin{tabular}{l|rrrrrr}
     \hline
     {\bf clade} &  overall rate $[y^{-1}]$ & aa rate $[y^{-1}]$ &  syn rate $[y^{-1}]$ & overall div. &  aa div. &  syn div. \\
     \hline
-      19A &     19.21 &   11.85 &     7.36 &     0 &       0 &        0 \\
-      19B &     24.40 &   14.50 &     9.90 &     2 &       1 &        1 \\
-      20A &     20.79 &   11.44 &     9.35 &     4 &       2 &        2 \\
-      20B &     14.64 &    8.42 &     6.22 &     7 &       4 &        3 \\
-      20C &     19.22 &   11.64 &     7.57 &     6 &       4 &        2 \\
-     20A+ &     18.48 &   10.26 &     8.22 &     4 &       2 &        2 \\
-      20E &     13.77 &    6.04 &     7.73 &    11 &       4 &        7 \\
-      20H &     11.16 &    5.22 &     5.94 &    19 &      15 &        4 \\
-      20I &     11.65 &    5.77 &     5.88 &    28 &      18 &       10 \\
-      20J &     10.93 &    2.66 &     8.28 &    33 &      21 &       12 \\
-      21I &     16.53 &    8.88 &     7.65 &    28 &      23 &        5 \\
-      21J &     16.20 &    8.19 &     8.00 &    32 &      27 &        5 \\
-      21K &     12.74 &    5.41 &     7.34 &    54 &      45 &        9 \\
-      21L &      8.66 &    4.67 &     3.99 &    66 &      49 &       17 \\
-      22A &      8.46 &    2.92 &     5.55 &    69 &      51 &       18 \\
-      22B &     13.78 &    4.13 &     9.65 &    64 &      49 &       15 \\
+    19A &     19.76 &    12.79 &      6.97 &        0 &       0 &        0 \\
+    19B &     19.47 &    12.37 &      7.10 &        2 &       1 &        1 \\
+   19B+ &     18.55 &    11.90 &      6.65 &        2 &       1 &        1 \\
+  19B++ &     28.21 &    16.37 &     11.84 &        2 &       1 &        1 \\
+    20A &     15.66 &     8.40 &      7.25 &        4 &       2 &        2 \\
+    20B &     14.14 &     7.61 &      6.54 &        7 &       4 &        3 \\
+    20C &     16.30 &     9.52 &      6.78 &        6 &       4 &        2 \\
+   20A+ &     17.15 &     9.81 &      7.33 &        4 &       2 &        2 \\
+    20E &     13.65 &     5.74 &      7.91 &       11 &       4 &        7 \\
+    20H &     14.50 &     8.03 &      6.47 &       19 &      15 &        4 \\
+    20I &     12.18 &     5.85 &      6.33 &       28 &      18 &       10 \\
+    20J &     13.31 &     6.84 &      6.47 &       33 &      21 &       12 \\
+    21D &     11.36 &     6.29 &      5.07 &       25 &      12 &       13 \\
+    21G &     12.05 &     6.52 &      5.53 &       26 &      18 &        8 \\
+    21H &     18.17 &    10.00 &      8.17 &       29 &      20 &        9 \\
+    21I &     16.33 &     8.67 &      7.66 &       28 &      23 &        5 \\
+    21J &     12.25 &     6.32 &      5.93 &       32 &      27 &        5 \\
+    21K &     14.37 &     6.70 &      7.67 &       54 &      45 &        9 \\
+    21L &      9.02 &     3.80 &      5.22 &       66 &      49 &       17 \\
+    22A &      8.10 &     2.79 &      5.31 &       69 &      51 &       18 \\
+    22B &     12.07 &     4.97 &      7.11 &       64 &      49 &       15 \\
       \hline
     \end{tabular}
-\caption{{\bf Evolutionary rates estimates from root-to-tip regressions for overall nucleotide changes, amino acid changes, and synonymous changes.} \label{tab:rates}}
+\caption{{\bf Evolutionary rates estimates from root-to-tip regressions for overall nucleotide changes, amino acid changes, and synonymous changes.}
+    The last three columns give the distances of the clade founder sequence from the reference Wuhan/Hu-1.
+\label{tab:rates}}
 \end{table*}
 
 \begin{figure}
@@ -134,14 +148,12 @@ While we estimate somewhat higher rates for these composite clades (in particula
     \label{fig:rate_progression} }
 \end{figure}
 
-The apparent time dependence of non-synonymous rate suggests that at the beginning a large fraction of amino acid changes were beneficial to viral replication, not just the D614G mutation in the spike protein \citep{korber_tracking_2020}.
-This applies both to the changes within clades that were ultimately displaced by more successful variants, and inter-variant changes where the fraction of adaptive changes is even higher.
+% The apparently higher non-synonymous rate suggests that at the beginning a large fraction of amino acid changes were beneficial to viral replication, not just the D614G mutation in the spike protein \citep{korber_tracking_2020}.
+% This applies both to the changes within clades that were ultimately displaced by more successful variants, and inter-variant changes where the fraction of adaptive changes is even higher.
 
 
 
 \subsection*{Diversification within clades}
-The analysis of evolutionary rates above only considers the mean divergence within clades which, at least when variation is neutral, is independent of epidemiological parameters.
-The structure of within clade diversity does contain information on the rate of spread.
 A simple model for a growing variant is a super-critical branching process with growth rate $\alpha$ and an embedded mutation process.
 Offspring of genomes with $i$ mutations contain $i+j$ mutations, where $j$ is a Poisson distributed number with mean $\mu t$ (mutation rate $\mu$ and generation time $t$).
 The probability that offspring genomes are identical to their parents is $u = 1-e^{-\mu t}$, which for a generation time of $t=5days$ and a rate of $\mu = 15/year$ evaluates to $u=0.2$.
@@ -157,7 +169,7 @@ Since these branching process models are linear, them mean number of cases $n$ w
 \end{equation}
 with solution $m_i = e^{(\alpha - u)t} \frac{(ut)^i}{i!}$.
 
-For some clades, especially those that are well sampled soon after their emergence, this Poisson models is good fit to diversity accumulation and yields estimates of rates and time of origin that are compatible with the divergence regression, see Fig.~\ref{fig:within_clades}.
+For some clades, especially those that are well sampled soon after their emergence, this Poisson model is good fit to diversity accumulation and yields estimates of rates and time of origin that are compatible with the divergence regression, see Fig.~\ref{fig:within_clades}.
 For other clades, especially when the founder sequence is barely observed and dominant subclades developed, such fits are not robust.
 This is particularly true for the early clades 19A and 19B, as well as 21J (Delta), 21K (Omicron, BA.1), and 22B (Omicron, BA.5).
 
@@ -176,11 +188,20 @@ Above, we found that the rate of synonymous mutations is comparable within and b
 This is expected, as synonymous positions are rarely a locus of adaptation and tend to have a small effects on fitness in large parts of the genomes of RNA viruses \citep{zanini_vivo_2017} (outside of specific regions with important RNA elements).
 To assess the level of constraint on the SARS-CoV-2 genome, we made use of the ``rare mutations'' annotation by Nextclade.
 Nextclade attaches each sequence to a reference tree and determines by which mutations it differs from the attachment point.
-For each pango lineage (as determined by Nextclade), we could how often these ``rare mutations'' are observed, normalize this against the relative rate of mutation of the reference nucleotide (see Supp.~Fig.~?), and use this as a proxy for mutational tolerance.
-Simply splitting mutations into those that occur in 1st, 2nd, and 3rd positions of codons already reveals strong signatures of purifying selection.
+For each pango lineage (as determined by Nextclade), we could how often these ``rare mutations'' are observed, normalize this against the relative rate of mutation of the reference nucleotide (see Supp.~Fig.~\ref{fig:mutation_distribution}), and use this as a proxy for mutational tolerance.
 
- \begin{figure}
-    \includegraphics[width=\textwidth]{figures/fitness_cost.pdf}
+Simply splitting mutations into those that occur in 1st, 2nd, and 3rd positions of codons already reveals strong signatures of purifying selection, see Fig.~\ref{fig:fitness_costs}.
+Between 15-20\% of positions at first and second codons show almost no variation, while half of these sites are less variable then the most constrained 10\% of third positions.
+The median of variation at 3rd position is more than double that at other 1st and 2nd positions.
+
+When split by open reading frame (see Supp.~Fig.~\ref{fig:fitness_costs_supp}), the most constrained are ORF1b and M, while ORF3a, ORF6, ORF7a, ORF7b, and ORF8 show little evidence of constraint, consistent with frequently observed stop-mutations in these genes.
+N shows an intermediate pattern, possibly reflecting its mix of structured and unstructured regions.
+Rare variation at 3rd positions is very comparable between genes with only E showing slightly less variation at 3rd positions than other genes.
+
+
+
+\begin{figure}
+    \includegraphics[width=0.5\textwidth]{figures/fitness_cost.pdf}
     \caption{{\bf Constraints on SARS-CoV-2 mutations.}
     Almost all 3rd codon positions tolerate mutations, while 1st and 2nd positions are strongly constrained.
     About half of the 1st and 2nd codon positions are less variable than the most constrained 10\% of 3rd positions (gray line).

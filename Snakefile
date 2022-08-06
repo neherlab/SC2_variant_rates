@@ -33,17 +33,17 @@ date_ranges = {
 '20B':  2020.1,
 '20C':  2020.1,
 '20A+': 2020.1,
-'20E':  2020.5,
-'20H':  2020.7,
-'20I':  2020.7,
-'20J':  2020.7,
+'20E':  2020.47,
+'20H':  2020.63,
+'20I':  2020.715,
+'20J':  2020.91,
 '21D':  2020.9,
 '21G':  2021.0,
 '21H':  2021.0,
-'21I':  2021.2,
-'21J':  2021.2,
-'21K':  2021.8,
-'21L':  2021.8,
+'21I':  2021.22,
+'21J':  2021.21,
+'21K':  2021.85,
+'21L':  2021.85,
 '22A':  2022.163,
 '22B':  2022.163,
 '22D':  2022.2,
@@ -115,7 +115,7 @@ rule root_to_tip:
         gt = "data/clade_gts.json",
         metadata = "subsets/{v}.tsv"
     output:
-        figure = "figures/{v}_rtt.png",
+        figure = "figures/{v}_rtt.pdf",
         json = "rates/{v}_rate.json"
     params:
         clade = lambda w: w.v,
@@ -204,7 +204,7 @@ rule af:
 
 rule all_rtt:
     input:
-        expand("figures/{v}_rtt.png", v=variants.keys())
+        expand("figures/{v}_rtt.pdf", v=variants.keys())
 
 rule all_clones:
     input:

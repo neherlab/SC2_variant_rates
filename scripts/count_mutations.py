@@ -176,15 +176,19 @@ if __name__=="__main__":
     plt.savefig(args.output_fitness)
 
     # figure with pdfs instead of cdfs
-    # measure = total_events_rescaled
     # plt.figure()
-    # bins = np.logspace(0, np.ceil(np.log10(measure.max())), 31)
-    # bc = np.sqrt(bins[:-1]*bins[1:])
-    # bins[0] = 0
-    # for p in range(4):
-    #     ind = codon_pos==p
-    #     y,x = np.histogram(measure[ind], bins=bins)
-    #     plt.plot(bc,y/y.sum(), label = 'non-coding' if p==0 else f"codon pos={p}")
+    measure = total_events_rescaled
+    bins = np.logspace(0, np.ceil(np.log10(measure.max())), 101)
+    bc = np.sqrt(bins[:-1]*bins[1:])
+    bins[0] = 0
+    rate_estimate = {}
+    for p in range(4):
+        ind = codon_pos==p
+        y,x = np.histogram(measure[ind], bins=bins)
+        rate_estimate[p] = {"mean": np.sum(bc*y/y.sum()),
+                            "geo-mean": np.exp(np.sum(np.log(bc)*y/y.sum())),
+                            "median": np.median(measure[ind])}
+        # plt.plot(bc,y/y.sum(), label = 'non-coding' if p==0 else f"codon pos={p}")
 
     # plt.xscale('log')
     # plt.ylabel("distribution")
@@ -206,6 +210,7 @@ if __name__=="__main__":
     fig, axs = plt.subplots(2,1, figsize = (6,10), sharex=True)
     pos = np.arange(len(ref_array))
     for i,gene in enumerate(gene_position):
+        if gene=='ORF9b': continue
         c = f"C{i}"
         ls = '--' if i>9 else '-'
         gene_range = gene_position[gene]
@@ -219,6 +224,10 @@ if __name__=="__main__":
     ind = codon_pos==0
     axs[1].plot(sorted(measure[ind]), np.linspace(0,1,ind.sum()),
                     label = 'non-coding', c='k')
+
+    for ax in axs:
+        for x in ax.xticks:
+            ax.plot([x,x], [0,1], alpha=0.3, c='k', lw=1)
 
     axs[1].legend(ncol=2)
     axs[1].set_title("3rd codon positions or non-coding")
