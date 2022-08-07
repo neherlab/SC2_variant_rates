@@ -7,7 +7,8 @@ mpl.rcParams['axes.formatter.useoffset'] = False
 
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+from root_to_tip import add_panel_label
+fs=12
 def poisson(lam, order):
     p = np.exp(-lam)
     try:
@@ -82,25 +83,23 @@ if __name__=="__main__":
         ax.plot(dates[ind], k[ind]/total[ind], 'o', label=f'{m} mutations',c=f"C{i}")
         plt.plot(dates[ind], poisson(tu,m), ls='-', c=f'C{i}')
 
-    ax.set_yscale('log')
     ax.set_ylim(8e-5, 2)
-    ax.legend()
 
     ax = axs[1]
     ax.plot(dates, total, lw=3, c='k', alpha=0.3)
     for m in sorted(counts['mutations'].keys(), key=lambda x:int(x[1:-1])):
         ax.plot(dates, counts['mutations'][m], '-o', label=f'{m}')
 
-    ax.set_yscale('log')
-    ax.legend()
-
     ax = axs[0]
     ax.plot(dates, total, lw=3, c='k', alpha=0.3)
     for m in sorted(counts['genotypes'].keys(), key=lambda x: len(x)):
         ax.plot(dates, counts['genotypes'][m], '-o', label=f'{m}' if m else "founder")
 
-    ax.set_yscale('log')
-    ax.legend()
     fig.autofmt_xdate()
+    for ax, label in zip(axs, 'DEF'):
+        ax.set_yscale('log')
+        ax.legend()
+        add_panel_label(ax, label, fs=fs*1.8)
+
 
     plt.savefig(args.output_plot)

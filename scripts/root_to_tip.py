@@ -10,6 +10,7 @@ import seaborn as sns
 from collections import defaultdict
 mpl.rcParams['axes.formatter.useoffset'] = False
 
+fs=14
 date_reference = datetime(2020,1,1).toordinal()
 def date_to_week_since2020(d):
     return (d.toordinal() - date_reference)//7
@@ -140,6 +141,9 @@ def get_clade_gts(all_gts, subclade_str):
 
     return clade_gt
 
+def add_panel_label(ax, t, fs=16):
+    ax.text(-0.1,1,t, fontsize=fs,transform=ax.transAxes)
+
 if __name__=="__main__":
     parser = argparse.ArgumentParser(
         description="remove time info",
@@ -185,34 +189,42 @@ if __name__=="__main__":
     bins = bins=(20,np.arange(-0.5,ymax+0.5))
     sns.histplot(x=filtered_data.numdate, y=np.minimum(ymax*1.5, filtered_data.divergence), bins=bins, ax=axs[0])
     x = np.linspace(*axs[0].get_xlim(),101)
-    axs[0].set_title('all differences')
+    axs[0].set_title(f'all differences', fontsize=fs*1.2)
     axs[0].plot(x, regression_clean["intercept"] + regression_clean["slope"]*x, lw=4, label=f"slope = {regression_clean['slope']:1.1f} subs/year")
     axs[0].errorbar(regression_clean["date"], regression_clean["mean"], regression_clean["stderr"])
     axs[0].plot(x, regression.intercept + regression.slope*x + tolerance(x), lw=4)
 
-    axs[1].set_title('amino acid differences')
+    axs[1].set_title(f'amino acid differences', fontsize=fs*1.2)
     sns.histplot(x=filtered_data.numdate[ind], y=np.minimum(ymax*1.5, filtered_data.aaDivergence[ind]), bins=bins, ax=axs[1])
     axs[1].plot(x, regression_clean_aa["intercept"] + regression_clean_aa["slope"]*x, lw=4, label=f"slope = {regression_clean_aa['slope']:1.1f} subs/year")
     axs[1].errorbar(regression_clean_aa["date"], regression_clean_aa["mean"], regression_clean_aa["stderr"])
 
-    axs[2].set_title('synonymous differences')
+    axs[2].set_title(f'synonymous differences', fontsize=fs*1.2)
     sns.histplot(x=filtered_data.numdate[ind], y=np.minimum(ymax*1.5, filtered_data.synDivergence[ind]), bins=bins, ax=axs[2])
     axs[2].plot(x, regression_clean_syn["intercept"] + regression_clean_syn["slope"]*x, lw=4, label=f"slope = {regression_clean_syn['slope']:1.1f} subs/year")
     axs[2].errorbar(regression_clean_syn["date"], regression_clean_syn["mean"], regression_clean_syn["stderr"])
 
-    for ax in axs:
+    axs[2].text(0.8,0.9, args.clade, fontsize=fs*1.5, transform=axs[2].transAxes)
+    axs[0].set_ylabel("Divergence", fontsize=fs)
+    for ax,label in zip(axs,'ABC'):
         make_date_ticks(ax)
         ax.set_yticks(np.arange(0,ymax,3))
-        ax.legend(loc=2)
+        ax.legend(loc=2, fontsize=fs)
         ax.set_ylim(-0.5,ymax-0.5)
+        add_panel_label(ax, label, fs=fs*1.8)
 
     if args.output_plot:
         plt.savefig(args.output_plot)
     else:
         plt.show()
 
+    aaCounter = defaultdict(int)
+    for subs in filtered_data.intra_aaSubstitutions:
+        for a in subs: aaCounter[a]+=1
+
+    top_subs = m = sorted(aaCounter.items(),key=lambda x:x[1], reverse=True)[:100]
     rate_data = {'clade':args.clade, 'nuc':regression_clean, 'aa':regression_clean_aa,
-                 'syn':regression_clean_syn, 'spike':regression_clean_spike}
+                 'syn':regression_clean_syn, 'spike':regression_clean_spike, "top_subs": top_subs}
     if args.output_json:
         with open(args.output_json, 'w') as fh:
             json.dump(rate_data, fh)

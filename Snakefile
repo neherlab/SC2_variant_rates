@@ -122,7 +122,6 @@ rule root_to_tip:
         mindate = lambda w: date_ranges[w.v],
         maxdate = lambda w: date_ranges[w.v] + offset,
         clades = lambda w: variants[w.v],
-        max_group = 1000,
         filter_query = lambda w: ('--query ' + f'"{filter_queries[w.v]}"') if w.v in filter_queries else ''
     shell:
         """
@@ -131,7 +130,6 @@ rule root_to_tip:
                                        --min-date {params.mindate} \
                                        --max-date {params.maxdate} \
                                        {params.filter_query} \
-                                       --max-group {params.max_group} \
                                        --output-plot {output.figure} \
                                        --output-json {output.json}
         """
@@ -148,7 +146,6 @@ rule genotype_counts:
         mindate = lambda w: date_ranges[w.v],
         maxdate = lambda w: date_ranges[w.v] + offset,
         bin_size = 5,
-        max_group = 1000,
         filter_query = lambda w: ('--query ' + f'"{filter_queries[w.v]}"') if w.v in filter_queries else ''
     shell:
         """
@@ -157,7 +154,6 @@ rule genotype_counts:
                                        --min-date {params.mindate} \
                                        --max-date {params.maxdate} \
                                        {params.filter_query} \
-                                       --max-group {params.max_group} \
                                        --bin-size {params.bin_size} \
                                        --output-json {output.json}
         """
@@ -299,4 +295,15 @@ rule fitness_figures:
                  --output-fitness {output.fitness_figure} \
                  --output-fitness-by-gene {output.fitness_figure_by_gene} \
                  --output-mutations {output.mutation_figure}
+        """
+
+rule fitness_landscape:
+    input:
+        fitness_costs = "data/fitness.tsv",
+    output:
+        fitness_landscape = "figures/fitness_landscape.pdf",
+    shell:
+        """
+        python3 scripts/plot_fitness_landscape.py --fitness {input.fitness_costs}\
+                 --output-fitness-landscape {output.fitness_landscape}
         """
