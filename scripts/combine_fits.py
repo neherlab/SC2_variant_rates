@@ -32,8 +32,10 @@ if __name__=="__main__":
             dt = np.linspace(0, 0.75,2)
             t = dt + row[f'{mut_type}_origin']
             slope = row[f'{mut_type}_rate']
-            ax.plot(t, dt*slope + row[f'{mut_type}_div'], label=clade, c=f"C{ci%10}")
-            ax.scatter([[row[f'{mut_type}_origin']]], [[row[f'{mut_type}_div']]], c=f"C{ci%10}")
+            ls = '-' if ci<10 else '--'
+            m = 'o' if ci<10 else 's'
+            ax.plot(t, dt*slope + row[f'{mut_type}_div'], label=clade, c=f"C{ci%10}", ls=ls)
+            ax.scatter([[row[f'{mut_type}_origin']]], [[row[f'{mut_type}_div']]], c=f"C{ci%10}", marker=m)
             if row[f'{mut_type}_origin']>2019.7 and row[f'{mut_type}_origin']<2022.7:
                 inter_clade.append([row[f'{mut_type}_origin'], row[f'{mut_type}_div']])
             ci += 1
@@ -52,8 +54,13 @@ if __name__=="__main__":
     for i, (mut_type, rate) in enumerate(inter_clade_rates.items()):
         axs[-1,-1].plot([i-0.4, i+0.4], [rate, rate], lw=3, c='k', alpha=0.5)
         clade_rates = rates[f"{mut_type}_rate"]
-        axs[-1,-1].scatter(i - 0.35 + np.random.random(size=len(clade_rates))*0.7,
-                           clade_rates, c=[f"C{ci%10}" for ci in range(len(clade_rates))])
+        x_offset = i + np.linspace(-.35, 0.35,len(clade_rates))
+        axs[-1,-1].scatter(x_offset[:10],
+                           clade_rates[:10], c=[f"C{ci%10}" for ci in range(10)],
+                           marker='o')
+        axs[-1,-1].scatter(x_offset[10:],
+                           clade_rates[10:], c=[f"C{ci%10}" for ci in range(len(clade_rates) - 10)],
+                           marker='s')
     axs[-1,-1].set_ylabel("substitutions per year")
     axs[-1,-1].set_xticks([0,1,2], ['nuc', 'aa', 'syn'])
     axs[-1,-1].set_ylim(0)
