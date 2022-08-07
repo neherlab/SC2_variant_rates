@@ -219,12 +219,19 @@ if __name__=="__main__":
         plt.show()
 
     aaCounter = defaultdict(int)
+    nucCounter = defaultdict(int)
     for subs in filtered_data.intra_aaSubstitutions:
         for a in subs: aaCounter[a]+=1
+    for subs in filtered_data.intra_substitutions:
+        for a in subs: nucCounter[a]+=1
 
-    top_subs = m = sorted(aaCounter.items(),key=lambda x:x[1], reverse=True)[:100]
+    total = len(filtered_data)
+    top_aaSubs = {a:v/total for a,v in sorted(aaCounter.items(),key=lambda x:x[1], reverse=True)[:100]}
+    top_nucSubs = {a:v/total for a,v in sorted(nucCounter.items(),key=lambda x:x[1], reverse=True)[:100]}
+
     rate_data = {'clade':args.clade, 'nuc':regression_clean, 'aa':regression_clean_aa,
-                 'syn':regression_clean_syn, 'spike':regression_clean_spike, "top_subs": top_subs}
+                 'syn':regression_clean_syn, 'spike':regression_clean_spike,
+                 "top_aaSubs": top_aaSubs,  "top_nucSubs": top_nucSubs}
     if args.output_json:
         with open(args.output_json, 'w') as fh:
             json.dump(rate_data, fh)
