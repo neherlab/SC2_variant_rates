@@ -27,25 +27,24 @@
 \date{\today}
 \maketitle
 
-Since its emergence in late 2019, SARS-CoV-2 has displayed a discontinuous pattern of evolution with large unobserved jumps in sequence space giving rise to phylogenetically distinct variants \citep{hodcroft_spread_2021,volz_assessing_2021,tegally_detection_2021,faria_genomics_2021,naveca_covid-19_2021,viana_rapid_2022}.
+Since its emergence in late 2019, SARS-CoV-2 has displayed a discontinuous pattern of evolution with large jumps in sequence space giving rise to phylogenetically distinct variants without observed intermediates \citep{hodcroft_spread_2021,volz_assessing_2021,tegally_detection_2021,faria_genomics_2021,naveca_covid-19_2021,viana_rapid_2022}.
 Many of these variants spread considerably faster and quickly displaced the resident variants either because of intrinsically increased transmissibility, evasion of prior immunity in the population, or a combination of both.
-Variants of Concern or Interest were designated by the WHO and labeled by Greek letters \citep{konings_sars-cov-2_2021}.
+Such variants of Concern or Interest were designated by the WHO and labeled by Greek letters \citep{konings_sars-cov-2_2021}.
 The branches leading to these variants are characterized by many amino acid changing mutations that often cluster in the S1 domain of the spike protein \citep{kistler_rapid_2022}.
-This pattern of rapid non-synonymous evolution in viral surface proteins that interact with the host cells in common among many RNA viruses and for example well studied in influenza virus A evolution \citep{bhatt_genomic_2011,strelkowa_clonal_2012}.
 
-In contrast to influenza virus evolution, the evolution of SARS-CoV-2 has been characterized by unusually large jumps in sequence space.
-New variants with 10s of previously unobserved mutations emerged suddenly without intermediate genomes being observed, the most dramatic being the emergence of Omicron in late 2021 \citep{viana_rapid_2022}.
+This pattern of rapid non-synonymous evolution in viral surface proteins that interact with the host cells in common among many RNA viruses and for example well studied in influenza virus A evolution \citep{bhatt_genomic_2011,strelkowa_clonal_2012}.
+Adaptive evolution in influenza tends to be gradual without large jumps in sequence space, while new variants of SARS-CoV-2 with 10s of previously unobserved mutations emerged suddenly without intermediate genomes being observed, the most dramatic being the emergence of Omicron in late 2021 \citep{viana_rapid_2022}.
 The pre-dominant hypothesis for this cryptic emergence of highly mutated, transmissible and immune evasive variants are chronic infections that are frequently observed in patients with impaired immune systems, either through HIV-1 infection \citep{cele_sars-cov-2_2022} or medical intervention \citep{choi_persistence_2020,kemp_sars-cov-2_2021}.
 Onward transmission from such chronic infections has also been documented \citep{gonzalez-reiche_intrahost_2022}.
 However, to date there is no direct evidence for the mode of emergence of any variant.
-The case for chronic infection being an important contributor is strongest for the variants Alpha and Omicron
-\citep{hill_origins_2022}.
+The case for chronic infection being an important contributor is strongest for the variants Alpha and Omicron \citep{hill_origins_2022}.
 
 The saltatory nature of SARS-CoV-2 evolution implies that evolution within individual variants, clades, or lineages might have different characteristics from its overall pattern, which is dominated by atypical bursts of evolution leading to new variants.
-Here, we investigate the rate at which the SARS-CoV-2 genome changes within variants and compare this rate to the rate at which the variants themselves accumulate differences relative to reference sequence.
-This comparison reveals a clear dichotomy between slow within-variant evolution and rapid adaptive evolution giving rise to new variants.
+\citet{tay_emergence_2022} and \citet{hill_origins_2022} show that the rate of evolution along these inter-clade branches is up to four-fold higher than the background rate.
+Here, we build on these results and investigate the patterns of SARS-CoV-2 diversifications within variants and compare these to the global dynamics of evolution and adaptation.
+This comparison reveals a consistent dichotomy between slow within-variant evolution and rapid adaptive evolution giving rise to new variants.
+The rate of synonymous evolution does not differ between and within variants, while the non-synonymous rate within variants is far below the between variant rate.
 Early variants display more rapid non-synonymous evolution that later variants.
-The rate of synonymous changes between and within variants agrees, while the non-synonymous rate within variants is far below the between variant rate.
 We further quantify the level of functional constraint of different open reading frames and infer a map of mutational tolerance across the genome.
 
 \section*{Results}
@@ -54,7 +53,7 @@ Traditionally, evolutionary rates and divergence times are estimates using phylo
 These methods, however, can not handle the volume of SARS-CoV-2 data available and data have to be dramatically down-sampled.
 Furthermore, phylogenetic methods impose an hierarchical structure on the data and are thus very sensitive to problematic sequences or metadata: Any problematic sequence can fatally distort the analysis, in particular if placed early in tree.
 
-To circumvent many of the above mentioned problems and still use the majority of the available data, we use a combination of automated filtering and robust procedures to analyze the evolutionary patterns.
+To circumvent many of the above mentioned problems and still use the majority of the available data, we use a combination of automated filtering and simple robust approaches to analyze the evolutionary patterns.
 We first use Nextclade \citep{aksamentov_nextclade_2021} to assign all sequences to one of the Nextstrain clades \citep{hadfield_nextstrain_2018} and analyze each clade separately.
 Sequences belonging to recombinant lineages are excluded.
 These clades represent well defined groups of sequences with little non-vertical evolution within them.
@@ -66,7 +65,7 @@ The latter step is done for nucleotide changes as well as for amino acid changes
 
 Within each clade, the number of mutations is expected to increase linearly in time and the variation around this mean would, in an ideal case, obey Poisson statistics.
 For the majority of sequences, this is approximately true, but some problematic sequences are many more mutations than expected.
-To exclude these outliers, we perform a simple linear regression of the number of ``intra-clade'' mutations against time and remove sequences whose deviation from the linear fit exceeds twice the variance by 3.
+To exclude these outliers, we perform a simple linear regression of the number of ``intra-clade'' mutations against time and remove sequences whose deviation from the linear fit exceeds twice the expected variance by 3.
 
 After removing these outliers, we now bin the data by calendar week and determine the mean and standard deviation in each bin.
 Evolutionary rate and putative emergence date of the variant are then estimated by weighted linear regression where each bin is weighted with the fourth root of the number of sequences in the bins.
@@ -188,15 +187,16 @@ Above, we found that the rate of synonymous mutations is comparable within and b
 This is expected, as synonymous positions are rarely a locus of adaptation and tend to have a small effects on fitness in large parts of the genomes of RNA viruses \citep{zanini_vivo_2017} (outside of specific regions with important RNA elements).
 To assess the level of constraint on the SARS-CoV-2 genome, we made use of the ``rare mutations'' annotation by Nextclade.
 Nextclade attaches each sequence to a reference tree and determines by which mutations it differs from the attachment point.
-For each pango lineage (as determined by Nextclade), we count how often these ``rare mutations'' are observed, normalize this against the relative rate of mutation of the reference nucleotide (see Supp.~Fig.~\ref{fig:mutation_distribution}), and use this as a proxy for mutational tolerance.
+For each pango lineage (as determined by Nextclade), we count how often these ``rare mutations'' (including reversions to reference) are observed, normalize this against the relative rate of mutation away from the ancestral nucleotide (see Supp.~Fig.~\ref{fig:mutation_distribution}), and use this as a proxy for mutational tolerance.
 
 Simply splitting mutations into those that occur in 1st, 2nd, and 3rd positions of codons already reveals strong signatures of purifying selection, see Fig.~\ref{fig:fitness_costs}.
 Between 15-20\% of positions at first and second codons show almost no variation, while half of these sites are less variable then the most constrained 10\% of third positions.
 The median of variation at 3rd position is more than double that at other 1st and 2nd positions.
 
-When split by open reading frame (see Supp.~Fig.~\ref{fig:fitness_costs_supp}), the most constrained are ORF1b and M, while ORF3a, ORF6, ORF7a, ORF7b, and ORF8 show little evidence of constraint, consistent with frequently observed stop-mutations in these genes.
+When split by open reading frame (see Supp.~Fig.~\ref{fig:fitness_costs_supp} and \ref{fig:fitness_landscape_supp}), the most constrained are ORF1b and M, while ORF3a, ORF6, ORF7a, ORF7b, and ORF8 show little evidence of constraint, consistent with frequently observed stop-mutations in these genes.
 N shows an intermediate pattern, possibly reflecting its mix of structured and unstructured regions.
-Rare variation at 3rd positions is very comparable between genes with only E showing slightly less variation at 3rd positions than other genes.
+Rare variation at 3rd positions is very comparable between genes.
+Only E shows slightly less variation at 3rd positions than other genes with a notable dip in the middle of the gene around codon 35.
 
 
 
