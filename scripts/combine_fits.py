@@ -15,7 +15,7 @@ if __name__=="__main__":
         description="remove time info",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
-
+    fs=14
     parser.add_argument('--rate-table', type=str, required=True, help="input data")
     parser.add_argument('--output-plot', type=str, help="plot file")
     parser.add_argument('--output-plot-rates', type=str, help="plot file")
@@ -24,8 +24,10 @@ if __name__=="__main__":
     rates = pd.read_csv(args.rate_table, sep='\t', index_col='clade')
     inter_clade_rates = {}
     fig, axs = plt.subplots(2,2, figsize=(12,12))
-    for ax, mut_type, ax_label in zip(axs.flatten(),['nuc', 'aa', 'syn'],['total divergence', 'aa divergence', 'syn divergence']):
-        ax.set_ylabel(ax_label)
+    xticks = [2020,2020.5,2021,2021.5,2022,2022.5]
+    for ax, mut_type, ax_label in zip(axs.flatten(),['nuc', 'aa', 'syn'],
+                        ['total divergence', 'amino acid divergence', 'synonymous divergence']):
+        ax.set_ylabel(ax_label, fontsize=fs)
         inter_clade = []
         ci=0
         for clade, row in rates.iterrows():
@@ -51,6 +53,7 @@ if __name__=="__main__":
         ax.set_xlim(x.min(), x.max())
         ax.set_ylim(0)
         if mut_type == 'aa': ax.legend(ncol=2)
+        ax.set_xticks(xticks, [str(x) for x in xticks], fontsize=fs)
     for i, (mut_type, rate) in enumerate(inter_clade_rates.items()):
         axs[-1,-1].plot([i-0.4, i+0.4], [rate, rate], lw=3, c='k', alpha=0.5)
         clade_rates = rates[f"{mut_type}_rate"]
@@ -61,8 +64,9 @@ if __name__=="__main__":
         axs[-1,-1].scatter(x_offset[10:],
                            clade_rates[10:], c=[f"C{ci%10}" for ci in range(len(clade_rates) - 10)],
                            marker='s')
-    axs[-1,-1].set_ylabel("substitutions per year")
-    axs[-1,-1].set_xticks([0,1,2], ['nuc', 'aa', 'syn'])
+    axs[-1,-1].set_ylabel("substitutions per year", fontsize=fs)
+    axs[-1,-1].set_xticks([0,1,2], ['total', 'amino acid', 'synonymous'], rotation=20,
+                          ha='center', fontsize=fs)
     axs[-1,-1].set_ylim(0)
 
     if args.output_plot:
