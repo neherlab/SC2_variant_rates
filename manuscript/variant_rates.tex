@@ -22,29 +22,36 @@
 
 
 \begin{document}
-\title{Evolutionary rates of SARS-CoV-2}
+\title{Contributions of adaptive evolution and purifying selection to SARS-CoV-2 diversification}
 \author{Richard A.~Neher}
+\address{Biozentrum, University of Basel, Basel, Switzerland \looseness=-5}
+\address{Swiss Institute of Bioinformatics, Switzerland \looseness=-5}
+
 \date{\today}
 
 \begin{abstract}
-The evolution of SARS-CoV-2 has had profound impact on the course of the pandemic and multiple variants of concern have led to renewed waves of infections.
-Here we analyze the evolution of the virus over 2.5 years since its emergence and estimate rates of evolution for synonymous and non-synonymous changes within and between variants.
+Continued evolution and adaptation of SARS-CoV-2 has lead to more transmissible and immune-evasive variants with profound impact on the course of the pandemic.
+Here we analyze the evolution of the virus over 2.5 years since its emergence and estimate rates of evolution for synonymous and non-synonymous changes.
+We estimate separate rates for evolution within clades, that is well defined mono-phyletic groups with gradual evolution, and for the pandemic overall.
 The rate of synonymous mutations is found to be around 6 changes per year.
-Rates within variants vary little and are compatible with a global rate.
-The non-synonymous changes within variants, however, was initially around 12-16 changes per year, but in 2021 and 2022 dropped to 6-9 changes per year.
-Globally, the different variants of SARS-CoV-2 are compatible with an overall rate of about 25 amino acid changes per year, highlighting that the different adaptive evolutionary process that gave rise to the different variants is qualitatively different from that in typical transmission chains.
-We further show that many accessory proteins evolve under limited evolutionary constraint with little short term purifying selection.
+Rates within variants vary little and are compatible with a overall rate.
+In contrast, the rate at which variants accumulate amino acid changes was initially around 12-16 changes per year, but in 2021 and 2022 dropped to 6-9 changes per year.
+The overall rate of non-synonymous evolution, that is across variants, is estimated to be about 25 amino acid changes per year.
+This 2-fold higher rate indicates that adaptive evolutionary process that gave rise to the different variants is qualitatively different from that in typical transmission chains.
+We further quantify the spectrum of mutations and purifying selection in different SARS-CoV proteins.
+Many accessory proteins evolve under limited evolutionary constraint with little short term purifying selection.
+About half of mutations in other proteins are strongly deleterious and rarely observed, even at low frequency.
 \end{abstract}
 
 \maketitle
 
-Since its emergence in late 2019, SARS-CoV-2 has displayed a discontinuous pattern of evolution with large jumps in sequence space giving rise to phylogenetically distinct variants without observed intermediates \citep{hodcroft_spread_2021,volz_assessing_2021,tegally_detection_2021,faria_genomics_2021,naveca_covid-19_2021,viana_rapid_2022}.
+Since its emergence in late 2019 \citep{zhu_novel_2020}, SARS-CoV-2 has displayed a discontinuous pattern of evolution with large jumps in sequence space giving rise to phylogenetically distinct variants without observed intermediates \citep{hodcroft_spread_2021,volz_assessing_2021,tegally_detection_2021,faria_genomics_2021,naveca_covid-19_2021,viana_rapid_2022}.
 Many of these variants spread considerably faster and quickly displaced the resident variants either because of intrinsically increased transmissibility, evasion of prior immunity in the population, or a combination of both.
-Such variants of Concern or Interest were designated by the WHO and labeled by Greek letters \citep{konings_sars-cov-2_2021}.
+Specific Variants of Concern (VoC) or Interest (VoI) were designated by the WHO and labeled by Greek letters \citep{konings_sars-cov-2_2021}.
 The branches leading to these variants are characterized by many amino acid changing mutations that often cluster in the S1 domain of the spike protein \citep{kistler_rapid_2022}.
 
-This pattern of rapid non-synonymous evolution in viral surface proteins that interact with the host cells in common among many RNA viruses and for example well studied in influenza virus A evolution \citep{bhatt_genomic_2011,strelkowa_clonal_2012}.
-Adaptive evolution in influenza tends to be gradual without large jumps in sequence space, while new variants of SARS-CoV-2 with 10s of previously unobserved mutations emerged suddenly without intermediate genomes being observed, the most dramatic being the emergence of Omicron in late 2021 \citep{viana_rapid_2022}.
+This pattern of rapid non-synonymous evolution in viral surface proteins that interact with the host cells is common among many RNA viruses and for example well studied in influenza virus A evolution \citep{bhatt_genomic_2011,strelkowa_clonal_2012}.
+But adaptive evolution of influenza viruses tends to be gradual without large jumps in sequence space, while new variants of SARS-CoV-2 with 10s of previously unobserved mutations emerged suddenly without intermediate genomes being observed, the most dramatic being the emergence of Omicron in late 2021 \citep{viana_rapid_2022}.
 The pre-dominant hypothesis for this cryptic emergence of highly mutated, transmissible and immune evasive variants are chronic infections that are frequently observed in patients with impaired immune systems, either through HIV-1 infection \citep{cele_sars-cov-2_2022} or medical intervention \citep{choi_persistence_2020,kemp_sars-cov-2_2021}.
 Onward transmission from such chronic infections has also been documented \citep{gonzalez-reiche_intrahost_2022}.
 However, to date there is no direct evidence for the mode of emergence of any variant.
@@ -60,7 +67,7 @@ We further quantify the level of functional constraint of different open reading
 
 
 \begin{figure*}[tb]
-    \includegraphics[width=\textwidth]{figures/rtt/20I_rtt.pdf}
+    \includegraphics[width=\textwidth]{figures/rtt/20C_rtt.pdf}
     \includegraphics[width=\textwidth]{figures/counts/20C_counts.pdf}
     \caption{{\bf Within-clade divergence increases linearly with time.} Top: Each panel shows the number of within-clade mutations (total (A), amino acid changing (B), synonymous (C)) as a function of time.
     The green line in panel A indicates the divergence cut-off, panels B\&C only show sequences that pass the divergence filter. Each panel also shows mean $\pm$ standard deviation and a weighted linear fit. Analogous figures for all clades considered are included in the appendix.
@@ -72,11 +79,11 @@ We further quantify the level of functional constraint of different open reading
 
 Evolutionary rates and divergence times are typically estimated using phylogenetic frameworks for heterochronously sampled sequences.
 These methods, however, can not handle the volume of SARS-CoV-2 data available and data have to be dramatically down-sampled.
-Furthermore, phylogenetic methods impose an hierarchical structure on the data and are thus very sensitive to problematic sequences or metadata: Any problematic sequence can fatally distort the analysis, in particular if placed early in tree.
+Furthermore, phylogenetic methods impose an hierarchical structure on the data and are thus very sensitive to problematic sequences or metadata: Any mis-dated or recombinant sequence can fatally distort the analysis, in particular if placed early in tree.
 
-To circumvent many of the above mentioned problems and still use the majority of the available data, we use a combination of automated filtering and simple robust approaches to analyze the evolutionary patterns.
+To circumvent many of the above mentioned problems and still use the majority of the available data, we use a combination of automated filtering and simple robust approaches to analyze the evolutionary patterns (see Materials and Methods).
 We first use Nextclade \citep{aksamentov_nextclade_2021} to assign all sequences to one of the Nextstrain clades \citep{hadfield_nextstrain_2018} and analyze each clade separately.
-Sequences belonging to recombinant lineages are excluded.
+Sequences belonging to recombinant Pango lineages are excluded \citep{rambaut_dynamic_2020}.
 These clades represent well defined groups of sequences with little non-vertical evolution within them.
 Furthermore, we define a ``founder'' genotype for each clade and exclude any sequence that does not have the full set of mutations relative to the reference sequence Wuhan/Hu-1.
 This founder sequence is manually curated for each clade considered.
@@ -92,14 +99,13 @@ To exclude these outliers, we perform a simple linear regression of the number o
 After removing these outliers, we now bin the data by calendar week and determine the mean and standard deviation in each bin.
 Evolutionary rate and putative emergence date of the variant are then estimated by weighted linear regression where each bin is weighted with the fourth root of the number of sequences in the bins.
 The exact functional form of this weighing does not have a big influence on the results, but a sublinear weighing helps to counter the large variation in sequencing effort across countries and the natural imbalance due to the fact that few sequences are available early.
+Fig.~\ref{fig:within_clade} shows the increasing intra-clade divergence for clade 20C, corresponding to a large clade that emerged in early 2020 that was common in North America and Scandinavia.
+Both synonymous and non-synonymous within-clade average divergence increases linearly over time allowing for a robust estimate of the rate.
 
 Due to shared ancestry, divergences of sequences are not independent data points and a regression against time is not suited to estimate evolutionary rates in general.
 In particular, confidence intervals are difficult to obtain.
 However, in the case of rapidly expanding variants we typically observe a large number of independent lineages emanating from one or several basal polytomies.
 Along each of these lineages, mutation accumulation is independent and divergence increase allows to estimate the rate robustly.
-Fig.~\ref{fig:within_clade} shows the increasing intra-clade divergence for clade 20C, corresponding to a large clade that emerged in early 2020 that was common in North America and Scandinavia.
-Both synonymous and non-synonymous within-clade average divergence increases linearly over time allowing for a robust estimate of the rate.
-
 
 A simple model for diversity in a growing variant is a super-critical branching process with growth rate $\alpha$ and an embedded mutation process.
 Offspring of genomes with $i$ mutations contain $i+j$ mutations, where $j$ is a Poisson distributed number with mean $\mu t$ (mutation rate $\mu$ and generation time $t$).
@@ -121,17 +127,23 @@ with solution $m_i = e^{(\alpha - u)t} \frac{(ut)^i}{i!}$.
 At each time the number of mutations in the population is expected to Poisson distributed with mean $ut$, while the overall number of cases is $e^{\alpha t}$ or more generally $e^{\int \alpha(t) dt}$ if growth rate or ascertainment varies over time.
 
 For some clades, especially those that are well sampled soon after their emergence, this Poisson model is good fit to diversity accumulation and yields estimates of rates and time of origin that are compatible with the divergence regression, see Fig.~\ref{fig:within_clade}F for clade 20C.
+In this case, the founder genotypes initially dominates, but is gradually replaced -- first single mutant genotypes, then double mutants, and so forth (comp.~Fig.~\ref{fig:within_clade}).
 Analogous plots for all other clades considered are included in the appendix.
 
-In some cases, subclades do become dominant in the early stochastic dynamic.
+In some cases, notable subclades do become dominant in the early stochastic dynamic.
 This can result in increased within clade divergence, effectively generating an offset to diversity.
 Extrapolation of the linear fit to zero divergence is thus not necessarily a good estimator of the emergence time of a variant.
 For several clades 19B, 20H (Beta), 21D (Eta), 21G (Lambda), 21 (Mu), 21I (Delta), 21J (Delta), 21L (Omicron, BA.2), and 22B (Omicron, BA.5), founder like variants are a minority even in early data.
 
 These Poisson weights of mutation numbers are again only valid if mutations accumulate along many independent lineages.
 In particular, this assumption is violated if some lineages spread systematically faster than others either because of epidemiological factors or the mutations they carry.
-In variant 21K (Omicron, BA.1), a sublineage with mutation $S:R346K$ might have enjoyed a transmission advantage.
+In variant 21K (Omicron, BA.1), a sublineage with mutation \texttt{S:R346K} might have enjoyed a transmission advantage.
 A possible consequence of this advantage is visible in Supp.~Fig.~\ref{fig:21K_divergence} where genotypes with 0, 1, or 2 mutations are decaying more rapidly than those with more mutations.
+
+Founder genotypes of Omicron clades 21L (BA.2), 22A (BA.4) and 22B (BA.5) are barely sampled.
+These clades showed considerable diversity, including reversions to the reference, soon after their initial discovery \citep{tegally_emergence_2022}.
+This diversity and the complex, possibly recombinant, origin of the Omicron clades makes estimating their rate of evolution challenging.
+The lower estimates for these latest clades should therefore be interpreted with care.
 
 \begin{figure*}
     \includegraphics[width=0.8\textwidth]{figures/rate_summary.pdf}
@@ -156,33 +168,34 @@ We thus also included composite clades 19B+, 19B++ and 20A+ containing sequences
 The estimates for composite clades 19B+ and 20A+ are consistent with the estimates of the individual clades, while apparent rates of 19B++ are considerably higher.
 The latter is due to the rapid expansion and subsequent dominance of clade 20A and its descendants which rapidly added four additional mutations \citep{korber_tracking_2020}.
 
+
 \begin{table*}
 \begin{tabular}{l|rrrrrr}
     \hline
     {\bf clade} &  overall rate $[y^{-1}]$ & aa rate $[y^{-1}]$ &  syn rate $[y^{-1}]$ & overall div. &  aa div. &  syn div. \\
     \hline
-    19B &     19.45 &    12.37 &      7.09 &        0 &       0 &        0 \\
-    19B+ &     18.51 &    11.87 &      6.64 &        0 &       0 &        0 \\
-    19B++ &     28.17 &    16.32 &     11.84 &        0 &       0 &        0 \\
-    19A &     19.75 &    12.79 &      6.96 &        2 &       1 &        1 \\
-    20A &     15.59 &     8.33 &      7.26 &        6 &       3 &        3 \\
-     20B &     14.17 &     7.64 &      6.53 &        9 &       5 &        4 \\
-     20C &     16.43 &     9.63 &      6.79 &        8 &       5 &        3 \\
-    20A+ &     17.16 &     9.76 &      7.40 &        6 &       3 &        3 \\
-     20E &     13.88 &     5.84 &      8.04 &       13 &       5 &        8 \\
-     20H &     15.46 &     9.50 &      5.96 &       21 &      16 &        5 \\
-     20I &     11.78 &     5.72 &      6.06 &       30 &      19 &       11 \\
-     20J &     12.91 &     6.29 &      6.62 &       35 &      22 &       13 \\
-     21D &     11.36 &     6.29 &      5.07 &       27 &      13 &       14 \\
-     21G &     12.03 &     6.51 &      5.51 &       28 &      19 &        9 \\
-     21H &     18.24 &    10.05 &      8.19 &       31 &      21 &       10 \\
-     21I &     16.26 &     8.63 &      7.63 &       30 &      24 &        6 \\
-     21J &     13.26 &     6.91 &      6.36 &       34 &      28 &        6 \\
-     21K &     14.04 &     6.55 &      7.49 &       56 &      46 &       10 \\
-     21L &      9.40 &     4.12 &      5.28 &       68 &      50 &       18 \\
-     22A &      8.07 &     2.84 &      5.23 &       71 &      52 &       19 \\
-     22B &     12.06 &     4.96 &      7.10 &       66 &      50 &       16 \\
-         \hline
+    19B &     19.46 &    12.37 &      7.09 &        0 &       0 &        0 \\
+   19B+ &     18.56 &    11.92 &      6.64 &        0 &       0 &        0 \\
+  19B++ &     27.91 &    16.41 &     11.50 &        0 &       0 &        0 \\
+  19A &     19.73 &    12.79 &      6.95 &        2 &       1 &        1 \\
+  20A &     15.08 &     7.94 &      7.15 &        6 &       3 &        3 \\
+    20B &     14.29 &     7.69 &      6.59 &        9 &       5 &        4 \\
+    20C &     16.73 &     9.92 &      6.81 &        8 &       5 &        3 \\
+   20A+ &     16.30 &     9.40 &      6.90 &        6 &       3 &        3 \\
+    20E &     14.04 &     5.65 &      8.39 &       13 &       5 &        8 \\
+    20H &     15.48 &     9.51 &      5.96 &       21 &      16 &        5 \\
+    20I &     11.56 &     5.49 &      6.07 &       30 &      19 &       11 \\
+    20J &     12.97 &     6.29 &      6.68 &       35 &      22 &       13 \\
+    21D &     11.36 &     6.29 &      5.07 &       27 &      13 &       14 \\
+    21G &     12.04 &     6.51 &      5.53 &       28 &      19 &        9 \\
+    21H &     18.25 &    10.05 &      8.20 &       31 &      21 &       10 \\
+    21I &     16.55 &     8.93 &      7.62 &       30 &      24 &        6 \\
+    21J &     14.30 &     7.17 &      7.14 &       34 &      28 &        6 \\
+    21K &     13.48 &     6.45 &      7.03 &       56 &      46 &       10 \\
+    21L &      9.24 &     4.39 &      4.85 &       68 &      50 &       18 \\
+    22A &      7.71 &     2.81 &      4.90 &       71 &      52 &       19 \\
+    22B &     11.90 &     5.03 &      6.87 &       66 &      50 &       16 \\
+           \hline
     \end{tabular}
 \caption{{\bf Evolutionary rates estimates from root-to-tip regressions for overall nucleotide changes, amino acid changes, and synonymous changes.}
     The last three columns give the distances of the clade founder sequence from putative MRCA of SARS-CoV-2.
@@ -202,14 +215,14 @@ The latter is due to the rapid expansion and subsequent dominance of clade 20A a
 
 \section*{Purifying selection and mutation tolerance}
 
-Above, we found that the rate of synonymous mutations is comparable within and between clades without any striking signal of temporal variation.
+Above, we found that the rate of synonymous mutations is comparable within and between clades without a strong signal of temporal variation.
 This is expected, as synonymous positions are rarely a locus of adaptation and tend to have a small effects on fitness in large parts of the genomes of RNA viruses \citep{zanini_vivo_2017} (outside of specific regions with important RNA elements or splice sites).
-To assess the level of constraint on the SARS-CoV-2 genome, we made use of the ``rare mutations'' annotation by Nextclade.
+To assess the level of constraint on the SARS-CoV-2 genome more generally, we made use of the ``rare mutations'' annotation by Nextclade.
 Nextclade attaches each sequence to a reference tree and determines by which mutations it differs from the attachment point.
 For each Pango lineage (as determined by Nextclade) \citep{rambaut_dynamic_2020,aksamentov_nextclade_2021}, we count how often these ``rare mutations'' (including reversions to reference) are observed, normalize this against the relative rate of mutation away from the ancestral nucleotide (see Supp.~Fig.~\ref{fig:mutation_distribution}), and use this as a proxy for mutational tolerance.
 
 Simply splitting mutations into those that occur in 1st, 2nd, and 3rd positions of codons already reveals strong signatures of purifying selection, see Fig.~\ref{fig:fitness_costs}.
-Between 15-20\% of positions at first and second codons show almost no variation, while half of these sites are less variable then the most constrained 10\% of third positions.
+Between 15-20\% of first and second positions in codons show almost no variation, while half of these sites are less variable then the most constrained 10\% of third positions.
 The median of variation at 3rd position is more than double that at other 1st and 2nd positions.
 
 When split by open reading frame (see Supp.~Fig.~\ref{fig:fitness_costs_supp} and \ref{fig:fitness_landscape}), the most constrained are \emph{ORF1b} and \emph{M}, while \emph{ORF3a, ORF6, ORF7a, ORF7b}, and \emph{ORF8} show little evidence of constraint, consistent with frequently observed stop-mutations in these genes.
@@ -237,19 +250,24 @@ Only \emph{E} shows slightly less variation at 3rd positions than other genes wi
 
 \section*{Discussion}
 The inferred evolutionary rate of RNA viruses often decreases with the time scale across which is it estimated \citep{wertheim_purifying_2011,ghafari_prisoner_2021}.
-This effect is particularly pronounced at the beginning of an outbreak following a host switch and has been attributed to methodological issues and incomplete purifying selection leading to inflated measures of diversity \citep{meyer_time_2015,ghafari_purifying_2022}.
-In addition to segregating deleterious mutations, early viral evolution after a host switch will also be affected by anomalously fast adaptive evolution as a dramatic change in environment, i.e.~a host switch, likely results in many mutations that increase fitness, though sometimes these better adapted states require multiple epistatically interacting mutations \citep{martin_emergence_2021}.
+This effect can be particularly pronounced at the beginning of an outbreak following a host switch and has been attributed to incomplete purifying selection or methodological issues leading to inflated measures of diversity \citep{meyer_time_2015,ghafari_purifying_2022}.
+In addition to segregating deleterious mutations, early viral evolution after a host switch can also be driven by anomalously fast adaptation.
+A dramatic change in environment, e.g.~a host switch, likely results in many opportunities for mutations that increase fitness.
 Such transient increases in the rate of adaptation are common in experimental evolution \citep{elena_virus_2007}.
 
-Since we analyzed evolution within short lived clades of SARS-CoV-2 over a span of 6 month, purifying selection has comparable efficiency for all clades.
-Sequencing artefacts are expected to increase divergence at all time points or decrease with time as sequencing workflows improve.
+
+Since we analyzed evolution within short lived clades of SARS-CoV-2 over a span of 6 months, purifying selection has comparable efficiency and should affect our estimates equally for all clades.
+Sequencing artifacts are expected to increase divergence at all time points or decrease with time as sequencing workflows improve.
 Nevertheless, the estimated non-synonymous evolutionary rate of clades circulating in late 2019 and early 2020 is about twice as high as that of clades in 2021 and 2022, while the synonymous rate does not change (see Fig.~\ref{fig:rate_summary} and Table \ref{tab:rates}).
 One possible explanation is that the early evolutionary rate of SARS-CoV-2 was inflated by adaptive evolution.
 
 Most of this apparent acceleration of within-variant evolution ceased in mid 2020 and even early variants like 20E accumulated non-synonymous changes at a rate of about 6 per year instead of 12.
-By that time, the number of non-synonymous mutations was SARS-CoV-2 small (5 in the case of 20E) and given what is observed in subsequent variants, it is implausible that this small change would have exhausted the pool of beneficial mutations.
-However, the different replication and transmission kinetics of variants with S:D614G might mean that virus is operating closer to the maximal capacity at which cells can produce virions and the strength of selection is generally reduced.
+By that time, the number of non-synonymous differences relative to the reference was small (5 in the case of 20E) and it is implausible that this small change would have exhausted the pool of beneficial mutations.
+So why would the rate of adaptation evolution slow down?
+Viruses with the S:D614G showed a faster replication kinetics compared to earlier variants \citep{korber_tracking_2020}.
+The virus might therefore be operating closer to the maximal capacity at which cells can produce virions, reducing the scope for further optimization.
 Such ``diminishing return'' epistasis as been observed in experimental evolution with yeast \citep{kryazhimskiy_global_2014}.
+Such global epistasis can exist along side epistasis of specific amino acid changes as for example suggested for the \texttt{S:N501Y} mutation \citep{martin_emergence_2021}.
 Differences in diversification of SARS-CoV-2 with and without the S:D614G mutation where also observed in evolution experiments \citep{amicone_mutation_2022}, who concluded that these differences were not due to a change in base line mutation rate.
 
 An evolutionary rate of 6 synonymous changes at around 9000 positions per year corresponds to a per-site mutation rate of $6.6\times 10^{-4}$ per site and year or $1.8\times 10^{-6}$/day, slightly higher than the estimated base-line mutation rate of $1.3\times 10^{-6}$/day \citep{amicone_mutation_2022}.
@@ -259,31 +277,61 @@ When considering only the putative founder genotype and date of origin of each v
 This rate is a composite of episode of cryptic accelerated evolution (probably in chronically infected individuals), and regular transmission chains of acute infections.
 This is thus lower than the branch specific rates estimated by \citet{hill_origins_2022} and \citet{tay_emergence_2022}.
 However, all clades and variants are compatible with a single ``back-bone'' molecular clock without postulating significant differences in the emergence of different variants.
-This observation of course does not rule out that different clades and variants emerged in qualitatively different ways.
+This observation of course does not rule out that particular clades and variants emerged in qualitatively different ways, but exponential amplification of lineages with adaptive non-synonymous mutations results in elevated rates of evolution.
 
+In addition to neutral and potentially adaptive mutations, we also quantified purifying selection on the SARS-CoV-2 genome.
 By analyzing the rate mutations that spread only on short times scales within fine-grained Pango lineages, we estimated the level of constraint on different parts of the SARS-CoV-genome.
 The great majority of 3rd positions in codons at which  most mutations are synonymous do not show strong signatures of conservations.
-The major open reading frames ORF1ab, S, N, E, M show clear signatures of purifying selection with around 50\% of sites being more constrained than the most constrained 10\% of 3rd positions.
-This result is consistent with similar analysis in HIV that also show little fitness costs for most synonymous mutations, while half of non-synonymous mutations are so deleterious that they are not even observed on short times scales \citep{zanini_vivo_2017}.
-The remaining ORFs show little global signal of constraint and 1st and 2nd positions are as variable as 3rd positions (see Fig.~\ref{fig:fitness_costs}).
+The major open reading frames \emph{ORF1ab, S, N, E, M} show clear signatures of purifying selection with around 50\% of sites being more constrained than the most constrained 10\% of 3rd positions.
+This result is consistent with similar analysis in HIV-1 that also show small fitness costs for most synonymous mutations, while half of non-synonymous mutations are so deleterious that they are not even observed on short times scales \citep{zanini_vivo_2017}.
+The remaining SARS-CoV-2 ORFs show little global signal of constraint and 1st and 2nd positions are as variable as 3rd positions (see Fig.~\ref{fig:fitness_costs}).
+This lack of strong purifying selection in these ORFs does not necessarily imply that they don't matter or are not a possible locus of adaptation -- but the exact amino acid sequence does not seem essential for their function.
 Only a few regions show a clear signal of conservation at 3rd positions, notably a central region of \emph{E} and the ribosome slippage region at the beginning of \emph{ORF1b}.
 
-The heterogeneity in evolutionary rates and the combination of adaptive evolution, approximately neutral mutations, and purifying selection complicate the interpretation of phylodynamic analysis, which typically assumes that the mutation process is independent of the spread and epidemiology and that different sites evolve independently.
+The heterogeneity in evolutionary rates and the combination of adaptive evolution, approximately neutral mutations, and purifying selection complicate the interpretation of phylodynamic analysis.
+Phylogenetics typically assumes that the mutation process is independent of the spread and epidemiology and that different sites evolve independently.
 These assumptions are (approximately) true for neutral mutations that occur along every lineage with the same rate.
-Deleterious mutations are relatively straightforward to account for: Strongly deleterious mutations don't spread and are only observed on terminal branches, similar to sequencing errors.
-Weakly deleterious mutations can spread, but lineages that carry them tend to be short-lived.
-A spectrum of mutations with different deleterious effects leads to time dependent effective evolutionary rates \citep{wertheim_purifying_2011}.
+Strongly deleterious mutations don't spread and are only observed on terminal branches, similar to sequencing errors.
+Weakly deleterious mutations can spread, but lineages that carry them tend to die out.
+Overall, the deleterious mutations result in increased diversity on short time scales compared to longer ones, which can lead to time-dependent effective evolutionary rates \citep{wertheim_purifying_2011}.
 
-Adaptive evolution, however, is much harder to account for properly.
+The effects of adaptive evolution are harder to control and account for.
 Since the number of sites that allow beneficial mutations is small, adaptive evolution tends to be very stochastic -- it is not the typical events, but the rare and extreme events that determine the course of adaptive evolution.
 Unlike neutral evolution, the rate of adaptive evolution depends on the population size, stochastic nature of the transmission process, the environment, and previous adaptation.
+These factors make extrapolation -- whether it is reconstruction of past events or scenarios of future evolution -- uncertain.
+Standard phylogenetic will underestimate that uncertainty.
 
+Our analysis here has shown that the majority of non-synonymous changes by which SARS-CoV-2 variants differ from each other are likely of adaptive origin.
+If the excess of non-synonymous changes on the pandemic scale compared to within clade evolution is due to adaptive evolution, the suggests an adaptive rate of about 20 changes per year (plus insertion/deletions).
+This process is likely to continue even in the more and more diverse immunological landscape of the human population in which the virus adapts.
+But it is unclear whether SARS-CoV-2 continues to evolve in a saltatory fashion with repeated emergence of highly mutated variants, or whether we will see a transition to a more gradual adaptive process.
+We currently observe multiple lineage with several amino acid changes and moderate transmission advantages emerging in a more stepwise fashion within 21L, 22A, 22B (BA.2, BA.4, BA.5), suggesting that shift to a more influenza-like evolution.
 
+\section*{Materials and Methods}
+
+\subsubsection*{Data}
+This analysis is based on SARS-CoV-2 sequencing data shared by researchers around the world via GISAID \citep{shu_gisaid_2017} (EPISET\_ID \href{10.55876/gis8.220812zf}{EPI_SET_220812zf}).
+The bulk of the analysis can be reproduced using SARS-CoV-2 genomes shared via INSDC.
+These data are available from Nextstrain at \url{http://data.nextstrain.org/files/ncov/open/metadata.tsv.gz} and \url{http://data.nextstrain.org/files/ncov/open/nextclade.tsv.gz}.
+However, for some clades and variants, coverage in INSDC is low.
+
+\subsubsection*{Analysis}
+The code used to run this analysis is publicly available at \url{https://github.com/neherlab/SC2_variant_rates}.
+It is organized as a snakemake workflow \citep{koster_snakemakescalable_2012}.
+We used Nextclade data \texttt{2022-07-26T12:00:00Z} with reference sequence MN908947 (Wuhan-Hu-1).
+Tabular files with estimates of evolutionary rates, the mutation distribution, and fitness costs are included in the git repository.
+
+\section*{Acknowledgements}
+We gratefully acknowledge the work by 1000s of scientists and healthcare professionals that collect the samples, generate, and share the sequence data on which this analysis is built.
+We are also grateful for stimulating discussions with Cornelius Roemer and Emma Hodcroft on many aspects of SARS-CoV-2 evolution.
 
 \bibliography{bib}
-%\appendix
-\include{appendix}
+
+\clearpage
+\appendix
+\input{appendix}
+\clearpage
 \onecolumngrid
-\include{appendix_rtt}
+\input{appendix_rtt}
 % \include{appendix_counts}
 \end{document}

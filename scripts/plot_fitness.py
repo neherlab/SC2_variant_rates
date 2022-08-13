@@ -39,7 +39,7 @@ if __name__=="__main__":
 
     ind = fitness.pos_in_codon.isna()
     plt.plot(sorted(fitness.tolerance[ind]), np.linspace(0,1,ind.sum()),
-                    label = f"non-codon")
+                    label = f"non-coding")
 
     ind = fitness.pos_in_codon==3
     syn_cutoff = scoreatpercentile(fitness.tolerance[ind],10)
@@ -51,7 +51,7 @@ if __name__=="__main__":
     print("non coding", np.mean(fitness.tolerance[ind]<syn_cutoff))
 
     plt.xscale('log')
-    plt.ylabel("fraction less")
+    plt.ylabel("fraction below")
     plt.xlabel("scaled number of lineages with mutations")
     plt.legend()
     plt.savefig(args.output_fitness)

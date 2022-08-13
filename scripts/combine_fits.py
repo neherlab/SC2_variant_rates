@@ -52,9 +52,12 @@ if __name__=="__main__":
         ax.fill_between(x, y+std_dev, np.maximum(0, y-std_dev), fc='k', lw=3, alpha=0.1, ec=None)
         ax.set_xlim(x.min(), x.max())
         ax.set_ylim(0)
+        ax.text( 0.6, 0.1,f"rate: {reg.slope:1.1f}/year", fontsize=fs, transform=ax.transAxes)
         if mut_type == 'aa': ax.legend(ncol=2)
         ax.set_xticks(xticks, [str(x) for x in xticks], fontsize=fs)
+
     for i, (mut_type, rate) in enumerate(inter_clade_rates.items()):
+        axs[-1,-1].fill_between([i-0.5, i+0.5], [35,35], facecolor='k', alpha=0.075*(2+i%2))
         axs[-1,-1].plot([i-0.4, i+0.4], [rate, rate], lw=3, c='k', alpha=0.5)
         clade_rates = rates[f"{mut_type}_rate"]
         x_offset = i + np.linspace(-.35, 0.35,len(clade_rates))
@@ -80,6 +83,7 @@ if __name__=="__main__":
     plt.plot(rates["nuc_origin"], np.ones_like(rates['nuc_origin'])*inter_clade_rates["aa"], label='inter-clade amino acid rate', c=f"C{0}", lw=3)
     plt.plot(rates["nuc_origin"], np.ones_like(rates['nuc_origin'])*inter_clade_rates["syn"], label='inter-clade synonymous rate', c=f"C{1}", lw=3)
     plt.ylabel('rate estimate [1/y]')
+    plt.ylim(0,25)
     plt.legend()
 
     if args.output_plot_rates:
