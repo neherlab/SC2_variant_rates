@@ -241,6 +241,7 @@ rule rate_table:
                          'syn_rate': d['syn']['slope'],
                          'syn_origin':d['syn']['origin'],'syn_origin_date':datestring_from_numeric(d['syn']['origin']),
                          'spike_rate': d['spike']['slope'],
+                         'orf1ab_rate': d['orf1']['slope'],
                          'nuc_div': nuc_div, 'aa_div':aa_div, 'syn_div':nuc_div-aa_div})
 
         df = pd.DataFrame(data)
