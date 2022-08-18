@@ -1,10 +1,10 @@
 import argparse
-from turtle import fillcolor
 import numpy as np
 import pandas as pd
 from scipy.stats import linregress
 import matplotlib as mpl
 mpl.rcParams['axes.formatter.useoffset'] = False
+from root_to_tip import add_panel_label
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -25,9 +25,10 @@ if __name__=="__main__":
     inter_clade_rates = {}
     fig, axs = plt.subplots(2,2, figsize=(12,12))
     xticks = [2020,2020.5,2021,2021.5,2022,2022.5]
-    for ax, mut_type, ax_label in zip(axs.flatten(),['nuc', 'aa', 'syn'],
-                        ['total divergence', 'amino acid divergence', 'synonymous divergence']):
+    for ax, mut_type, ax_label, panel in zip(axs.flatten(),['nuc', 'aa', 'syn'],
+                        ['total divergence', 'amino acid divergence', 'synonymous divergence'], ['A', 'B', 'C']):
         ax.set_ylabel(ax_label, fontsize=fs)
+        add_panel_label(ax, panel, fs=fs*1.8)
         inter_clade = []
         ci=0
         for clade, row in rates.iterrows():
@@ -52,7 +53,7 @@ if __name__=="__main__":
         ax.fill_between(x, y+std_dev, np.maximum(0, y-std_dev), fc='k', lw=3, alpha=0.1, ec=None)
         ax.set_xlim(x.min(), x.max())
         ax.set_ylim(0)
-        ax.text( 0.6, 0.1,f"rate: {reg.slope:1.1f}/year", fontsize=fs, transform=ax.transAxes)
+        ax.text( 0.6, 0.06,f"overall rate: {reg.slope:1.1f}/year", fontsize=fs, transform=ax.transAxes)
         if mut_type == 'aa': ax.legend(ncol=2)
         ax.set_xticks(xticks, [str(x) for x in xticks], fontsize=fs)
 
@@ -71,6 +72,7 @@ if __name__=="__main__":
     axs[-1,-1].set_xticks([0,1,2], ['total', 'amino acid', 'synonymous'], rotation=20,
                           ha='center', fontsize=fs)
     axs[-1,-1].set_ylim(0)
+    add_panel_label(axs[-1,-1], 'D', fs=fs*1.8)
 
     if args.output_plot:
         plt.savefig(args.output_plot)
