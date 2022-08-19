@@ -46,8 +46,9 @@ def filter_and_transform(d, clade_gt, min_date=None, max_date=None, query=None, 
                                                      if all([y not in clade_gt['nuc'], int(y[1:-1])>150,  int(y[1:-1])<29753])] if x else [])
     # define "with-in clade substitutions"
     d["intra_aaSubstitutions"] = d.aaSubstitutions.apply(lambda x: [y for y in x.split(',') if y not in clade_gt['aa'] and 'ORF9' not in y] if x else [])
-    d["intra_SpikeSubstitutions"] = d.aaSubstitutions.apply(lambda x: [y for y in x.split(',') if y not in clade_gt['aa'] and 'ORF9' not in y and y[0]=='S'] if x else [])
-    d["intra_ORF1Substitutions"] = d.aaSubstitutions.apply(lambda x: [y for y in x.split(',') if y not in clade_gt['aa'] and 'ORF9' not in y and y[:4]=='ORF1'] if x else [])
+    d["intra_SpikeSubstitutions"] = d.aaSubstitutions.apply(lambda x: [y for y in x.split(',') if y not in clade_gt['aa'] and y[0]=='S'] if x else [])
+    d["intra_ORF1Substitutions"] = d.aaSubstitutions.apply(lambda x: [y for y in x.split(',') if y not in clade_gt['aa'] and y[:4]=='ORF1'] if x else [])
+    d["intra_ENMSubstitutions"] = d.aaSubstitutions.apply(lambda x: [y for y in x.split(',') if y not in clade_gt['aa'] and y[0] in ['E','N','M'] if x else [])
 
     if swap_root:
         muts = [("C8782T","T8782C"), ("T28144C","C28144T")]
@@ -66,6 +67,7 @@ def filter_and_transform(d, clade_gt, min_date=None, max_date=None, query=None, 
     d["aaDivergence"] = d.intra_aaSubstitutions.apply(lambda x: len(x))
     d["spikeDivergence"] = d.intra_SpikeSubstitutions.apply(lambda x: len(x))
     d["orf1Divergence"] = d.intra_ORF1Substitutions.apply(lambda x: len(x))
+    d["enmDivergence"] = d.intra_ENMSubstitutions.apply(lambda x: len(x))
     d["synDivergence"] = d["divergence"] - d["aaDivergence"]
 
 
@@ -186,6 +188,7 @@ if __name__=="__main__":
     regression_clean_syn = regression_by_week(filtered_data.loc[ind], "synDivergence")
     regression_clean_spike = regression_by_week(filtered_data.loc[ind], "spikeDivergence")
     regression_clean_ORF1 = regression_by_week(filtered_data.loc[ind], "orf1Divergence")
+    regression_clean_ENM = regression_by_week(filtered_data.loc[ind], "enmDivergence")
 
     fig, axs = plt.subplots(1,3, figsize=(18,6), sharex=True, sharey=True)
     ymax = 20
@@ -234,7 +237,7 @@ if __name__=="__main__":
 
     rate_data = {'clade':args.clade, 'nuc':regression_clean, 'aa':regression_clean_aa,
                  'syn':regression_clean_syn, 'spike':regression_clean_spike,
-                 'orf1':regression_clean_ORF1,
+                 'orf1':regression_clean_ORF1,'enm':regression_clean_ENM,
                  "top_aaSubs": top_aaSubs,  "top_nucSubs": top_nucSubs}
     if args.output_json:
         with open(args.output_json, 'w') as fh:
