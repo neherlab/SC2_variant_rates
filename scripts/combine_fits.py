@@ -98,7 +98,8 @@ if __name__=="__main__":
     plt.plot(rates["aa_rate"], 'o-', label='Overall acid rate')
     plt.plot(rates["spike_rate"], 's-', label='spike protein')
     plt.plot(rates["orf1ab_rate"], 'd-', label='ORF1ab')
-    plt.plot(rates["aa_rate"] - rates["spike_rate"] - rates["orf1ab_rate"],
+    plt.plot(rates["enm_rate"], 'd-', label='E,M,N')
+    plt.plot(rates["aa_rate"] - rates["spike_rate"] - rates["orf1ab_rate"]- rates["enm_rate"],
              'v-', label='other ORFs')
     plt.ylabel('rate estimate [subs/y]')
     plt.legend()

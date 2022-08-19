@@ -58,7 +58,7 @@ However, to date there is no direct evidence for the mode of emergence of any va
 The case for chronic infection being an important contributor is strongest for the variants Alpha and Omicron \citep{hill_origins_2022}.
 
 The dichotomous pattern of SARS-CoV-2 evolution with step-wise evolution within clades or variants and atypical bursts of evolution leading to new variants has been investigated by \citet{tay_emergence_2022} and \citet{hill_origins_2022}, who show that the rate of evolution along branches giving rise to new variants is up to four-fold higher than the background rate.
-Here, we build on these results and investigate the patterns of SARS-CoV-2 diversification within variants and compare these to the global dynamics of evolution and adaptation.
+Here, we\footnote[1]{I and the computer} build on these results and investigate the patterns of SARS-CoV-2 diversification within variants and compare these to the global dynamics of evolution and adaptation.
 This comparison reveals a consistent dichotomy between slow within-variant evolution and rapid adaptive evolution giving rise to new variants.
 This difference in evolutionary rate is only seen for non-synonymous changes -- the rate of synonymous evolution within variants is compatible with that seen between variants.
 Furthermore, early variants display more rapid non-synonymous evolution than later variants suggesting more ubiquitous adaptive evolution early on.
@@ -119,8 +119,8 @@ Since the above branching process is linear, the mean number of cases $n$ will i
     \begin{split}
         \frac{dn}{dt} &= \alpha n \\
         \frac{dm_0}{dt} &= (\alpha - u) m_0 \\
-        \frac{dm_1}{dt} &= u m_0 (\alpha - u) m_1 \\
-        \frac{dm_2}{dt} &= u m_1 (\alpha - u) m_2 \\
+        \frac{dm_1}{dt} &= u m_0 + (\alpha - u) m_1 \\
+        \frac{dm_2}{dt} &= u m_1 + (\alpha - u) m_2 \\
         \cdots
     \end{split}
 \end{equation}
@@ -161,6 +161,7 @@ The rates of non-synonymous changes are much more variable (Fig.~\ref{fig:rate_s
 Within clades, the rate of non-synonymous changes varies between 5 and 16 changes per year.
 Earlier clades are estimated to have larger rates around 10-15 changes per year, while rate estimates for later clade fall  between 3 to 9 changes per year (see Fig.~\ref{fig:rate_progression}).
 In contrast, the inter-clade non-synonymous rate exceeds 25 changes per year.
+The spike protein does not contribute to this decreasing trend in the rate of within-clade non-synonymous evolution, which is most evident in \emph{ORF1ab} and to a lesser degree in accessory proteins and \emph{N} (see Supp.Fig.~\ref{fig:rate_progression_by_gene}).
 
 Nextstrain clades tend to be defined by long branches leading to a large polytomy.
 It could thus be that the estimated inter-clade rate exceeds the intra-clade rate purely because of this conditioning.
@@ -295,7 +296,7 @@ The great majority of 3rd positions in codons at which  most mutations are synon
 The major open reading frames \emph{ORF1ab, S, N, E} and \emph{M} show clear signatures of purifying selection with around 50\% of sites being more constrained than the most constrained 10\% of 3rd positions.
 Purifying selection analyzed there is operating over the time rare lineage circulate, which is typically a few weeks.
 On shorter time scales, more strongly deleterious mutations will be observed.
-This likely explains the observation that the rate of intra-host diversification during acute infections is estimated to about twice as large ($1.1 \times 10^{-3}$ per site and year, \citep{braun_acute_2021) as the base line rate estimated here.
+This likely explains the observation that the rate of intra-host diversification during acute infections is estimated to about twice as large ($1.1 \times 10^{-3}$ per site and year, \citep{braun_acute_2021}) as the base line rate estimated here.
 
 The degree of purifying selection is consistent with a similar analysis in HIV-1 that also show small fitness costs for most synonymous mutations, while half of the non-synonymous mutations are so deleterious that they are not even observed on short timescales \citep{zanini_vivo_2017}.
 The remaining SARS-CoV-2 ORFs show little global signal of constraint and 1st and 2nd positions are as variable as 3rd positions (see Fig.~\ref{fig:fitness_costs}).
@@ -332,13 +333,12 @@ However, for some clades and variants, coverage in INSDC is low.
 The code used to run this analysis is publicly available at \url{https://github.com/neherlab/SC2_variant_rates}.
 It is organized as a snakemake workflow \citep{koster_snakemakescalable_2012}.
 We used Nextclade data \texttt{2022-07-26T12:00:00Z} with reference sequence MN908947 (Wuhan-Hu-1).
-The codon analysis ignores \emph{ORF9b} which is fully contained in \emph{N}.
+The codon analysis ignores \emph{ORF9b} which is fully contained in \emph{N} but in a different reading frame.
 Tabular files with estimates of evolutionary rates, the mutation distribution, and fitness costs are included in the git repository.
 
 \section*{Acknowledgements}
-We gratefully acknowledge the work by 1000s of scientists and healthcare professionals that collect the samples, generate, and share the sequence data on which this analysis is built.
-We are also grateful for stimulating discussions with Cornelius Roemer and Emma Hodcroft on many aspects of SARS-CoV-2 evolution.
-Jesse Bloom and Louis du Plessis provided valuable feed-back on the manuscript.
+I gratefully acknowledge the work by 1000s of scientists and healthcare professionals that collect the samples, generate, and share the sequence data on which this analysis is built.
+I am also grateful to Jesse Bloom and Louis du Plessis provided valuable feed-back on the manuscript and to Cornelius Roemer and Emma Hodcroft for stimulating discussions on many aspects of SARS-CoV-2 evolution.
 
 \bibliography{bib}
 
