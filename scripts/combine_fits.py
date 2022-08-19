@@ -19,6 +19,7 @@ if __name__=="__main__":
     parser.add_argument('--rate-table', type=str, required=True, help="input data")
     parser.add_argument('--output-plot', type=str, help="plot file")
     parser.add_argument('--output-plot-rates', type=str, help="plot file")
+    parser.add_argument('--output-plot-rates-genes', type=str, help="plot file")
     args = parser.parse_args()
 
     rates = pd.read_csv(args.rate_table, sep='\t', index_col='clade')
@@ -53,7 +54,7 @@ if __name__=="__main__":
         ax.fill_between(x, y+std_dev, np.maximum(0, y-std_dev), fc='k', lw=3, alpha=0.1, ec=None)
         ax.set_xlim(x.min(), x.max())
         ax.set_ylim(0)
-        ax.text( 0.6, 0.06,f"overall rate: {reg.slope:1.1f}/year", fontsize=fs, transform=ax.transAxes)
+        ax.text( 0.4, 0.06,f"overall rate: {reg.slope:1.1f}/year", fontsize=fs, transform=ax.transAxes)
         if mut_type == 'aa': ax.legend(ncol=2)
         ax.set_xticks(xticks, [str(x) for x in xticks], fontsize=fs)
 
@@ -90,5 +91,21 @@ if __name__=="__main__":
 
     if args.output_plot_rates:
         plt.savefig(args.output_plot_rates)
+    else:
+        plt.show()
+
+    plt.figure()
+    plt.plot(rates["aa_rate"], 'o-', label='Overall acid rate')
+    plt.plot(rates["spike_rate"], 's-', label='spike protein')
+    plt.plot(rates["orf1ab_rate"], 'd-', label='ORF1ab')
+    plt.plot(rates["aa_rate"] - rates["spike_rate"] - rates["orf1ab_rate"],
+             'v-', label='other ORFs')
+    plt.ylabel('rate estimate [subs/y]')
+    plt.legend()
+    plt.xticks(range(len(rates)), rates.index, rotation=60, ha='right')
+    plt.tight_layout()
+
+    if args.output_plot_rates_genes:
+        plt.savefig(args.output_plot_rates_genes)
     else:
         plt.show()

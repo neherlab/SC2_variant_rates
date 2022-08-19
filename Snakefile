@@ -254,12 +254,14 @@ rule rate_summary:
         rate_table = "data/rates.tsv"
     output:
         figure = "figures/rate_summary.pdf",
-        figure_rates = "figures/rate_progression.pdf"
+        figure_rates = "figures/rate_progression.pdf",
+        figure_rates_genes = "figures/rate_progression_by_gene.pdf"
     shell:
         """
         python3 scripts/combine_fits.py --rate-table {input.rate_table}\
                                        --output-plot {output.figure} \
-                                       --output-plot-rates {output.figure_rates}
+                                       --output-plot-rates {output.figure_rates} \
+                                       --output-plot-rates-genes {output.figure_rates_genes}
         """
 
 
