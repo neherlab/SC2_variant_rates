@@ -143,7 +143,7 @@ A possible consequence of this advantage is visible in Supp.~Fig.~\ref{fig:21K_d
 
 \begin{figure*}
     \includegraphics[width=0.8\textwidth]{figures/rate_summary.pdf}
-    \caption[]{{\bf Divergence and evolutionary rates of different Nextstrain clades.} Panels A,B,\&C show the estimated divergence of the founder genotype of each clade (big dot or square) and the subsequent divergence trend for all nucleotide changes, amino acid changes, and synonymous changes, respectively.
+    \caption[]{{\bf Divergence and evolutionary rates of different Nextstrain clades.} Panels A,B\&C show the estimated divergence of the founder genotype of each clade (big dot or square) and the subsequent divergence trend for all nucleotide changes, amino acid changes, and synonymous changes, respectively.
     In addition, each panel contains a regression of the divergence of clade founders vs time (gray line).
     The standard deviation expected based on Poisson statistics is indicated as shaded area.
     Panel D summarizes the individual rate estimates (dots and squares) and compares them to the estimate ofinter-clade rates (gray lines).
@@ -335,6 +335,12 @@ It is organized as a snakemake workflow \citep{koster_snakemakescalable_2012}.
 We used Nextclade data \texttt{2022-07-26T12:00:00Z} with reference sequence MN908947 (Wuhan-Hu-1).
 The codon analysis ignores \emph{ORF9b} which is fully contained in \emph{N} but in a different reading frame.
 Tabular files with estimates of evolutionary rates, the mutation distribution, and fitness costs are included in the git repository.
+
+The fitness costs of each positions are estimated from the Nextclade columns \texttt{unlabeledSubstitutions} and \texttt{reversionSubstitutions} for each sequence that has QC-status \texttt{good}.
+For each Pango lineage, we count how often each specific mutation was observed.
+We then calculate how many lineages show minor variation for each mutation.
+To avoid loss of signal through sequencing errors, we drop lineages at which only a single mutation
+To turn this into a measure of mutational tolerance, we normalize the number of lineages with minor variation by the rate at which mutation rate of the ancestral base at this position.
 
 \section*{Acknowledgements}
 I gratefully acknowledge the work by 1000s of scientists and healthcare professionals that collect the samples, generate, and share the sequence data on which this analysis is built.
