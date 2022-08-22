@@ -95,7 +95,7 @@ if __name__=="__main__":
         plt.show()
 
     plt.figure()
-    plt.plot(rates["aa_rate"], 'o-', label='Overall acid rate')
+    plt.plot(rates["aa_rate"], 'o-', label='Overall amino acid rate')
     plt.plot(rates["spike_rate"], 's-', label='spike protein')
     plt.plot(rates["orf1ab_rate"], 'd-', label='ORF1ab')
     plt.plot(rates["enm_rate"], 'd-', label='E,M,N')
