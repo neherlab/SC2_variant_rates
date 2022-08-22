@@ -10,7 +10,7 @@ Synonymous rates within variants vary little from variant to variant and are com
 In contrast, the rate at which variants accumulate amino acid changes (non-synonymous mutation) was initially around 12-16 changes per year, but in 2021 and 2022 dropped to 6-9 changes per year.
 The overall rate of non-synonymous evolution, that is across variants, is estimated to be about 25 amino acid changes per year.
 This 2-fold higher rate indicates that the evolutionary process that gave rise to the different variants is qualitatively different from that in typical transmission chains and likely dominated by adaptive evolution.
-I further quantify the spectrum of mutations and purifying selection in different SARS-CoV proteins.
+I further quantify the spectrum of mutations and purifying selection in different SARS-CoV-2 proteins.
 Many accessory proteins evolve under limited evolutionary constraint with little short term purifying selection.
 About half of the mutations in other proteins are strongly deleterious and rarely observed, not even at low frequency.
 
