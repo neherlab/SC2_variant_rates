@@ -88,13 +88,13 @@ if __name__=="__main__":
 
     ax = axs[1]
     ax.set_title("mutation frequencies", fontsize=1.2*fs)
-    ax.plot(dates, total, lw=3, c='k', alpha=0.3)
+    ax.plot(dates, total, lw=3, c='k', alpha=0.3, label='total')
     for m in sorted(counts['mutations'].keys(), key=lambda x:int(x[1:-1])):
         ax.plot(dates, counts['mutations'][m], '-o', label=f'{m}')
 
     ax = axs[0]
     ax.set_title("genotype frequencies", fontsize=1.2*fs)
-    ax.plot(dates, total, lw=3, c='k', alpha=0.3)
+    ax.plot(dates, total, lw=3, c='k', alpha=0.3, label='total')
     for m in sorted(counts['genotypes'].keys(), key=lambda x: len(x)):
         ax.plot(dates, counts['genotypes'][m], '-o', label=f'{m}' if m else "founder")
 

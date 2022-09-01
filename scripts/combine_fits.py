@@ -86,7 +86,7 @@ if __name__=="__main__":
     plt.plot(rates["nuc_origin"], np.ones_like(rates['nuc_origin'])*inter_clade_rates["aa"], label='inter-clade amino acid rate', c=f"C{0}", lw=3)
     plt.plot(rates["nuc_origin"], np.ones_like(rates['nuc_origin'])*inter_clade_rates["syn"], label='inter-clade synonymous rate', c=f"C{1}", lw=3)
     plt.ylabel('rate estimate [1/y]')
-    plt.ylim(0,25)
+    plt.ylim(0)
     plt.legend()
 
     if args.output_plot_rates:
