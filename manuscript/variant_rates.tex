@@ -63,13 +63,18 @@ This difference in evolutionary rate is only seen for non-synonymous changes -- 
 Furthermore, early variants display more rapid non-synonymous evolution than later variants suggesting more ubiquitous adaptive evolution early on.
 I further quantify the level of functional constraint of different open reading frames and infer a map of mutational tolerance across the genome.
 
+\begin{figure}
+    \includegraphics[width=0.5\textwidth]{figures/clade_overview.png}
+    \caption{{\bf Schematic summary of Nextstrain clades.}\label{fig:clade_overview}}
+\end{figure}
 
 \begin{figure*}[tb]
     \includegraphics[width=\textwidth]{figures/rtt/20C_rtt.pdf}
     \includegraphics[width=\textwidth]{figures/counts/20C_counts.pdf}
     \caption{{\bf Within-clade divergence increases linearly with time (example clade 20C).} Top: Each panel shows the number of within-clade mutations (total (A), amino acid changing (B), synonymous (C)) as a function of time.
     The green line in panel A indicates the divergence cut-off, panels B\&C only show sequences that pass the divergence filter. Each panel also shows mean $\pm$ standard deviation and a weighted linear fit.
-    Bottom: Panels D and E show the prevalence of the most common genotypes (D) and mutations (E) during the first 3 months. In the case shown (20C), the founder genotype initially dominates and no specific mutation ever reaches high frequency. Note that specific genotypes invariably decrease in frequency due to subsequent mutations, while mutations irrespective of their genetic background persist. Panel F shows a Poisson model fit to the breakdown of the population into genotypes with different number of mutations over time. Analogous figures for other clades are included in the appendix.
+    Bottom: Panels D and E show the prevalence of the most common genotypes (D) and mutations (E) during the first 3 months. Genotypes in (D) refer to sequences the {\bf all and only} the mutations indicated, while mutations in (E) count all sequences with a specific mutation, regardless of mutations elsewhere.
+    In the case shown (20C), the founder genotype initially dominates and no specific mutation ever reaches high frequency. Note that specific genotypes invariably decrease in frequency due to subsequent mutations, while mutations irrespective of their genetic background persist. Panel F shows a Poisson model fit to the breakdown of the population into genotypes with different number of mutations over time. Analogous figures for other clades are included in the appendix.
     \label{fig:within_clade}}
 \end{figure*}
 
@@ -81,9 +86,11 @@ Furthermore, phylogenetic methods impose an hierarchical structure on the data a
 Problematic sequences can be particularly common when a new variant takes over since sequencing protocols need adjusting \citep{deMaio_issues_2020}.
 
 To circumvent many of the above-mentioned problems and still use the majority of the available data, I use a combination of automated filtering and simple robust approaches to analyze the evolutionary patterns (see Materials and Methods).
-I first use Nextclade \citep{aksamentov_nextclade_2021} to assign all sequences to one of the Nextstrain clades \citep{hadfield_nextstrain_2018}, which are denoted by a Year-Letter combination (e.g.~19A, 20A, 20B, \ldots).
+I first use Nextclade \citep{aksamentov_nextclade_2021} to assign 12 million sequences available in GISAID \citep{shu_gisaid_2017} to one of the Nextstrain clades \citep{hadfield_nextstrain_2018}, which are denoted by a Year-Letter combination (e.g.~19A, 20A, 20B, \ldots), see Fig.~\ref{fig:clade_overview}.
 Sequences belonging to recombinant Pango lineages are excluded \citep{rambaut_dynamic_2020}.
 These clades represent well-defined groups of sequences with little evidence of recombination within them and are analyzed separately.
+In this analysis, I only consider clades that have had significant circulation for at least 6 months.
+
 For each clade, I define a ``founder'' genotype and exclude any sequence that does not have the full set of mutations relative to the reference sequence Wuhan/Hu-1.
 This founder sequence is manually curated for each clade considered.
 This filtering removes most incomplete sequences as well as sequences where amplicon drop-out are back-filled with the reference sequence.
@@ -109,7 +116,7 @@ While not every sequence is an independent sample, the effective number of indep
 
 A simple model for diversity within a growing variant is a super-critical branching process with growth rate $\alpha$ and an embedded mutation process.
 Offspring of genomes with $i$ mutations contain $i+j$ mutations, where $j$ is a Poisson distributed number with mean $\mu t$ (mutation rate $\mu$ and generation time $t$).
-The probability that offspring genomes are identical to their parents is $u = 1-e^{-\mu t}$, which for a generation time of $t=5$ days and a rate of $\mu = 15/year$ evaluates to $u\approx 0.2$ (note that this rate excludes strongly deleterious mutations, see Discussion).
+The probability that offspring genomes are different from their parents is $u = 1-e^{-\mu t}$, which for a generation time of $t=5$ days and a rate of $\mu = 15/year$ evaluates to $u\approx 0.2$ (note that this rate excludes strongly deleterious mutations, see Discussion).
 
 When considering a rapidly growing well sampled outbreak, typically a single founder genotype will give rise to a large number of daughter lineages that evolve independently.
 In this case, the diversification processes is robustly described by its mean.
@@ -124,6 +131,8 @@ Since the above branching process is linear, the mean number of cases $n$ will i
     \end{split}
 \end{equation}
 with solution $m_i = e^{(\alpha - u)t} \frac{(ut)^i}{i!}$.
+Note that this model assumes continuous time and only allows increments by one mutation at a time.
+Multiple mutations in one serial interval can still happen through successive mutations within one host.
 At time $t$ after the emergence of the variant, the number of mutations in the population is expected to be Poisson distributed with mean $ut$.
 The overall number of cases is $e^{\alpha t}$ or more generally $e^{\int \alpha(t) dt}$ if growth rate or ascertainment varies over time.
 
@@ -148,7 +157,7 @@ A possible consequence of this advantage is visible in Supp.~Fig.~\ref{fig:21K_d
     The standard deviation expected based on Poisson statistics is indicated as shaded area.
     Panel D summarizes the individual rate estimates (dots and squares) and compares them to the estimate ofinter-clade rates (gray lines).
     In panel D, clades are in alphabetical order, which is similar to their (uncertain) order of emergence.
-    The red outlier is `composite' clade 19++ with inflated rates due to adaptive mutations.
+    The red outlier is `composite' clade 19B++ with inflated rates due to adaptive mutations.
     \label{fig:rate_summary} }
 \end{figure*}
 
@@ -343,12 +352,12 @@ Tabular files with estimates of evolutionary rates, the mutation distribution, a
 The fitness costs of each positions are estimated from the Nextclade columns \texttt{unlabeledSubstitutions} and \texttt{reversionSubstitutions} for each sequence that has QC-status \texttt{good}.
 For each Pango lineage, I count how often each specific mutation was observed.
 I then calculate how many lineages show minor variation for each mutation.
-To avoid loss of signal through sequencing errors, I drop lineages at which only a single mutation
-To turn this into a measure of mutational tolerance, I normalize the number of lineages with minor variation by the rate at which mutation rate of the ancestral base at this position.
+To avoid loss of signal through sequencing errors, I drop lineages at which only a single mutation at this position is observed.
+To turn this count into a measure of mutational tolerance, I normalize the number of lineages with minor variation by the mutation rate away from the ancestral base at this position within the lineage.
 
 \section*{Acknowledgements}
 I gratefully acknowledge the work by 1000s of scientists and healthcare professionals that collect the samples, generate, and share the sequence data on which this analysis is built.
-I am also grateful to Jesse Bloom and Louis du Plessis provided valuable feed-back on the manuscript and to Cornelius Roemer and Emma Hodcroft for stimulating discussions on many aspects of SARS-CoV-2 evolution.
+I am also grateful to Jesse Bloom, Louis du Plessis, and Florence D\'ebarre for valuable feed-back on the manuscript and to Cornelius Roemer and Emma Hodcroft for stimulating discussions on many aspects of SARS-CoV-2 evolution.
 
 \bibliography{bib}
 
