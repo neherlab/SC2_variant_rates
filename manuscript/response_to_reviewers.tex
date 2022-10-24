@@ -1,0 +1,172 @@
+%\documentclass[12pt]{article}
+\documentclass[aps,rmp,onecolumn]{revtex4-1}
+\usepackage{color}
+\usepackage{enumitem}
+\usepackage{hyperref}
+%\usepackage{natbib}
+\newcommand{\gene}[1]{{\it #1}}
+\newcommand{\comment}[1]{{\color{red}#1}}
+\definecolor{response}{rgb}{0.1, 0.1, 0.1}
+\definecolor{drab}{rgb}{0.59, 0.44, 0.09}
+\definecolor{celestialblue}{rgb}{0.29, 0.59, 0.82}
+\definecolor{purple}{rgb}{0.459,0.109,0.538}
+\definecolor{deepsaffron}{rgb}{1.0, 0.6, 0.2}
+\definecolor{pink}{rgb}{0.858, 0.188, 0.478}
+\definecolor{applegreen}{rgb}{0.55, 0.71, 0.0}
+\definecolor{armygreen}{rgb}{0.29, 0.33, 0.13}
+\definecolor{brown}{rgb}{0.59, 0.29, 0.0}
+
+\newcommand{\Richard}[1]{{\color{drab}Richard: #1}}
+
+% Add your own color comment command here!
+% Uncomment & add your name
+\newcommand{\Valentin}[1]{{\color{celestialblue}Robert: #1}}
+
+\newcounter{counter1}[section]
+\newcounter{counter2}[section]
+\newcounter{counter3}[section]
+\newcommand{\refa}[1]{\vskip 5mm \textbf{R1 - \stepcounter{counter1}\arabic{counter1}:} #1}
+\newcommand{\refb}[1]{\vskip 5mm \textbf{R2 - \stepcounter{counter2}\arabic{counter2}:} #1}
+\newcommand{\refc}[1]{\vskip 5mm \textbf{R3 - \stepcounter{counter3}\arabic{counter3}:} #1}
+\newcommand{\editor}[1]{\textbf{Editor:} #1\vskip 5mm}
+%\newcommand{\criticism}[1]{\textbf{Criticism:} #1}
+\newcommand{\response}[1]{{\it {\color{response}\textbf{Response:} #1}}\vskip 5mm}
+\newcommand{\responsedraft}[1]{{\it {\color{pink}\textbf{Response:} #1}}\vskip 5mm}
+
+\begin{document}
+\section*{Response to reviewers}
+
+\subsection*{Dear Drs. Stern and Duffy,}
+
+\section*{Editor}
+
+\editor{
+
+Three reviewers have seen the paper, and I completely agree with all three that this is an excellent paper that uses a robust & rapid approach to obtain meaningful insights about SARS-CoV-2 evolution. The paper could be published in its current form but would benefit from very minor corrections suggested by the reviewers.
+I also add a very small concern of my own: citing from the paper "...remove sequences whose deviation from the linear fit exceeds twice the expected standard deviation by 3 mutations". This is a little ad-hoc, how much would the results change if changing this? How many sequences are removed this way? To emphasize, I don't think any in-depth analysis is necessary here, just a few sentences on why this cutoff is used.
+Looking forward to seeing this paper published,
+Adi
+}
+
+\response{Thanks a lot for handling the paper, the constructive comments, and the rapid turn-around.
+
+You are completely right that these cutoffs are heuristic and I have checked that the results are robust.
+TODO.
+}
+
+\section*{Reviewer: 1}
+
+\refa{
+The author provides a timely analysis of broad interest demonstrating elevated inter vs intra-clade nonsynonymous mutation rates and furthermore that, in contrast to synonymous mutation rates, intra-clade rates decline over time for SARS-CoV-2. I believe the methods applied are reasonable, practical solutions to address problems associated with the very large data set of interest. I have no concerns with the methodology; I believe the findings are supported; I feel that any edits at this stage should be made at the author's discretion; and I believe the manuscript is suitable for publication in its current form. Nonetheless, I have a few comments I hope the author will consider addressing prior to publication.}
+
+\response{Thank you very much.}
+
+\refa{My major comment is related to the author's acknowledgement that, ``Nextstrain clades tend to be defined by long branches leading to a large polytomy. It could thus be that the estimated inter-clade rate exceeds the intra-clade rate purely because of this conditioning.'' As the author describes elsewhere, there are many potential reasons for the appearance of these long branches -- cryptic transfer, prolonged infection within a clinical population, reverse zoonosis. However, as the author states, none of these factors have been conclusively demonstrated for specific VOC emergence much less in general and it is possible that the mutations placed on these long branches emerged within hosts part of acute transmission chains belonging to robustly sequenced populations. Even if this is the case, while the sequencing efforts throughout the pandemic have been unprecedented, they are nonuniform and sequencing efforts (and reporting biases) are influenced by the emergence of mutations of interest. I believe it's likely the relative number of infections in the period immediately ancestral to the last common ancestor is underestimated relative to that of the period immediately following for VOC clades which may impact the estimation of relative mutation rates. This is exacerbated by changing public behavior (less likely to engage in social settings after VOC emergence). This effect may be more pronounced for nonsynonymous events than synonymous events due to the nature of the tree reconstruction.}
+
+\response{This is an interesting thought. However, I am not 100\% sure how this differential ascertainment would affect the accumulation of mutations or inferences of their rate.}
+
+\refa{The trends described here have parallels to those observed in influenza as the authors describe but also in Ebola https://www.sciencedirect.com/science/article/pii/S009286741500690X, https://www.sciencedirect.com/science/article/pii/S1473309919301185 which the author may consider referencing.}
+
+\response{Real-time genomic epidemiology in outbreak settings was pioneered by the authors of these papers. Beyond a general notion that purifying selection supresses the non-synonymous mutations and that mutation spectra are very skewed, I don't see an immediate relevance of these papers. }
+
+\refa{Regarding the relative strength of purifying selection across ORFs, I would selfishly bring the author's attention to my own work on the topic which arrived at similar conclusions: https://www.pnas.org/doi/full/10.1073/pnas.2104241118, see section beginning, ``Beyond this specific context, the presence of any hypervariable sites complicates the computation of the dN/dS ratio''}
+
+\response{Thank you very much for bringing up this paper, which had escaped my attention. I have added a reference to this paper. }
+
+\refa{Regarding the authors comment, ''Another possible explanation could be diminishing returns epistasis.'' I would again selfishly bring the author's attention to my own work demonstrating a constrained epistatic landscape within the RBD such that only a few key residues determine the shape of the interface which I believe supports the authors suggestion that each VOC has a limited mutational repertoire supporting the rapid host adaptation: https://journals.asm.org/doi/full/10.1128/mbio.00135-22}
+
+\response{I have added a citation to this paper in the discussion of the potential role of epistasis. }
+
+\refa{Finally: ``Genotypes in (D) refer to sequences the all and only the mutations indicated,'' I think this should be ... ``[with] all and only''}
+
+\response{Thanks. Fixed!}
+
+
+\section*{Reviewer: 2}
+
+\refb{
+This is a very nice study looking at the rate of evolution in SARS-CoV-2. Whereas other studies have looked at similar questions using increasingly complicated phylogenetic methods, Richard uses simple robust model that allows him to easily analyse huge numbers of sequences. Because of the wealth of SARS-CoV-2 data even a very simple model will illuminate the big patterns. This is an important reminder to all of us: that a model need only be complicated enough to answer the questions at hand. While hard numbers aren't given I assume that millions of genomes went into the analyses presented here. (The Tay and Hill papers cited here could only use hundreds of sequences). One small caveat of the approach is that it isn't suited to all scenarios, but is especially suited to clades with explosive exponential growth (this is also mentioned in the manuscript).
+
+The main conclusions are:
+\begin{enumerate}
+ \item Synonymous mutations are mostly neutral
+ \item The rate of adaptation clearly slowed over the first few months of the pandemic
+ \item The process that gave rise to VOCs was decidedly different than normal human-human transmission
+ \item The rate of adaptation and the slowdown are highly variable across the genome
+\end{enumerate}
+Perhaps most interesting to me is that the slowdown in the within-clade evolutionary rate is not seen in Spike, which is most important for infectivity and immune escape. However, Spike still appears to be under quite strong evolutionary constraint, as can be seen from it consistently having one of the slowest within-clade evolutionary rates (Fig. S1). None of these are particularly surprising conclusions, but this is the most elegant way I've seen of reaching them.
+
+Overall I think the results are very interesting, the manuscript is well-written and the figures are good. I only have a few small comments.}
+
+\response{Thank you very much for this accurate summary and generous remarks!}
+
+\refb{1. Can this truly be said to be a tree-free approach? Presumably some phylogenies are calculated in order to assign sequences to Nextstrain clades? However, since this is continuously done and clade assignments are public it can be argued that this initial part of the analysis is "free".}
+
+\response{The reviewer is correct. Sequences are assigned to clades by placing them on a reference tree.
+Though this would also be possible using a constellation of mutations. If some clades were the result of recombination (as we soon might experience), the approach would work exactly the same way. So I think it is fair to say that most the results presented to make explicit use of phylogenies, though some implicit usage of phylogenetic concepts (clade and lineage assignment) is present. I chose to not discuss this point at length.  }
+
+\refb{2. Does filtering out all sequences in a clade that don't have the full set of mutations relative to the reference mean you are excluding sequences with reversions to the reference? Do we know how often reversions occur? I don't think they are common, although they have been seen for Omicron (also mentioned here).}
+
+\response{This is an important point (and I tripped over issues related to this when doing the analysis). Importantly, the requirement to have the full set of mutations refers to the clade defining mutations. Omicon clades (22A/BA.4, 22B/BA.5) have reversions, but as a result these mutations are not part of the clade defining mutations. Ignoring sequences that don't have the full set of clade defining mutation will ignore sequences that have additional reversions at clade defining positions. Until summer 2022, this was not much of a concern and most reversions within clades are clear QC issues. For the analysis of fitness costs and purifying selection, all sequences that pass the qualitaty thresholds are included and reversions are counted.
+I have made this clearer in the manuscript.}
+
+\refb{3. What is the ordering in Fig. S1? The order in which Nextstrain clades were assigned? I assume this is correlated to the order of clade emergence, but not necessarily exactly the same, nor would I expect the distance from the reference to the clade founder to have the same ordering. Would it make more sense to draw this figure in the same way as Fig. 4?}
+
+\response{I have played with this, but I think the explicit ordering by clade is more informative (too many nearly overlapping markers otherwise). The clades are labeled in their order of designation and thus almost in their order of designation. I have added a statement to the figure caption. }
+
+\refb{4. Could ORF1a and ORF1b be split in Fig. S1? It is mentioned that ORF1b is under the most evolutionary constraint (Fig. 6), but when combined with ORF1a as in Fig. S1 it appears to have the fastest rate of evolution.}
+
+\response{I think the primary issue here is that there rates are per gene, and not per site. The objective here was to show how the total non-synonymous change is broken down by gene. I have now split `ORF1ab' TODO!! }
+
+\refb{5. Should the size of the Nextstrain clades used here be given somewhere, e.g. in Fig. 1 or a supplementary table? It won't change anything, but would make more apparent just how many sequenes went into the analysis.}
+
+\response{Thank you for this suggestion. I have included these numbers in Table 1. TODO}
+
+\refb{6. Page 2, line 36: Instead of saying "separately" wouldn't it be more correct to say these clades are analyzed independently?}
+
+\response{Yes. Thanks. Fixed!}
+
+\refb{7. The last two "I"'s in the discussion should probably be "we"'s.}
+
+\response{Ooops. Thanks. (find-replace problem)}
+
+\section*{Reviewer 3}
+
+\refc{This is a useful and well thought-out investigation of selection on SARS-CoV-2. I have only extremely minor comments on a few points to help clarify a few things.}
+
+\response{Thank you for your constructive comments and generous remarks!}
+
+\refc{In the discussion of what evidence exists already, a citation of Chaguza 2022 (https://www.medrxiv.org/content/10.1101/2022.06.29.22276868v1.full) would be useful to highlight that increased rate of evolution in a chronically infected patient has been documented. Other case studies of chronically infected patients have increased rates of evolution shown as well, but this is the only one to my knowledge that explicitly estimates it and compares it to the background rate of evolution.}
+
+\response{Thank you for this suggestion. This is a very relevant reference that is now cited when discussion chronic infections and their putative role in variant emergence.}
+
+\refc{I would be interested to have a definition (or a citation) of what constitutes a nextstrain clade -- I assume it is phylogenetic, but just a quick summation of what the rules are to define it would be helpful, especially since it is different to the more commonly used pango lineage system.}
+
+\response{Yes, Nextstrain clades are phylogenetically defined and assigned using Nextclade. I have added a reference to a blog post on nextstrain.org that outlines the clade definitions.}
+
+\refc{Paragraph starting ``In other cases, notable subclades…'' page 3 line 55 in the second column -- I don't follow the logic here of increased divergence ``generating an offset to diversity''. What is diversity if not within-clade divergence?}
+
+\response{Yes, this was poorly worded. What I mean to say is that when there are many lineages, time since emergence can estimated accurately from the divergence of many independent evolutionary trajectories. When there is a single or a few large subclades, estimates of emergence times are more noisy. I have made an effort to reword this. }
+
+\refc{What are the advantages of this method over using BEAST to estimate rates?}
+
+\response{The primary advantages are (i) being able to use more data, and (ii) being more robust to problematic or misdated sequences. }
+
+\refc{Figure 2 legend: ``Genotypes in D refer to sequences the all and only the mutations indicated'' -- are there some words missing here?}
+
+\response{Yes. Thanks. Another reviewer picked this up as well and this is now fixed.}
+
+\refc{I would find it helpful to have the evolutionary rates in substitutions/site/year as well as the rate per year in figure 3 (in the overall rate annotation)}
+
+\response{Thank you for this suggestion, I have added this for panels A and B. The number of synonymous sites is tricky to define (2-fold, 4-fold, etc). }
+
+\refc{Line 26 first column page 8 -- 1 x 10-3 would be clearer}
+
+\response{$1\times 10^{-3}$ vs $10^{-3}$? I am not sure this helps.}
+
+\refc{Hill et al 2022 is now published in Virus Evolution so this reference can be updated.}
+
+\response{Updated!}
+
+
+\end{document}

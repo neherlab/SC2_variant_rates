@@ -158,6 +158,8 @@ if __name__=="__main__":
     parser.add_argument('--clade-gts', type=str, required=True, help="input data")
     parser.add_argument('--clade', type=str, required=True, help="input data")
     parser.add_argument('--sub-clades', type=str, required=True, help="input data")
+    parser.add_argument('--qc-cutoff-scale', type=float, default=2, help="number of std dev of rtt filter")
+    parser.add_argument('--qc-cutoff-offset', type=float, default=3, help="number extra mutation")
     parser.add_argument('--min-date', type=float, help="input data")
     parser.add_argument('--max-date', type=float, help="input data")
     parser.add_argument('--max-group', type=int, help="input data")
@@ -178,7 +180,7 @@ if __name__=="__main__":
  #   iqd = scoreatpercentile(filtered_data.residuals, 75) -  scoreatpercentile(filtered_data.residuals, 25)
  #   filtered_data["outlier"] = filtered_data.residuals.apply(lambda x: np.abs(x)>5*iqd)
 
-    tolerance = lambda t: 3 + 2*np.sqrt(np.maximum(0,(regression.intercept + regression.slope*t)))
+    tolerance = lambda t: args.qc_cutoff_offset + args.qc_cutoff_scale*np.sqrt(np.maximum(0,(regression.intercept + regression.slope*t)))
     filtered_data["outlier"] = filtered_data.apply(lambda x: np.abs(x.residuals)>tolerance(x.numdate), axis=1)
     ind = filtered_data.outlier==False
     # regression_clean = linregress(filtered_data.numdate[ind], filtered_data.divergence[ind])
@@ -238,7 +240,10 @@ if __name__=="__main__":
     rate_data = {'clade':args.clade, 'nuc':regression_clean, 'aa':regression_clean_aa,
                  'syn':regression_clean_syn, 'spike':regression_clean_spike,
                  'orf1':regression_clean_ORF1,'enm':regression_clean_ENM,
-                 "top_aaSubs": top_aaSubs,  "top_nucSubs": top_nucSubs}
+                 "top_aaSubs": top_aaSubs,  "top_nucSubs": top_nucSubs,
+                 "outliers_removed": np.sum(filtered_data.outlier),
+                 "qc_filter_fail": len(d) - len(filtered_data),
+                 "total_sequences": len(filtered_data)}
     if args.output_json:
         with open(args.output_json, 'w') as fh:
             json.dump(rate_data, fh)

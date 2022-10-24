@@ -52,6 +52,8 @@ The branches leading to these variants are characterized by many amino acid-chan
 This pattern of rapid non-synonymous evolution in viral surface proteins that interact with the host cells is common among many RNA viruses and for example well studied in influenza A virus evolution \citep{bhatt_genomic_2011,strelkowa_clonal_2012}.
 But adaptive evolution of influenza viruses tends to be gradual without large jumps in sequence space, while new variants of SARS-CoV-2 with tens of novel mutations emerged suddenly without intermediate genomes being observed, the most dramatic being the emergence of Omicron in late 2021 \citep{viana_rapid_2022}.
 The pre-dominant hypothesis for this cryptic emergence of highly mutated, transmissible and immune evasive variants are chronic infections that are common in patients with impaired immune systems, either through HIV-1 infection \citep{cele_sars-cov-2_2022} or medical intervention \citep{choi_persistence_2020,kemp_sars-cov-2_2021}.
+During such chronic infections, extensive intra-host diversity can develop through accelerated evolution
+\citep{chaguza_accelerated_2022}.
 Onward transmission from such chronic infections has also been documented \citep{gonzalez-reiche_intrahost_2022}.
 However, to date there is no direct evidence for the mode of emergence of any variant.
 The case for chronic infection being an important contributor is strongest for the variants Alpha and Omicron \citep{hill_origins_2022}.
@@ -73,7 +75,7 @@ I further quantify the level of functional constraint of different open reading 
     \includegraphics[width=\textwidth]{figures/counts/20C_counts.pdf}
     \caption{{\bf Within-clade divergence increases linearly with time (example clade 20C).} Top: Each panel shows the number of within-clade mutations (total (A), amino acid changing (B), synonymous (C)) as a function of time.
     The green line in panel A indicates the divergence cut-off, panels B\&C only show sequences that pass the divergence filter. Each panel also shows mean $\pm$ standard deviation and a weighted linear fit.
-    Bottom: Panels D and E show the prevalence of the most common genotypes (D) and mutations (E) during the first 3 months. Genotypes in (D) refer to sequences the {\bf all and only} the mutations indicated, while mutations in (E) count all sequences with a specific mutation, regardless of mutations elsewhere.
+    Bottom: Panels D and E show the prevalence of the most common genotypes (D) and mutations (E) during the first 3 months. Genotypes in (D) refer to sequences with {\bf all and only} the mutations indicated, while mutations in (E) count all sequences with a specific mutation, regardless of mutations elsewhere.
     In the case shown (20C), the founder genotype initially dominates and no specific mutation ever reaches high frequency. Note that specific genotypes invariably decrease in frequency due to subsequent mutations, while mutations irrespective of their genetic background persist. Panel F shows a Poisson model fit to the breakdown of the population into genotypes with different number of mutations over time. Analogous figures for other clades are included in the appendix.
     \label{fig:within_clade}}
 \end{figure*}
@@ -86,14 +88,14 @@ Furthermore, phylogenetic methods impose an hierarchical structure on the data a
 Problematic sequences can be particularly common when a new variant takes over since sequencing protocols need adjusting \citep{deMaio_issues_2020}.
 
 To circumvent many of the above-mentioned problems and still use the majority of the available data, I use a combination of automated filtering and simple robust approaches to analyze the evolutionary patterns (see Materials and Methods).
-I first use Nextclade \citep{aksamentov_nextclade_2021} to assign 12 million sequences available in GISAID \citep{shu_gisaid_2017} to one of the Nextstrain clades \citep{hadfield_nextstrain_2018}, which are denoted by a Year-Letter combination (e.g.~19A, 20A, 20B, \ldots), see Fig.~\ref{fig:clade_overview}.
+I first use Nextclade \citep{aksamentov_nextclade_2021} to assign 12 million sequences available in GISAID \citep{shu_gisaid_2017} to one of the Nextstrain clades \citep{hadfield_nextstrain_2018,roemer_sars-cov-2_2022}, which are denoted by a Year-Letter combination (e.g.~19A, 20A, 20B, \ldots), see Fig.~\ref{fig:clade_overview}.
 Sequences belonging to recombinant Pango lineages are excluded \citep{rambaut_dynamic_2020}.
-These clades represent well-defined groups of sequences with little evidence of recombination within them and are analyzed separately.
+These clades represent well-defined groups of sequences with little evidence of recombination within them and are analyzed independently.
 In this analysis, I only consider clades that have had significant circulation for at least 6 months.
 
-For each clade, I define a ``founder'' genotype and exclude any sequence that does not have the full set of mutations relative to the reference sequence Wuhan/Hu-1.
+For each clade, I define a ``founder'' genotype and exclude any sequence that does not have the full set of clade defining mutations relative to the reference sequence Wuhan/Hu-1.
 This founder sequence is manually curated for each clade considered.
-This filtering removes most incomplete sequences as well as sequences where amplicon drop-out are back-filled with the reference sequence.
+This filtering removes most incomplete sequences as well as sequences where amplicon drop-out are back-filled with the reference sequence, but will ignore a few sequences with true reversion mutations.
 For this reduced set of sequences, I determine the mutations they carry on top of the founder genotype to analyze diversification and divergence within the clade.
 The latter step is done for nucleotide changes as well as for amino acid changes.
 
@@ -141,8 +143,7 @@ In this case, the founder genotype initially dominates, but is gradually replace
 Analogous graphs for all other clades considered are included in the appendix.
 
 In other cases, notable subclades did become dominant during the early stochastic dynamic.
-This can result in increased within-clade divergence, effectively generating an offset to diversity.
-Extrapolation of the linear fit to zero divergence is thus not necessarily a good estimator of the emergence time of a variant.
+In this case, extrapolation of the linear fit to zero divergence is not necessarily a good estimator of the emergence time of a variant: if branches leading to big subclades carry anomalously many or few mutations, the divergence time will be over- or underestimated.
 For several clades 19B, 20H (Beta), 21D (Eta), 21G (Lambda), 21 (Mu), 21I (Delta), 21J (Delta), 21L (Omicron, BA.2), and 22B (Omicron, BA.5), founder-like variants are a minority even in early data.
 
 These Poisson weights of mutation numbers are again only valid if mutations accumulate along many independent lineages.
@@ -249,6 +250,7 @@ When split by open reading frame (see Supp.~Fig.~\ref{fig:fitness_costs_supp} an
 \emph{N} shows an intermediate pattern, possibly reflecting its mix of structured and unstructured regions.
 Variation at 3rd positions is common and comparable between genes.
 Only \emph{E} shows slightly less variation at 3rd positions than other genes with a notable dip in the middle of the gene around codon 35 (see Fig.~\ref{fig:fitness_landscape}).
+Systematic difference in purifying selection on the amino acid sequence of different reading frames have also been reported by \citet{rochman_ongoing_2021}.
 
 
 
@@ -291,7 +293,7 @@ Viruses with the S:D614G mutation showed faster replication kinetics compared to
 The virus might therefore be operating closer to the maximal capacity at which cells can produce virions, reducing the scope for further optimization.
 Other mutations then have smaller benefits, rise in frequency more slowly, and the effect of adaptation does not manifest itself over the life time of the clades studied here.
 Such diminishing returns epistasis has been observed in experimental evolution with yeast \citep{kryazhimskiy_global_2014}.
-Global epistasis of this nature can exist along side epistasis of specific amino acid changes as for example suggested for the \texttt{S:N501Y} mutation \citep{martin_emergence_2021}.
+Global epistasis of this nature can exist along side epistasis of specific amino acid changes as for example suggested for the \texttt{S:N501Y} mutation \citep{martin_emergence_2021,rochman_epistasis_2022}.
 Differences in diversification of SARS-CoV-2 with and without the S:D614G mutation where also observed in evolution experiments by \citet{amicone_mutation_2022}, who concluded that these differences were not due to a change in base line mutation rate but had selective origin.
 
 An evolutionary rate of 6 synonymous changes per year at around 9700 positions corresponds to a per-site evolutionary rate of $6.2\times 10^{-4}$/site/year or $1.7\times 10^{-6}$/day, slightly higher than the estimated base-line mutation rate of $1.3\times 10^{-6}$/day \citep{amicone_mutation_2022}.
@@ -331,8 +333,8 @@ Standard phylogenetic or phylodynamic methods will underestimate that uncertaint
 
 If the excess of non-synonymous changes on the pandemic scale compared to within clade evolution is due to adaptive evolution, it would imply an adaptive rate of about 20 changes per year (plus insertion/deletions not considered here).
 This process is likely to continue even in the more and more diverse immunological landscape of the human population in which the viral population spread and adapts.
-But it is unclear whether SARS-CoV-2 continues to evolve in a saltatory fashion with repeated emergence of highly mutated variants, or whether I will see a transition to a more gradual adaptive process.
-I currently observe multiple lineages with several amino acid changes and moderate transmission advantages emerging in a more stepwise fashion within 21L, 22A, 22B (BA.2, BA.4, BA.5), which could indicated a shift to a more influenza-like evolution.
+But it is unclear whether SARS-CoV-2 continues to evolve in a saltatory fashion with repeated emergence of highly mutated variants, or whether we will see a transition to a more gradual adaptive process.
+We currently observe multiple lineages with several amino acid changes and moderate transmission advantages emerging in a more stepwise fashion within 21L, 22A, 22B (BA.2, BA.4, BA.5), which could indicated a shift to a more influenza-like evolution.
 
 \section*{Materials and Methods}
 
