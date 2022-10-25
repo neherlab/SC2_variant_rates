@@ -22,6 +22,9 @@ if __name__=="__main__":
     parser.add_argument('--output-plot-rates-genes', type=str, help="plot file")
     args = parser.parse_args()
 
+    L = 29903
+    Laa = 9716  # all CDS other than ORF9)
+
     rates = pd.read_csv(args.rate_table, sep='\t', index_col='clade')
     inter_clade_rates = {}
     fig, axs = plt.subplots(2,2, figsize=(12,12))
@@ -54,7 +57,12 @@ if __name__=="__main__":
         ax.fill_between(x, y+std_dev, np.maximum(0, y-std_dev), fc='k', lw=3, alpha=0.1, ec=None)
         ax.set_xlim(x.min(), x.max())
         ax.set_ylim(0)
-        ax.text( 0.4, 0.06,f"overall rate: {reg.slope:1.1f}/year", fontsize=fs, transform=ax.transAxes)
+        if mut_type=='nuc':
+            ax.text( 0.5, 0.05,f"overall rate:\n{reg.slope:1.1f}/year\n{reg.slope/L:1.1e}/year/site",
+                    fontsize=fs, transform=ax.transAxes)
+        else:
+            ax.text( 0.5, 0.05,f"overall rate:\n{reg.slope:1.1f}/year\n{reg.slope/Laa:1.1e}/year/codon",
+                   fontsize=fs, transform=ax.transAxes)
         if mut_type == 'aa': ax.legend(ncol=2)
         ax.set_xticks(xticks, [str(x) for x in xticks], fontsize=fs)
 
