@@ -22,6 +22,7 @@ def week_since2020_to_numdate(d):
     return numeric_date(week_since2020_to_date(d))
 
 def filter_and_transform(d, clade_gt, min_date=None, max_date=None, query=None, completeness=None, swap_root=False, max_group=None, QC_threshold=30):
+    dropped_seqs = {}
     # filter for incomplete data
     d = d.loc[d.date.apply(lambda x:len(x)==10 and 'X' not in x)]
     pre = len(d)
@@ -37,7 +38,6 @@ def filter_and_transform(d, clade_gt, min_date=None, max_date=None, query=None, 
     d['numdate'] = d.datetime.apply(lambda x: numeric_date(x))
     d['CW'] = d.datetime.apply(date_to_week_since2020)
     # filter date range
-    dropped_seqs = {}
     if min_date:
         pre = len(d)
         d = d.loc[d.numdate>min_date]
