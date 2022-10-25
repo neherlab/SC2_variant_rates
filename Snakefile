@@ -234,7 +234,8 @@ rule rate_table:
             base_clade = d['clade'][:3]
             aa_div = len([x for x in clade_gts[base_clade]['aa'] if 'ORF9' not in x]) + offset_nonsyn(base_clade)
             nuc_div = len(clade_gts[base_clade[:3]]['nuc']) + offset_nuc(base_clade)
-            data.append({'clade':d['clade'], 'nuc_rate': d['nuc']['slope'],
+            data.append({'clade':d['clade'], 'nseqs':d['total_sequences'],
+                         'nuc_rate': d['nuc']['slope'],
                          'nuc_origin': d['nuc']['origin'], 'nuc_origin_date': datestring_from_numeric(d['nuc']['origin']),
                          'aa_rate': d['aa']['slope'],
                          'aa_origin':d['aa']['origin'], 'aa_origin_date':datestring_from_numeric(d['aa']['origin']),
