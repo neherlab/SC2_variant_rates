@@ -216,6 +216,7 @@ rule rate_table:
         gt = "data/clade_gts.json"
     output:
         rate_table = "data/rates.tsv",
+        qc_table = "data/qc.tsv",
         rate_table_tex = "manuscript/rates.tex"
     run:
         import json
@@ -228,6 +229,7 @@ rule rate_table:
         offset_nonsyn = lambda clade: -1 if clade=='19B' else 1
 
         data = []
+        qc_data = []
         for fname in input.rate_files:
             with open(fname) as fin:
                 d = json.load(fin)
@@ -245,10 +247,15 @@ rule rate_table:
                          'orf1ab_rate': d['orf1']['slope'],
                          'enm_rate': d['enm']['slope'],
                          'nuc_div': nuc_div, 'aa_div':aa_div, 'syn_div':nuc_div-aa_div})
+            qc_data.append({'clade':d['clade'], 'nseqs':d['total_sequences'], "outliers":d["outliers_removed"],
+                            "qc_fail":d["qc_filter_fail"]})
 
         df = pd.DataFrame(data)
         df.to_csv(output.rate_table, sep='\t')
         df.to_latex(output.rate_table_tex, float_format="%.2f", index=False)
+
+        dfqc = pd.DataFrame(qc_data)
+        dfqc.to_csv(output.qc_table, sep='\t')
 
 
 rule rate_summary:
