@@ -129,6 +129,7 @@ rule root_to_tip:
                                        --clade-gts data/clade_gts.json \
                                        --min-date {params.mindate} \
                                        --max-date {params.maxdate} \
+				       --qc-cutoff-scale 2 --qc-cutoff-offset 4 \
                                        {params.filter_query} \
                                        --output-plot {output.figure} \
                                        --output-json {output.json}
