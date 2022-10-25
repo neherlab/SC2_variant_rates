@@ -24,17 +24,28 @@ def week_since2020_to_numdate(d):
 def filter_and_transform(d, clade_gt, min_date=None, max_date=None, query=None, completeness=None, swap_root=False, max_group=None, QC_threshold=30):
     # filter for incomplete data
     d = d.loc[d.date.apply(lambda x:len(x)==10 and 'X' not in x)]
+    pre = len(d)
     d = d.loc[d.QC_overall_score<QC_threshold]
+    dropped_seqs['QC'] = pre - len(d)
+
     if query:
+        pre = len(d)
         d = d.query(query)
+        dropped_seqs['query'] = pre - len(d)
+
     d['datetime'] = d.date.apply(lambda x: datetime.strptime(x, '%Y-%m-%d'))
     d['numdate'] = d.datetime.apply(lambda x: numeric_date(x))
     d['CW'] = d.datetime.apply(date_to_week_since2020)
     # filter date range
+    dropped_seqs = {}
     if min_date:
+        pre = len(d)
         d = d.loc[d.numdate>min_date]
+        dropped_seqs['min_date'] = pre - len(d)
     if max_date:
+        pre = len(d)
         d = d.loc[d.numdate<max_date]
+        dropped_seqs['max_date'] = pre - len(d)
 
     # look for clade defining substitutions
     d["clade_substitutions"] = d.substitutions.apply(lambda x:     [y for y in x.split(',') if y in clade_gt['nuc']] if x else [])
@@ -73,12 +84,14 @@ def filter_and_transform(d, clade_gt, min_date=None, max_date=None, query=None, 
 
     # filter
     if completeness is not None:
+        pre = len(d)
         d = d.loc[d.missing_subs<=completeness]
+        dropped_seqs['completeness'] = pre - len(d)
 
     if max_group:
         return d.groupby(['CW', 'country']).sample(max_group, replace=True).drop_duplicates(subset='strain')
 
-    return d
+    return d, dropped_seqs
 
 def weighted_regression(x,y,w):
     '''
@@ -171,7 +184,7 @@ if __name__=="__main__":
     clade_gt = get_clade_gts(args.clade_gts, args.sub_clades)
 
     d = pd.read_csv(args.metadata, sep='\t').fillna('')
-    filtered_data = filter_and_transform(d, clade_gt, min_date=args.min_date, max_date=args.max_date,
+    filtered_data, dropped_seqs = filter_and_transform(d, clade_gt, min_date=args.min_date, max_date=args.max_date,
                                          query = args.query, max_group=args.max_group, QC_threshold=80 if args.clade=='21H' else 30,
                                          completeness=0, swap_root=args.clade.startswith('19B+'))
 
