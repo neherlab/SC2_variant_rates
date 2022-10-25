@@ -254,7 +254,7 @@ if __name__=="__main__":
                  'syn':regression_clean_syn, 'spike':regression_clean_spike,
                  'orf1':regression_clean_ORF1,'enm':regression_clean_ENM,
                  "top_aaSubs": top_aaSubs,  "top_nucSubs": top_nucSubs,
-                 "outliers_removed": np.sum(filtered_data.outlier),
+                 "outliers_removed": int(np.sum(filtered_data.outlier)),
                  "qc_filter_fail": dropped_seqs["QC"],
                  "incomplete": dropped_seqs["completeness"],
                  "total_sequences": len(filtered_data)}
