@@ -51,7 +51,13 @@ Adi
 \response{Thanks a lot for handling the paper, the constructive comments, and the rapid turn-around.
 
 You are completely right that these cutoffs are heuristic and I have checked that the results are robust.
-TODO.
+
+The number of outliers removed varies from clade to clade as the clades, but never exceeds 1\% with the standard parameters.
+Changing these parameters (using 4 instead of 2 sigma of the Poisson distribution, 6 instead or 3 mutations offset which reduces outlier removal by 90\%) changes the rate estimates by a less than one percent (3\% at most for clade 20H).
+The relative insensitivity to these outliers is due to the fact that we don't build a tree and a few outliers don't distort the overall picture.
+Similarly, making the QC filter less stringent (using 80 instead of 30) doesn't change rate estimate by more than 2\% on average. The biggest effect of the QC filter is filtering for completeness.
+I have added a few sentences to highlight this.
+
 }
 
 \section*{Reviewer: 1}
@@ -63,7 +69,7 @@ The author provides a timely analysis of broad interest demonstrating elevated i
 
 \refa{My major comment is related to the author's acknowledgement that, ``Nextstrain clades tend to be defined by long branches leading to a large polytomy. It could thus be that the estimated inter-clade rate exceeds the intra-clade rate purely because of this conditioning.'' As the author describes elsewhere, there are many potential reasons for the appearance of these long branches -- cryptic transfer, prolonged infection within a clinical population, reverse zoonosis. However, as the author states, none of these factors have been conclusively demonstrated for specific VOC emergence much less in general and it is possible that the mutations placed on these long branches emerged within hosts part of acute transmission chains belonging to robustly sequenced populations. Even if this is the case, while the sequencing efforts throughout the pandemic have been unprecedented, they are nonuniform and sequencing efforts (and reporting biases) are influenced by the emergence of mutations of interest. I believe it's likely the relative number of infections in the period immediately ancestral to the last common ancestor is underestimated relative to that of the period immediately following for VOC clades which may impact the estimation of relative mutation rates. This is exacerbated by changing public behavior (less likely to engage in social settings after VOC emergence). This effect may be more pronounced for nonsynonymous events than synonymous events due to the nature of the tree reconstruction.}
 
-\response{This is an interesting thought. However, I am not 100\% sure how this differential ascertainment would affect the accumulation of mutations or inferences of their rate.}
+\response{This is an interesting thought. However, I am not 100\% sure I understand how this differential ascertainment would affect the accumulation of mutations or inferences of their rate.}
 
 \refa{The trends described here have parallels to those observed in influenza as the authors describe but also in Ebola https://www.sciencedirect.com/science/article/pii/S009286741500690X, https://www.sciencedirect.com/science/article/pii/S1473309919301185 which the author may consider referencing.}
 
@@ -98,16 +104,16 @@ Perhaps most interesting to me is that the slowdown in the within-clade evolutio
 
 Overall I think the results are very interesting, the manuscript is well-written and the figures are good. I only have a few small comments.}
 
-\response{Thank you very much for this accurate summary and generous remarks!}
+\response{Thank you very much for this accurate summary and the generous remarks!}
 
 \refb{1. Can this truly be said to be a tree-free approach? Presumably some phylogenies are calculated in order to assign sequences to Nextstrain clades? However, since this is continuously done and clade assignments are public it can be argued that this initial part of the analysis is "free".}
 
 \response{The reviewer is correct. Sequences are assigned to clades by placing them on a reference tree.
-Though this would also be possible using a constellation of mutations. If some clades were the result of recombination (as we soon might experience), the approach would work exactly the same way. So I think it is fair to say that most the results presented to make explicit use of phylogenies, though some implicit usage of phylogenetic concepts (clade and lineage assignment) is present. I chose to not discuss this point at length.  }
+Though this would also be possible using a constellation of mutations or some other sort of clustering. If some clades were the result of recombination (as we soon might experience), the approach would work exactly the same way. So I think it is fair to say that most the results presented do not make explicit use of phylogenies, though some implicit usage of phylogenetic concepts (clade and lineage assignment) is present. I chose to not discuss this point at length.  }
 
 \refb{2. Does filtering out all sequences in a clade that don't have the full set of mutations relative to the reference mean you are excluding sequences with reversions to the reference? Do we know how often reversions occur? I don't think they are common, although they have been seen for Omicron (also mentioned here).}
 
-\response{This is an important point (and I tripped over issues related to this when doing the analysis). Importantly, the requirement to have the full set of mutations refers to the clade defining mutations. Omicon clades (22A/BA.4, 22B/BA.5) have reversions, but as a result these mutations are not part of the clade defining mutations. Ignoring sequences that don't have the full set of clade defining mutation will ignore sequences that have additional reversions at clade defining positions. Until summer 2022, this was not much of a concern and most reversions within clades are clear QC issues. For the analysis of fitness costs and purifying selection, all sequences that pass the qualitaty thresholds are included and reversions are counted.
+\response{This is an important point (and I tripped over issues related to this when doing the analysis of fitness costs). Importantly, the requirement for a sequence to have the complete set of mutations refers to the clade defining mutations. Omicon clades (22A/BA.4, 22B/BA.5) have reversions and the reverted positions are not part of the clade defining mutations (their genotype is ancestral). Ignoring sequences that don't have the full set of clade defining mutation will ignore sequences that have additional reversions at clade defining positions. Until summer 2022, this was not much of a concern and most reversions within clades are clear QC issues. For the analysis of fitness costs and purifying selection, all sequences that pass the qualitaty thresholds are included and reversions are counted.
 I have made this clearer in the manuscript.}
 
 \refb{3. What is the ordering in Fig. S1? The order in which Nextstrain clades were assigned? I assume this is correlated to the order of clade emergence, but not necessarily exactly the same, nor would I expect the distance from the reference to the clade founder to have the same ordering. Would it make more sense to draw this figure in the same way as Fig. 4?}
@@ -146,7 +152,7 @@ I have made this clearer in the manuscript.}
 
 \refc{Paragraph starting ``In other cases, notable subclades…'' page 3 line 55 in the second column -- I don't follow the logic here of increased divergence ``generating an offset to diversity''. What is diversity if not within-clade divergence?}
 
-\response{Yes, this was poorly worded. What I mean to say is that when there are many lineages, time since emergence can estimated accurately from the divergence of many independent evolutionary trajectories. When there is a single or a few large subclades, estimates of emergence times are more noisy. I have made an effort to reword this. }
+\response{Yes, this was poorly worded. What I mean to say is that when there are many lineages, time since emergence can estimated accurately from the divergence of many independent evolutionary trajectories. When there is a single subclade or a few large subclades, estimates of emergence times are more noisy. I have made an effort to reword this. }
 
 \refc{What are the advantages of this method over using BEAST to estimate rates?}
 
@@ -158,11 +164,11 @@ I have made this clearer in the manuscript.}
 
 \refc{I would find it helpful to have the evolutionary rates in substitutions/site/year as well as the rate per year in figure 3 (in the overall rate annotation)}
 
-\response{Thank you for this suggestion, I have added this for panels A and B. The number of synonymous sites is tricky to define (2-fold, 4-fold, etc). }
+\response{Thank you for this suggestion, I have added this for panels A and B. If give amino acid and synonynmous rates 'per codon' to avoid subtleties counting synonymous sites (2-fold, 4-fold, etc). }
 
 \refc{Line 26 first column page 8 -- 1 x 10-3 would be clearer}
 
-\response{$1\times 10^{-3}$ vs $10^{-3}$? I am not sure this helps.}
+\response{$1\times 10^{-3}$ vs $10^{-3}$? I am not sure adding ``$1\times$" makes this clearer.}
 
 \refc{Hill et al 2022 is now published in Virus Evolution so this reference can be updated.}
 

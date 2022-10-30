@@ -96,12 +96,13 @@ In this analysis, I only consider clades that have had significant circulation f
 For each clade, I define a ``founder'' genotype and exclude any sequence that does not have the full set of clade defining mutations relative to the reference sequence Wuhan/Hu-1.
 This founder sequence is manually curated for each clade considered.
 This filtering removes most incomplete sequences as well as sequences where amplicon drop-out are back-filled with the reference sequence, but will ignore a few sequences with true reversion mutations.
+Results are insensitive to the stringency of this filtering.
 For this reduced set of sequences, I determine the mutations they carry on top of the founder genotype to analyze diversification and divergence within the clade.
 The latter step is done for nucleotide changes as well as for amino acid changes.
 
 Within each clade, the number of mutations is expected to increase linearly in time and the variation around this mean would, in an ideal case, obey Poisson statistics.
 For the majority of sequences, this is approximately true, but some problematic sequences have more mutations than expected.
-To exclude these outliers, I perform a simple linear regression of the number of ``intra-clade'' mutations against time and remove sequences whose deviation from the linear fit exceeds twice the expected standard deviation by 3 mutations.
+To exclude these outliers, I perform a simple linear regression of the number of ``intra-clade'' mutations against time and remove sequences whose deviation from the linear fit exceeds twice the expected standard deviation by 3 mutations. These outliers are never more than 0.5\% of all sequences that pass the first round of filtering and the results are insensitive to the filtering criteria.
 
 
 After removing these outliers, the data are binned by calendar week.
@@ -250,7 +251,7 @@ When split by open reading frame (see Supp.~Fig.~\ref{fig:fitness_costs_supp} an
 \emph{N} shows an intermediate pattern, possibly reflecting its mix of structured and unstructured regions.
 Variation at 3rd positions is common and comparable between genes.
 Only \emph{E} shows slightly less variation at 3rd positions than other genes with a notable dip in the middle of the gene around codon 35 (see Fig.~\ref{fig:fitness_landscape}).
-Systematic difference in purifying selection on the amino acid sequence of different reading frames have also been reported by \citet{rochman_ongoing_2021}.
+Systematic difference in purifying selection on the amino acid sequence of different open reading frames have also been reported by \citet{rochman_ongoing_2021}.
 
 
 
@@ -293,7 +294,7 @@ Viruses with the S:D614G mutation showed faster replication kinetics compared to
 The virus might therefore be operating closer to the maximal capacity at which cells can produce virions, reducing the scope for further optimization.
 Other mutations then have smaller benefits, rise in frequency more slowly, and the effect of adaptation does not manifest itself over the life time of the clades studied here.
 Such diminishing returns epistasis has been observed in experimental evolution with yeast \citep{kryazhimskiy_global_2014}.
-Global epistasis of this nature can exist along side epistasis of specific amino acid changes as for example suggested for the \texttt{S:N501Y} mutation \citep{martin_emergence_2021,rochman_epistasis_2022}.
+Global epistasis of this nature can exist along side epistasis of specific amino acid changes as for example suggested for the \texttt{S:N501Y} mutation \citep{martin_emergence_2021,rochman_epistasis_2022,martin_selection_2022}.
 Differences in diversification of SARS-CoV-2 with and without the S:D614G mutation where also observed in evolution experiments by \citet{amicone_mutation_2022}, who concluded that these differences were not due to a change in base line mutation rate but had selective origin.
 
 An evolutionary rate of 6 synonymous changes per year at around 9700 positions corresponds to a per-site evolutionary rate of $6.2\times 10^{-4}$/site/year or $1.7\times 10^{-6}$/day, slightly higher than the estimated base-line mutation rate of $1.3\times 10^{-6}$/day \citep{amicone_mutation_2022}.
