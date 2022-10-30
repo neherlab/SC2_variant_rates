@@ -58,8 +58,8 @@ def filter_and_transform(d, clade_gt, min_date=None, max_date=None, query=None, 
     # define "with-in clade substitutions"
     d["intra_aaSubstitutions"] = d.aaSubstitutions.apply(lambda x: [y for y in x.split(',') if y not in clade_gt['aa'] and 'ORF9' not in y] if x else [])
     d["intra_SpikeSubstitutions"] = d.aaSubstitutions.apply(lambda x: [y for y in x.split(',') if y not in clade_gt['aa'] and y[0]=='S'] if x else [])
-    d["intra_ORF1bSubstitutions"] = d.aaSubstitutions.apply(lambda x: [y for y in x.split(',') if y not in clade_gt['aa'] and y[:5]=='ORF1a'] if x else [])
-    d["intra_ORF1aSubstitutions"] = d.aaSubstitutions.apply(lambda x: [y for y in x.split(',') if y not in clade_gt['aa'] and y[:5]=='ORF1b'] if x else [])
+    d["intra_ORF1aSubstitutions"] = d.aaSubstitutions.apply(lambda x: [y for y in x.split(',') if y not in clade_gt['aa'] and y[:5]=='ORF1a'] if x else [])
+    d["intra_ORF1bSubstitutions"] = d.aaSubstitutions.apply(lambda x: [y for y in x.split(',') if y not in clade_gt['aa'] and y[:5]=='ORF1b'] if x else [])
     d["intra_ENMSubstitutions"] = d.aaSubstitutions.apply(lambda x: [y for y in x.split(',') if y not in clade_gt['aa'] and y[0] in ['E','N','M']] if x else [])
 
     if swap_root:
