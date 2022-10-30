@@ -244,7 +244,8 @@ rule rate_table:
                          'syn_rate': d['syn']['slope'],
                          'syn_origin':d['syn']['origin'],'syn_origin_date':datestring_from_numeric(d['syn']['origin']),
                          'spike_rate': d['spike']['slope'],
-                         'orf1ab_rate': d['orf1']['slope'],
+                         'orf1a_rate': d['orf1a']['slope'],
+                         'orf1b_rate': d['orf1b']['slope'],
                          'enm_rate': d['enm']['slope'],
                          'nuc_div': nuc_div, 'aa_div':aa_div, 'syn_div':nuc_div-aa_div})
             qc_data.append({'clade':d['clade'], 'nseqs':d['total_sequences'], "outliers":d["outliers_removed"],
