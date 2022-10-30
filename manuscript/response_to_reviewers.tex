@@ -42,7 +42,7 @@
 
 \editor{
 
-Three reviewers have seen the paper, and I completely agree with all three that this is an excellent paper that uses a robust & rapid approach to obtain meaningful insights about SARS-CoV-2 evolution. The paper could be published in its current form but would benefit from very minor corrections suggested by the reviewers.
+Three reviewers have seen the paper, and I completely agree with all three that this is an excellent paper that uses a robust \& rapid approach to obtain meaningful insights about SARS-CoV-2 evolution. The paper could be published in its current form but would benefit from very minor corrections suggested by the reviewers.
 I also add a very small concern of my own: citing from the paper "...remove sequences whose deviation from the linear fit exceeds twice the expected standard deviation by 3 mutations". This is a little ad-hoc, how much would the results change if changing this? How many sequences are removed this way? To emphasize, I don't think any in-depth analysis is necessary here, just a few sentences on why this cutoff is used.
 Looking forward to seeing this paper published,
 Adi
@@ -57,6 +57,11 @@ Changing these parameters (using 4 instead of 2 sigma of the Poisson distributio
 The relative insensitivity to these outliers is due to the fact that we don't build a tree and a few outliers don't distort the overall picture.
 Similarly, making the QC filter less stringent (using 80 instead of 30) doesn't change rate estimate by more than 2\% on average. The biggest effect of the QC filter is filtering for completeness.
 I have added a few sentences to highlight this.
+
+Please find my response to the reviewer comments below.
+
+best,
+Richard
 
 }
 
@@ -122,11 +127,11 @@ I have made this clearer in the manuscript.}
 
 \refb{4. Could ORF1a and ORF1b be split in Fig. S1? It is mentioned that ORF1b is under the most evolutionary constraint (Fig. 6), but when combined with ORF1a as in Fig. S1 it appears to have the fastest rate of evolution.}
 
-\response{I think the primary issue here is that there rates are per gene, and not per site. The objective here was to show how the total non-synonymous change is broken down by gene. I have now split `ORF1ab' TODO!! }
+\response{I think the primary issue here is that there rates are per gene, and not per site. The objective here was to show how the total non-synonymous change is broken down by gene. I have now split `ORF1ab'. The updated plot shows that most of the observed evolution is indeed in ORF1a. }
 
 \refb{5. Should the size of the Nextstrain clades used here be given somewhere, e.g. in Fig. 1 or a supplementary table? It won't change anything, but would make more apparent just how many sequenes went into the analysis.}
 
-\response{Thank you for this suggestion. I have included these numbers in Table 1. TODO}
+\response{Thank you for this suggestion. I have included these numbers in Table 1.}
 
 \refb{6. Page 2, line 36: Instead of saying "separately" wouldn't it be more correct to say these clades are analyzed independently?}
 
@@ -152,11 +157,11 @@ I have made this clearer in the manuscript.}
 
 \refc{Paragraph starting ``In other cases, notable subclades…'' page 3 line 55 in the second column -- I don't follow the logic here of increased divergence ``generating an offset to diversity''. What is diversity if not within-clade divergence?}
 
-\response{Yes, this was poorly worded. What I mean to say is that when there are many lineages, time since emergence can estimated accurately from the divergence of many independent evolutionary trajectories. When there is a single subclade or a few large subclades, estimates of emergence times are more noisy. I have made an effort to reword this. }
+\response{Yes, this was poorly worded. What I mean to say is that when there are many lineages, time since emergence can estimated accurately from the divergence of many independent evolutionary trajectories. When there is a single subclade or a few large subclades, estimates of emergence times are more noisy due to shared ancestry. I have made an effort to reword this. }
 
 \refc{What are the advantages of this method over using BEAST to estimate rates?}
 
-\response{The primary advantages are (i) being able to use more data, and (ii) being more robust to problematic or misdated sequences. }
+\response{The primary advantages are (i) being able to use more data, (ii) being more robust to problematic or misdated sequences, and (iii) fewer cryptic dependencies on model and prior choices. Disadvantages compared to phylogenetic methods is not taking into account shared ancestry between sequences. But since this method is only applied to variation within clades that have rapidly expanded, this is a minor issue. }
 
 \refc{Figure 2 legend: ``Genotypes in D refer to sequences the all and only the mutations indicated'' -- are there some words missing here?}
 
