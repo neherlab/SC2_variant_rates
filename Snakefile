@@ -264,9 +264,9 @@ rule rate_summary:
     input:
         rate_table = "data/rates.tsv"
     output:
-        figure = "figures/rate_summary.pdf",
-        figure_rates = "figures/rate_progression.pdf",
-        figure_rates_genes = "figures/rate_progression_by_gene.pdf"
+        figure = "manuscript/figures/fig3.tiff",
+        figure_rates = "manuscript/figures/fig4.eps",
+        figure_rates_genes = "manuscript/figures/figS1.eps"
     shell:
         """
         python3 scripts/combine_fits.py --rate-table {input.rate_table}\
@@ -300,9 +300,9 @@ rule fitness_figures:
         fitness_costs = "data/fitness.tsv",
         mutation_rates = "data/mutation_rates.tsv"
     output:
-        fitness_figure = "figures/fitness_cost.pdf",
-        fitness_figure_by_gene = "figures/fitness_cost_by_gene.pdf",
-        mutation_figure = "figures/mutation_distribution.pdf"
+        fitness_figure = "manuscript/figures/fig5.eps",
+        fitness_figure_by_gene = "manuscript/figures/figS3.eps",
+        mutation_figure = "manuscript/figures/figS2.eps"
     shell:
         """
         python3 scripts/plot_fitness.py --fitness {input.fitness_costs}\
@@ -316,7 +316,7 @@ rule fitness_landscape:
     input:
         fitness_costs = "data/fitness.tsv",
     output:
-        fitness_landscape = "figures/fitness_landscape.pdf",
+        fitness_landscape = "manuscript/figures/fig6.eps",
     shell:
         """
         python3 scripts/plot_fitness_landscape.py --fitness {input.fitness_costs}\
