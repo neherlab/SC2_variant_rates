@@ -135,6 +135,32 @@ rule root_to_tip:
                                        --output-json {output.json}
         """
 
+rule root_to_tip_combined_plots:
+    input:
+        gt = "data/clade_gts.json",
+        metadata = "subsets/{v}.tsv",
+        gt_counts = "genotypes/{v}_counts.json"
+    output:
+        figure = "manuscript/figures/{v}.eps",
+    params:
+        clade = lambda w: w.v,
+        mindate = lambda w: date_ranges[w.v],
+        maxdate = lambda w: date_ranges[w.v] + offset,
+        clades = lambda w: variants[w.v],
+        filter_query = lambda w: ('--query ' + f'"{filter_queries[w.v]}"') if w.v in filter_queries else ''
+    shell:
+        """
+        python3 scripts/plot_rtt_counts.py --metadata {input.metadata} --clade {params.clade} --sub-clades {params.clades} \
+                                       --clade-gts data/clade_gts.json \
+                                       --counts {input.gt_counts} \
+                                       --min-date {params.mindate} \
+                                       --max-date {params.maxdate} \
+				       --qc-cutoff-scale 2 --qc-cutoff-offset 3 \
+                                       {params.filter_query} \
+                                       --output-plot {output.figure}
+        """
+
+
 rule genotype_counts:
     input:
         gt = "data/clade_gts.json",
