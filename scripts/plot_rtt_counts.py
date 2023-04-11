@@ -180,8 +180,9 @@ def regression_by_week(d, field, min_count=5):
             "count":[x for x in count.loc[ind, field]]}
 
 def make_date_ticks(ax):
+    print([datestring_from_numeric(x) for x in ax.get_xticks()])
     ax.set_xlabel('')
-    ax.set_xticklabels([datestring_from_numeric(x) for x in ax.get_xticks()], rotation=30, horizontalalignment='right')
+    ax.set_xticklabels([datestring_from_numeric(x) for x in ax.get_xticks()], rotation=20, horizontalalignment='right')
 
 def get_clade_gts(all_gts, subclade_str):
     with open(all_gts) as fh:
@@ -220,6 +221,9 @@ if __name__=="__main__":
     parser.add_argument('--output-plot', type=str, help="plot file")
     args = parser.parse_args()
 
+    with open(args.counts) as fh:
+        counts = json.load(fh)
+
     clade_gt = get_clade_gts(args.clade_gts, args.sub_clades)
 
     d = pd.read_csv(args.metadata, sep='\t').fillna('')
@@ -245,42 +249,13 @@ if __name__=="__main__":
     regression_clean_ORF1b = regression_by_week(filtered_data.loc[ind], "orf1bDivergence")
     regression_clean_ENM = regression_by_week(filtered_data.loc[ind], "enmDivergence")
 
-    fig, axs = plt.subplots(1,3, figsize=(18,6), sharex=True, sharey=True)
-    ymax = 20
-    bins = bins=(20,np.arange(-0.5,ymax+0.5))
-    sns.histplot(x=filtered_data.numdate, y=np.minimum(ymax*1.5, filtered_data.divergence), bins=bins, ax=axs[0])
-    x = np.linspace(*axs[0].get_xlim(),101)
-    axs[0].set_title(f'all differences', fontsize=fs*1.2)
-    axs[0].plot(x, regression_clean["intercept"] + regression_clean["slope"]*x, lw=4, label=f"slope = {regression_clean['slope']:1.1f} subs/year")
-    axs[0].errorbar(regression_clean["date"], regression_clean["mean"], regression_clean["stderr"])
-    axs[0].plot(x, regression.intercept + regression.slope*x + tolerance(x), lw=4)
-
-    axs[1].set_title(f'amino acid differences', fontsize=fs*1.2)
-    sns.histplot(x=filtered_data.numdate[ind], y=np.minimum(ymax*1.5, filtered_data.aaDivergence[ind]), bins=bins, ax=axs[1])
-    axs[1].plot(x, regression_clean_aa["intercept"] + regression_clean_aa["slope"]*x, lw=4, label=f"slope = {regression_clean_aa['slope']:1.1f} subs/year")
-    axs[1].errorbar(regression_clean_aa["date"], regression_clean_aa["mean"], regression_clean_aa["stderr"])
-
-    axs[2].set_title(f'synonymous differences', fontsize=fs*1.2)
-    sns.histplot(x=filtered_data.numdate[ind], y=np.minimum(ymax*1.5, filtered_data.synDivergence[ind]), bins=bins, ax=axs[2])
-    axs[2].plot(x, regression_clean_syn["intercept"] + regression_clean_syn["slope"]*x, lw=4, label=f"slope = {regression_clean_syn['slope']:1.1f} subs/year")
-    axs[2].errorbar(regression_clean_syn["date"], regression_clean_syn["mean"], regression_clean_syn["stderr"])
-
-    axs[2].text(0.8,0.9, args.clade, fontsize=fs*1.5, transform=axs[2].transAxes)
-    axs[0].set_ylabel("Divergence", fontsize=fs)
-    for ax,label in zip(axs,'ABC'):
-        make_date_ticks(ax)
-        ax.set_yticks(np.arange(0,ymax,3))
-        ax.legend(loc=2, fontsize=fs)
-        ax.set_ylim(-0.5,ymax-0.5)
-        add_panel_label(ax, label, fs=fs*1.8)
-
-
-    fig, axs = plt.subplots(2,3, figsize=(18,12), sharex=True, sharey=True)
+    fig, axs = plt.subplots(2,3, figsize=(18,12))
 
     ymax = 20
-    bins = bins=(20,np.arange(-0.5,ymax+0.5))
-    sns.histplot(x=filtered_data.numdate, y=np.minimum(ymax*1.5, filtered_data.divergence), bins=bins, ax=axs[0])
-    x = np.linspace(*axs[0].get_xlim(),101)
+    bins = (20,np.arange(-0.5,ymax+0.5))
+    sns.histplot(x=filtered_data.numdate, y=np.minimum(ymax*1.5, filtered_data.divergence), bins=bins, ax=axs[0,0])
+    x = np.linspace(*axs[0,0].get_xlim(),101)
+
     axs[0,0].set_title(f'all differences', fontsize=fs*1.2)
     axs[0,0].plot(x, regression_clean["intercept"] + regression_clean["slope"]*x, lw=4, label=f"slope = {regression_clean['slope']:1.1f} subs/year")
     axs[0,0].errorbar(regression_clean["date"], regression_clean["mean"], regression_clean["stderr"])
@@ -296,14 +271,22 @@ if __name__=="__main__":
     axs[0,2].plot(x, regression_clean_syn["intercept"] + regression_clean_syn["slope"]*x, lw=4, label=f"slope = {regression_clean_syn['slope']:1.1f} subs/year")
     axs[0,2].errorbar(regression_clean_syn["date"], regression_clean_syn["mean"], regression_clean_syn["stderr"])
 
-    axs[2].text(0.8,0.9, args.clade, fontsize=fs*1.5, transform=axs[2].transAxes)
-    axs[0].set_ylabel("Divergence", fontsize=fs)
-    for ax,label in zip(axs,'ABC'):
+    axs[0,2].text(0.8,0.9, args.clade, fontsize=fs*1.5, transform=axs[0,2].transAxes)
+
+    axs[0,0].set_ylabel("Divergence", fontsize=fs)
+    axs[0,1].set_ylabel("", fontsize=fs)
+    axs[0,2].set_ylabel("", fontsize=fs)
+
+    for ax, label in zip(axs[0,:],'ABC'):
         make_date_ticks(ax)
         ax.set_yticks(np.arange(0,ymax,3))
         ax.legend(loc=2, fontsize=fs)
         ax.set_ylim(-0.5,ymax-0.5)
         add_panel_label(ax, label, fs=fs*1.8)
+
+    dates = np.array([datetime.fromordinal(x) for x in counts['bins'][:-1]])
+    t0 = counts['bins'][0]
+    rel_date = np.array([x-t0 for x in counts['bins'][:-1]])
 
     ax = axs[1,2]
     ax.set_title("mutations per genome", fontsize=1.2*fs)
@@ -331,11 +314,13 @@ if __name__=="__main__":
     for m in sorted(counts['genotypes'].keys(), key=lambda x: len(x)):
         ax.plot(dates, counts['genotypes'][m], '-o', label=f'{m}' if m else "founder")
 
-    fig.autofmt_xdate()
-    for ax, label in zip(axs, 'DEF'):
+    #fig.autofmt_xdate()
+    for ax, label in zip(axs[1,:], 'DEF'):
         ax.set_yscale('log')
         ax.legend()
         add_panel_label(ax, label, fs=fs*1.8)
+        ax.set_xticklabels([datetime.fromordinal(int(x)).strftime("%Y-%m-%d") for x in ax.get_xticks()], rotation=20, horizontalalignment='right')        
+        #ax.tick_params(axis='x', rotation=30, horizontalalignment='right')
 
     if args.output_plot:
         plt.savefig(args.output_plot)
