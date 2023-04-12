@@ -189,7 +189,7 @@ if __name__=="__main__":
     d = pd.read_csv(args.metadata, sep='\t').fillna('')
     filtered_data, dropped_seqs = filter_and_transform(d, clade_gt, min_date=args.min_date, max_date=args.max_date,
                                          query = args.query, max_group=args.max_group, QC_threshold=80 if args.clade=='21H' else 30,
-                                         completeness=0, swap_root=args.clade.startswith('19B+'))
+                                         completeness=3 if args.clade>='22D' else 0, swap_root=args.clade.startswith('19B+'))
 
     regression = linregress(filtered_data.numdate, filtered_data.divergence)
     filtered_data["residuals"] = filtered_data.apply(lambda x: x.divergence - (regression.intercept + regression.slope*x.numdate), axis=1)
